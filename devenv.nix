@@ -6,7 +6,12 @@
 
   # https://devenv.sh/scripts/
   scripts.build-doc.exec = ''
-    latexmk -cd document/000-main.tex -lualatex -shell-escape -interaction=nonstopmode -file-line-error -view=none "$@"
+    latexmk -cd "$DEVENV_ROOT/document/000-main.tex" -lualatex -shell-escape -interaction=nonstopmode -file-line-error -view=none "$@"
+  '';
+
+  # Download bibliography from local zotero instance (using better-bibtex plugin)
+  scripts.fetch-biblio.exec = ''
+    curl -f http://127.0.0.1:23119/better-bibtex/export/collection?/1/TFM.biblatex -o "$DEVENV_ROOT/document/biblio.bib" || echo "Is Zotero running?"
   '';
 
   enterShell = ''
