@@ -1,0 +1,41 @@
+%! TEX root = **/000-main.tex
+% vim: spell spelllang=en:
+%
+% La memòria del TFM ha de tenir una portada que reculli, obligatòriament, la informació següent:
+% a) Títol
+% b) Autor o autor
+% c) Data de la defens
+% d) Director o directora i departament o institució o empresa a què està vincula
+% e) Nom oficial del màste
+% f) FACULTAT D’INFORMÀTICA DE BARCELONA (FIB
+% g) UNIVERSITAT POLITÈCNICA DE CATALUNYA (UPC) – BarcelonaTech
+
+\thispagestyle{empty}
+\clearpage
+\setcounter{page}{-1}
+
+\makeatletter
+\begin{titlepage}
+{
+    \centering
+    \includegraphics[width=1.0\textwidth]{logo-upc}
+    \null%
+    % \vspace{3em}
+    \vspace{13em}
+    {\Huge \bfseries \@title \\[1em]
+      \Large \scshape Master in Data Science
+    \par}
+    \vspace{2em}
+    {\large \scshape \@date \par}
+    \vfill
+\begin{center}
+    % Supplementary image
+\end{center}
+    \vspace{5em}
+
+    \vfill
+    {\raggedleft \large \@author \par}
+    {\raggedleft \large Director: Lluís Belanche \par}
+}
+\end{titlepage}
+\makeatother
