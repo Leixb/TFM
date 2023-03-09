@@ -14,28 +14,48 @@
 \clearpage
 \setcounter{page}{-1}
 
+% \newfontfamily\titlefont[]{CMU Serif}
+
 \makeatletter
 \begin{titlepage}
-{
-    \centering
-    \includegraphics[width=1.0\textwidth]{logo-upc}
-    \null%
-    % \vspace{3em}
-    \vspace{13em}
-    {\Huge \bfseries \@title \\[1em]
-      \Large \scshape Master in Data Science
-    \par}
-    \vspace{2em}
-    {\large \scshape \@date \par}
-    \vfill
-\begin{center}
-    % Supplementary image
-\end{center}
-    \vspace{5em}
+	{
+        % \titlefont
+		\centering
+		\includegraphics[width=1.0\textwidth]{logo-upc}
+		\null%
+		\vspace{5em}
+        {\Huge \bfseries  \null\\
+            I'll See You In the Limit:
+        \par}
+        \vspace{1em}
+        {\huge \bfseries 
+            Understanding the Effects of Infinite Neural Network Kernels
+        \par}
 
-    \vfill
-    {\raggedleft \large \@author \par}
-    {\raggedleft \large Director: Lluís Belanche \par}
-}
+		\vspace{15em}
+        {\large
+            % \bfseries
+            % \titlefont
+            \textsc{\@author}
+        \par}
+		\vfill
+		{
+			\setstretch{1.5}
+			{
+				\textbf{Thesis supervisor: } Lluís Antonio Belanche-Muñoz
+				(Department of Computer Science)
+				\par}
+			{
+				\textbf{Degree: } Master's Degree in Data Science \par
+			}
+			\vspace{2em}
+			{
+				\bfseries
+				Thesis report \par
+				Facultat d'Informàtica de Barcelona (FIB) \par
+                Universitat Politècnica de Catalunya (UPC) \textendash{} BarcelonaTech \par
+			}
+		}
+	}
 \end{titlepage}
 \makeatother
