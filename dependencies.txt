@@ -1,3 +1,5 @@
+bookdown
+kableExtra
 elmNNRcpp
 kernlab
 languageserver
