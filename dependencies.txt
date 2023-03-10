@@ -1,2 +1,4 @@
-tidyverse
+elmNNRcpp
+kernlab
 languageserver
+tidyverse
