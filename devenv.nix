@@ -4,6 +4,9 @@
   # https://devenv.sh/basics/
   env.PROJECT = "tfm";
 
+  # context for taskwarrior
+  env.TW_CONTEXT = "tfm";
+
   # https://devenv.sh/scripts/
   scripts.build-doc.exec = ''
     latexmk -cd "$DEVENV_ROOT/document/000-main.tex" -lualatex -shell-escape -interaction=nonstopmode -file-line-error -view=none "$@"
