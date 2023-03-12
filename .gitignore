@@ -1,4 +1,5 @@
 .pre-commit-config.yaml
+result
 # Devenv
 .devenv*
 devenv.local.nix

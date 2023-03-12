@@ -34,6 +34,7 @@
       python = python3;
     })
     python3.pkgs.pygments
+    nixpkgs-fmt
   ];
 
   # https://devenv.sh/languages/
@@ -61,4 +62,5 @@
   # https://devenv.sh/processes/
   processes.jupyter.exec = "jupyter lab";
   processes.latexmk.exec = "build-doc -pvc";
+  processes.julia.exec = "julia --project=. -e 'using Pkg; Pkg.instantiate(); using Pluto; Pluto.run()'";
 }
