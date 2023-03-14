@@ -22,6 +22,14 @@
   enterShell = ''
     task project:$PROJECT summary || echo "No summary available"
     task project:$PROJECT limit:10 next || echo "No tasks found"
+
+    # Populate directory with raw data from nix store
+    if [ -d "$DATASETS" ]; then
+      if [ ! -d data/exp_raw ] || [ "$(readlink -f data/exp_raw)" != "$DATASETS" ]; then
+        echo "Linking data/exp_raw to $DATASETS"
+        ln -sfn "$DATASETS" data/exp_raw
+      fi
+    fi
   '';
 
   packages = with pkgs; [
