@@ -4,4 +4,5 @@ authors = ["LeixB <abone9999@gmail.com>"]
 version = "0.1.0"
 
 [deps]
+DrWatson = "634d3b9d-ee7a-5ddf-bec9-22491ea816e1"
 Pluto = "c3e4b0f8-55cb-11ea-2926-15256bba5781"
