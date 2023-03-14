@@ -1,0 +1,31 @@
+[abalone]
+url = "https://archive.ics.uci.edu/ml/machine-learning-databases/abalone/abalone.data"
+sha256 = "sha256:17s4g2y2zzi3p9g90s61i0gmyaihqbvliwhlsl4w6l5arb6wsdyy"
+
+[cancer]
+url = "https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data"
+sha256 = "sha256:0jjzd71r9zzz4x9kss6a73zz1ai5ni9bda552yiyhnry3x0sy1nn"
+
+[cpu]
+url = "https://archive.ics.uci.edu/ml/machine-learning-databases/cpu-performance/machine.data"
+sha256 = "sha256:12s4pnfr2ydpk9hwrn6gkrihhappa15ryzma4i5a30c3zd90wpy9"
+
+[ailerons]
+url = "https://www.dcc.fc.up.pt/~ltorgo/Regression/ailerons.tgz"
+sha256 = "sha256:1qcwxh5r8xvwh5r3y51kgn32fn83pzx4qvzrizbvf0d58rgvy0wj"
+
+[compActs]
+url = "https://www.dcc.fc.up.pt/~ltorgo/Regression/compact.tar.gz"
+sha256 = "sha256:10bnnyq9bwpp8n9z3cmkx5n5cavhqj6ypr5dyaqwca6maw7x1z6q"
+
+[elevators]
+url = "https://www.dcc.fc.up.pt/~ltorgo/Regression/elevators.tgz"
+sha256 = "sha256:15w8w05w9iwzj9mqhchjdmdydfzmmb921cmsx93h46ncdc92b40v"
+
+[stock]
+url = "https://www.dcc.fc.up.pt/~ltorgo/Regression/stock.tgz"
+sha256 = "sha256:0mma9c6qd1js19nwf63syclr22j1krlmq050hvafqb9f0p95ak9p"
+
+[triazines]
+url = "https://www.dcc.fc.up.pt/~ltorgo/Regression/triazines.tar.gz"
+sha256 = "sha256:0xkapr4p19ks429a8x704dmh1mgz6ajmzslgd1zlw9qzzz67g0rh"

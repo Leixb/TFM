@@ -16,6 +16,7 @@
       let
         pkgs = import nixpkgs {
           inherit system;
+          config.tarball-ttl = 63072000; # 2 years
         };
         devenvShell = devenv.lib.mkShell {
           inherit inputs pkgs;
@@ -25,7 +26,10 @@
       in
       {
         devShells.default = devenvShell;
-        packages = { inherit (devenvShell) ci; };
+        packages = {
+          inherit (devenvShell) ci;
+          datasets = pkgs.callPackage ./datasets.nix { };
+        };
       }
     );
 }
