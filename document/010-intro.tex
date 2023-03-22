@@ -1,2 +1,73 @@
 \section{Introduction}%
 \label{sec:introduction}
+
+\subsection{Kernels}
+\label{sub:kernels}
+
+\textcite{frenayParameterinsensitiveKernelExtreme2011,williamsComputationInfiniteNeural1998}:
+
+\begin{equation}\label{eq:erf}
+    erf(x) = \frac{2}{\sqrt{\pi}} \int_0^x e^{-t^2} \,dt
+\end{equation}
+
+\newcommand{\x}{\mathbf{x}}
+\newcommand{\z}{\mathbf{z}}
+\newcommand{\y}{\mathbf{y}}
+
+\begin{equation}\label{eq:kernel_asin}
+    k(\x,\,\z \mid p \to + \infty)  = \frac{2}{\pi}
+    \arcsin \frac{1 + \left\langle \x,\,\z \right\rangle}{\sqrt{
+            \left(
+                \frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
+            \right)
+            \left(
+                \frac{1}{2\sigma_w^2} + 1 + \left\langle \z,\,\z \right\rangle
+            \right)
+    }}
+\end{equation}
+
+\begin{equation}
+    \gamma = \frac{1}{2\sigma_w^2}
+\end{equation}
+
+\begin{equation}\label{eq:normalized}
+    \tilde{k}(\x,\,\z \mid p \to + \infty) = \frac{
+    k(\x,\,\z \mid p \to + \infty) }{
+        \sqrt{
+        k(\x,\,\x \mid p \to + \infty)
+        k(\z,\,\z \mid p \to + \infty)
+        }
+}
+\end{equation}
+
+\textcite{choLargemarginClassificationInfinite2010}
+
+\begin{equation}\label{eq:kernel_cho}
+    k_n(\x,\,\y) = \frac{1}{\pi} \left\lVert \x \right\rVert^n \left\lVert \y \right\rVert^n J_n(\theta)
+\end{equation}
+
+\begin{equation}
+    J_n(\theta) = (-1)^n \left( \sin \theta \right)^{(2n+1)}
+    \left( \frac{1}{\sin \theta} \frac{\partial}{\partial \theta} \right)^2
+    \left( \frac{\pi - \theta}{\sin \theta} \right)
+    \quad \text{for} \quad \forall n \in \left\{ 0,\,1,\,2,\,\dots \right\}
+\end{equation}
+
+\begin{align}
+    J_0(\theta) &= \pi - \theta \\
+    J_1(\theta) &= \sin\theta + \left(\pi - \theta\right)\cos\theta \\
+    J_2(\theta) &= 3\sin\theta\cos\theta + \left(\pi - \theta\right)\left(1 + 2\cos^2\theta\right)
+\end{align}
+
+\begin{equation}
+    \theta = \arccos\frac{\x \cdot \y}{\left\lVert \x \right\rVert \left\lVert \y \right\rVert}
+\end{equation}
+
+
+\begin{align}
+    k_0(\x,\,\y) &= 1 - \frac{1}{\pi} \arccos\frac{\x \cdot \y}{\left\lVert \x \right\rVert \left\lVert \y \right\rVert} \\
+    k_1(\x,\,\y) &= \frac{1}{\pi} \left\lVert \x \right\rVert \left\lVert \y \right\rVert
+        \bigl( \sin\theta + \left(\pi - \theta\right)\cos\theta \bigr) \\
+    k_2(\x,\,\y) &= \frac{1}{\pi} \left\lVert \x \right\rVert^2 \left\lVert \y \right\rVert^2
+        \Bigl( 3\sin\theta\cos\theta + \left(\pi - \theta\right)\left(1 + 2\cos^2\theta\right) \Bigr)
+\end{align}
