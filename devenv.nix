@@ -7,6 +7,8 @@
   # context for taskwarrior
   env.TW_CONTEXT = "tfm";
 
+  env.JULIA_NUM_THREADS = 8;
+
   env.DATASETS = pkgs.callPackage ./datasets.nix { };
 
   # https://devenv.sh/scripts/
@@ -62,6 +64,7 @@
     };
   };
   languages.julia.enable = true;
+  languages.julia.package = pkgs.julia_19;
 
   # https://devenv.sh/pre-commit-hooks/
   pre-commit.hooks = {
