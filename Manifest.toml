@@ -2,7 +2,7 @@
 
 julia_version = "1.9.0-rc1"
 manifest_format = "2.0"
-project_hash = "53f306858cbc1ff730d00529136a1a428caf84f8"
+project_hash = "3740c0a9a0775a9a5f51c37fea85a6a46958ecdb"
 
 [[deps.ARFFFiles]]
 deps = ["CategoricalArrays", "Dates", "Parsers", "Tables"]
@@ -82,6 +82,12 @@ deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "19a35467a82e236ff51bc17a3a44b69ef35185a2"
 uuid = "6e34b625-4abd-537c-b88f-471c36dfa7a0"
 version = "1.0.8+0"
+
+[[deps.CSTParser]]
+deps = ["Tokenize"]
+git-tree-sha1 = "3ddd48d200eb8ddf9cb3e0189fc059fd49b97c1f"
+uuid = "00ebfdb7-1f24-5e51-bd34-a7502290713f"
+version = "3.3.6"
 
 [[deps.CSV]]
 deps = ["CodecZlib", "Dates", "FilePathsBase", "InlineStrings", "Mmap", "Parsers", "PooledArrays", "SentinelArrays", "SnoopPrecompile", "Tables", "Unicode", "WeakRefStrings", "WorkerUtilities"]
@@ -167,6 +173,12 @@ version = "0.12.10"
 git-tree-sha1 = "08c8b6831dc00bfea825826be0bc8336fc369860"
 uuid = "861a8166-3701-5b0c-9a16-15d98fcdc6aa"
 version = "1.0.2"
+
+[[deps.CommonMark]]
+deps = ["Crayons", "JSON", "SnoopPrecompile", "URIs"]
+git-tree-sha1 = "e2f4627b0d3f2c1876360e0b242a7c23923b469d"
+uuid = "a80b9123-70ca-4bc0-993e-6e3bcb318db6"
+version = "0.8.10"
 
 [[deps.Compat]]
 deps = ["UUIDs"]
@@ -436,6 +448,11 @@ git-tree-sha1 = "d3b3624125c1474292d0d8ed0f65554ac37ddb23"
 uuid = "7746bdde-850d-59dc-9ae8-88ece973131d"
 version = "2.74.0+2"
 
+[[deps.Glob]]
+git-tree-sha1 = "4df9f7e06108728ebf00a0a11edee4b29a482bb2"
+uuid = "c27321d9-0574-5035-807b-f59d2c89b15c"
+version = "1.3.0"
+
 [[deps.Graphite2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "344bf40dcab1073aca04aa0df4fb092f920e4011"
@@ -565,11 +582,23 @@ git-tree-sha1 = "84b10656a41ef564c39d2d477d7236966d2b5683"
 uuid = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
 version = "1.12.0"
 
+[[deps.JSONRPC]]
+deps = ["JSON", "UUIDs"]
+git-tree-sha1 = "2b4f5f41da2ca27ac9c21ba8f716595a6cbe5c3e"
+uuid = "b9b8584e-8fd3-41f9-ad0c-7255d428e418"
+version = "1.3.5"
+
 [[deps.JpegTurbo_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
 git-tree-sha1 = "6f2675ef130a300a112286de91973805fcc5ffbc"
 uuid = "aacddb02-875f-59d6-b918-886e6ef4fbf8"
 version = "2.1.91+0"
+
+[[deps.JuliaFormatter]]
+deps = ["CSTParser", "CommonMark", "DataStructures", "Glob", "Pkg", "SnoopPrecompile", "Tokenize"]
+git-tree-sha1 = "0f6545dd63fec03d0cfe0c1d28f851e2d804e942"
+uuid = "98e50ef6-434e-11e9-1051-2b60c6c9e899"
+version = "1.0.25"
 
 [[deps.LAME_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -591,9 +620,9 @@ version = "0.6.0"
 
 [[deps.LIBSVM]]
 deps = ["BinaryBuilder", "LIBLINEAR", "LinearAlgebra", "Preferences", "ScikitLearnBase", "SparseArrays", "libsvm_jll"]
-git-tree-sha1 = "77db1446ef0ebfa974c883472d8f736c5dcd6fed"
+git-tree-sha1 = "88cd4e6311357adc557be23ebc3bcbc4285aa7eb"
 repo-rev = "master"
-repo-url = "/home/leix/Documents/github/LIBSVM.jl"
+repo-url = "https://github.com/Leixb/LIBSVM.jl"
 uuid = "b1bec4e5-fd48-53fe-b0cb-9723c09d164b"
 version = "0.8.0"
 
@@ -613,6 +642,12 @@ version = "2.10.1+0"
 git-tree-sha1 = "f2355693d6778a178ade15952b7ac47a4ff97996"
 uuid = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 version = "1.3.0"
+
+[[deps.LanguageServer]]
+deps = ["CSTParser", "JSON", "JSONRPC", "JuliaFormatter", "Markdown", "Pkg", "REPL", "StaticLint", "SymbolServer", "Tokenize", "URIs", "UUIDs"]
+git-tree-sha1 = "90fab8ca9a9515d099ee7a7df5afc2e11ffdbb37"
+uuid = "2b0e0bc5-e4fd-59b4-8912-456d1b03d8d7"
+version = "4.3.1"
 
 [[deps.Latexify]]
 deps = ["Formatting", "InteractiveUtils", "LaTeXStrings", "MacroTools", "Markdown", "OrderedCollections", "Printf", "Requires"]
@@ -1276,6 +1311,12 @@ git-tree-sha1 = "6b7ba252635a5eff6a0b0664a41ee140a1c9e72a"
 uuid = "1e83bf80-4336-4d27-bf5d-d5a4f845583c"
 version = "1.4.0"
 
+[[deps.StaticLint]]
+deps = ["CSTParser", "Serialization", "SymbolServer"]
+git-tree-sha1 = "1152934b19a8a296db95ef6e1d454d4acc2aa79d"
+uuid = "b3cc710f-9c33-5bdb-a03d-a94903873e97"
+version = "8.1.0"
+
 [[deps.StatisticalTraits]]
 deps = ["ScientificTypesBase"]
 git-tree-sha1 = "30b9236691858e13f167ce829490a68e1a597782"
@@ -1336,6 +1377,12 @@ deps = ["Artifacts", "Libdl", "Pkg", "libblastrampoline_jll"]
 uuid = "bea87d4a-7f5b-5778-9afe-8cc45184846c"
 version = "5.10.1+6"
 
+[[deps.SymbolServer]]
+deps = ["InteractiveUtils", "LibGit2", "Markdown", "Pkg", "REPL", "SHA", "Serialization", "Sockets", "UUIDs"]
+git-tree-sha1 = "d675e3a860523660421b1ca33543c06db2783a9b"
+uuid = "cf896787-08d5-524d-9de7-132aaa0cb996"
+version = "7.2.1"
+
 [[deps.TOML]]
 deps = ["Dates"]
 uuid = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
@@ -1390,6 +1437,11 @@ deps = ["Dates", "Downloads", "InlineStrings", "LazyArtifacts", "Mocking", "Prin
 git-tree-sha1 = "a92ec4466fc6e3dd704e2668b5e7f24add36d242"
 uuid = "f269a46b-ccf7-5d73-abea-4c690281aa53"
 version = "1.9.1"
+
+[[deps.Tokenize]]
+git-tree-sha1 = "90538bf898832b6ebd900fa40f223e695970e3a5"
+uuid = "0796e94c-ce3b-5d07-9a54-7f471281c624"
+version = "0.5.25"
 
 [[deps.TranscodingStreams]]
 deps = ["Random", "Test"]
