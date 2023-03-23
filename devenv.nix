@@ -21,7 +21,7 @@
     curl -f http://127.0.0.1:23119/better-bibtex/export/collection?/1/TFM.biblatex -o "$DEVENV_ROOT/document/biblio.bib" || echo "Is Zotero running?"
   '';
 
-  scripts.pluto.exec = "julia --project=. -e 'using Pkg; Pkg.instantiate(); using Pluto; Pluto.run()'";
+  scripts.pluto.exec = "julia --project=$DEVENV_ROOT -e 'using Pkg; Pkg.instantiate(); using Pluto; Pluto.run()'";
 
   enterShell = ''
     task project:$PROJECT summary || echo "No summary available"
@@ -49,6 +49,7 @@
     })
     python3.pkgs.pygments
     nixpkgs-fmt
+    gdb
   ];
 
   # https://devenv.sh/languages/
