@@ -4,6 +4,8 @@ using DataFrames: DataFrame
 using MLJ
 using LIBSVM.Kernel
 
+EpsilonSVR = @load EpsilonSVR pkg=LIBSVM
+
 function prepare_dataset(df::DataFrame, target::Symbol, ratio=0.9, rng=1234)::Tuple{DataFrame,DataFrame,AbstractVector{Number},AbstractVector{Number}}
     y, X = unpack(df, ==(target); shuffle=false)
 
@@ -12,8 +14,35 @@ function prepare_dataset(df::DataFrame, target::Symbol, ratio=0.9, rng=1234)::Tu
     return Xtrain, Xtest, ytrain, ytest
 end
 
-function build_machine(model=@load EpsilonSVR pkg = LIBSVM, kernel = RadialBasis)
-    return nothing
+function run_single(kernel, df, target, ratio=0.9, rng=1234, args...)
+    model = ContinuousEncoder() |>
+        EpsilonSVR(kernel=kernel, args...)
+
+    Xtrain, Xtest, ytrain, ytest = prepare_dataset(df, target, ratio, rng)
+
+    mach = machine(model, Xtrain, ytrain)
+    fit!(mach)
+
+    yhat = predict(mach, Xtest)
+
+    return yhat, ytest
+end
+
+function run_gridsearch(kernel, df, target, ratio=0.9, rng=1234, nfolds=5, args...)
+    model = EpsilonSVR(kernel=kernel, args...)
+    tunned_model = TunedModelGridCV(model; nfolds=nfolds)
+
+    pipeline = ContinuousEncoder() |>
+        tunned_model
+
+    Xtrain, Xtest, ytrain, ytest = prepare_dataset(df, target, ratio, rng)
+
+    mach = machine(pipeline, Xtrain, ytrain)
+    fit!(mach)
+
+    yhat = predict(mach, Xtest)
+
+    return yhat, ytest, (mach, Xtrain, ytrain, Xtest, ytest)
 end
 
 function param_grid(model, step=1.0; cost=true, epsilon=true)
@@ -61,7 +90,7 @@ function param_grid(model, step=1.0; cost=true, epsilon=true)
 end
 
 
-function TunedModelGridCV(model; nfolds=10, hyper_grid=param_grid(model), args...)
+function TunedModelGridCV(model; nfolds=5, hyper_grid=param_grid(model), args...)
     return TunedModel(
         model=model,
         tuning=Grid(resolution=10),
