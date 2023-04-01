@@ -7,12 +7,45 @@ import CSV.read
 import DataFrames.DataFrame
 using MLJ: coerce, Multiclass, Continuous
 
+
 function abalone()
     df = read(datadir("exp_raw", "abalone"), DataFrame;
         header=[:Sex, :Length, :Diameter, :Height, :Whole_weight, :Shucked_weight, :Viscera_weight, :Shell_weight, :Rings]
     ) |>
          (X -> coerce(X, :Rings => Continuous))
     return df, :Rings
+end
+
+function ailerons()
+    df = read(datadir("exp_raw", "ailerons", "ailerons.data"), DataFrame;
+        header=[
+            :climbRate, :Sgz, :p, :q, :curPitch, :curRoll, :absRoll, :diffClb, :diffRollRate, :diffDiffClb,
+            :SeTime1, :SeTime2, :SeTime3, :SeTime4, :SeTime5, :SeTime6, :SeTime7,
+            :SeTime8, :SeTime9, :SeTime10, :SeTime11, :SeTime12, :SeTime13, :SeTime14, 
+            :diffSeTime1, :diffSeTime2, :diffSeTime3, :diffSeTime4, :diffSeTime5, :diffSeTime6, :diffSeTime7,
+            :diffSeTime8, :diffSeTime9, :diffSeTime10, :diffSeTime11, :diffSeTime12, :diffSeTime13, :diffSeTime14, 
+            :alpha, :Se, :goal, 
+        ]
+    )
+    return df, :goal
+end
+
+function cancer()
+    df = read(datadir("exp_raw", "cancer"), DataFrame;
+        header=false
+    )
+    return df, :Column2
+end
+
+function compActs()
+    df = read(datadir("exp_raw", "compActs", "cpu_act.data"), DataFrame;
+        header=[
+            :lread, :lwrite, :scall, :sread, :swrite, :fork, :exec, :rchar, :wchar,
+            :pgout, :ppgout, :pgfree, :pgscan, :atch, :pgin, :ppgin, :pflt, :vflt,
+            :runqsz, :freemem, :freeswap, :usr
+        ]
+    )
+    return df, :usr
 end
 
 function cpu()
@@ -32,6 +65,41 @@ function cpu()
         :ERP => Continuous
     ))
     return df, :ERP
+end
+
+function elevators()
+    df = read(datadir("exp_raw", "elevators", "elevators.data"), DataFrame;
+        header=[
+            :climbRate, :Sgz, :p, :q, :curRoll, :absRoll, :diffClb, :diffRollRate, :diffDiffClb,
+            :SaTime1, :SaTime2, :SaTime3, :SaTime4, :diffSaTime1, :diffSaTime2, :diffSaTime3, :diffSaTime4,
+            :Sa, :Goal
+        ]
+    )
+    return df, :Goal
+end
+
+function stock()
+    df = read(datadir("exp_raw", "stock", "stock.data"), DataFrame;
+        delim="\t",
+        ignorerepeated=true,
+        header=[
+            :Company1, :Company2, :Company3, :Company4, :Company5,
+            :Company6, :Company7, :Company8, :Company9, :Company10,
+        ]
+    ) |>
+         (X -> coerce(X,
+        :Company1 => Continuous,
+        :Company2 => Continuous,
+        :Company3 => Continuous,
+        :Company4 => Continuous,
+        :Company5 => Continuous,
+        :Company6 => Continuous,
+        :Company7 => Continuous,
+        :Company8 => Continuous,
+        :Company9 => Continuous,
+        :Company10 => Continuous
+    ))
+    return df, :Company10
 end
 
 function triazines()
