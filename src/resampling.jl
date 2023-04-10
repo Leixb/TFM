@@ -2,6 +2,7 @@ module Resampling
 
 using MLJ
 using Random
+import MLJBase: train_test_pairs
 
 export TwoFold, FiveTwo, RepeatedCV
 
@@ -43,34 +44,41 @@ function train_test_pairs(twofold::TwoFold, rows)
 end
 
 """
-    RepeatedCV(repeats=5, resampling=TwoFold())
-
 Repeated cross-validation. The `resampling` strategy is repeated `repeats` times. The default is 5 repeats of
 2-fold cross-validation.
 
 # Important
 
-The `rng` of the internal `resampling` strategy has to be shared by all repeats, as such
-you must make sure they use the same random number generator object.
-
-This means, that `rng` should be initialized outside of the `resampling` object creation.
+This method assumes that the if the `Resampling` object has a field `rng` if and only if it
+uses it to initialize the random number generator.
 """
 struct RepeatedCV{S<:ResamplingStrategy} <: ResamplingStrategy
     repeats::Int
     resampling::S
+    rng::Union{Int,AbstractRNG}
 
-    function RepeatedCV(repeats, resampling)
+    function RepeatedCV{S}(repeats, rng, args...; kwargs...) where S<:ResamplingStrategy
 
-        if hasproperty(resampling, :rng) && resampling.rng isa Integer
-            @warn "Using integer as rng for resampling strategy. This will probably not work with RepeatedCV."
+        if rng isa Integer
+            rng = MersenneTwister(rng)
+        end
+        if rng === nothing
+            rng = Random.GLOBAL_RNG
+        end
+        Random.seed!
+
+        if hasfield(S, :rng)
+            resampling = S(args...; kwargs...)
+        else
+            resampling = S(args...; kwargs..., rng=rng)
         end
 
-        return new{typeof(resampling)}(repeats, resampling)
+        return new(repeats, resampling, rng)
     end
 end
 
-function RepeatedCV(; repeats=5, resampling=TwoFold())
-    return RepeatedCV(repeats, resampling)
+function RepeatedCV{S}(; repeats=5, rng=nothing, kwargs...) where S<:ResamplingStrategy
+    return RepeatedCV{S}(repeats, rng; kwargs...)
 end
 
 function train_test_pairs(repeatedcv::RepeatedCV, rows)
@@ -86,7 +94,7 @@ Dietterich (1998) https://doi.org/10.1162/089976698300017197
 """
 struct FiveTwo <: ResamplingStrategy
     function FiveTwo(rng)
-        return RepeatedCV(5, TwoFold(), rng)
+        return RepeatedCV{TwoFold}(5, rng)
     end
 end
 
