@@ -68,9 +68,9 @@ struct RepeatedCV{S<:ResamplingStrategy} <: ResamplingStrategy
         Random.seed!
 
         if hasfield(S, :rng)
-            resampling = S(args...; kwargs...)
-        else
             resampling = S(args...; kwargs..., rng=rng)
+        else
+            resampling = S(args...; kwargs...)
         end
 
         return new(repeats, resampling, rng)
