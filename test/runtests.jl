@@ -6,10 +6,6 @@ using DrWatson, Test
 
 using TFM.Resampling
 
-# Run test suite
-println("Starting tests")
-ti = time()
-
 @testset "resampling tests" begin
     using MLJBase: train_test_pairs
     using MLJ
@@ -79,7 +75,3 @@ ti = time()
         ]
     end
 end
-
-ti = time() - ti
-println("\nTest took total time of:")
-println(round(ti / 60, digits=3), " minutes")
