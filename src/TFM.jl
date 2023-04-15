@@ -1,5 +1,10 @@
 module TFM
 
-greet() = print("Hello World!")
+include("./resampling.jl")
+include("./datasets.jl")
+include("./models.jl")
+include("./mse.jl")
+
+export MSE, MeanSquaredError, mse, mean_squared_error
 
 end # module TFM

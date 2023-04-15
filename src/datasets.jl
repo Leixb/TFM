@@ -12,7 +12,7 @@ function abalone()
     df = read(datadir("exp_raw", "abalone"), DataFrame;
         header=[:Sex, :Length, :Diameter, :Height, :Whole_weight, :Shucked_weight, :Viscera_weight, :Shell_weight, :Rings]
     ) |>
-         (X -> coerce(X, :Rings => Continuous))
+    (X -> coerce(X, :Rings => Continuous))
     return df, :Rings
 end
 
@@ -52,18 +52,18 @@ function cpu()
     df = read(datadir("exp_raw", "cpu"), DataFrame;
         header=[:Vendor, :Model, :MYCT, :MMIN, :MMAX, :CACH, :CHMIN, :CHMAX, :PRP, :ERP]
     ) |>
-         (X -> coerce(X,
-        :Model => Multiclass,
-        :Vendor => Multiclass,
-        :MYCT => Continuous,
-        :MMIN => Continuous,
-        :MMAX => Continuous,
-        :CACH => Continuous,
-        :CHMIN => Continuous,
-        :CHMAX => Continuous,
-        :PRP => Continuous,
-        :ERP => Continuous
-    ))
+    (X -> coerce(X,
+            :Model => Multiclass,
+            :Vendor => Multiclass,
+            :MYCT => Continuous,
+            :MMIN => Continuous,
+            :MMAX => Continuous,
+            :CACH => Continuous,
+            :CHMIN => Continuous,
+            :CHMAX => Continuous,
+            :PRP => Continuous,
+            :ERP => Continuous
+        ))
     return df, :ERP
 end
 
@@ -87,18 +87,18 @@ function stock()
             :Company6, :Company7, :Company8, :Company9, :Company10,
         ]
     ) |>
-         (X -> coerce(X,
-        :Company1 => Continuous,
-        :Company2 => Continuous,
-        :Company3 => Continuous,
-        :Company4 => Continuous,
-        :Company5 => Continuous,
-        :Company6 => Continuous,
-        :Company7 => Continuous,
-        :Company8 => Continuous,
-        :Company9 => Continuous,
-        :Company10 => Continuous
-    ))
+    (X -> coerce(X,
+            :Company1 => Continuous,
+            :Company2 => Continuous,
+            :Company3 => Continuous,
+            :Company4 => Continuous,
+            :Company5 => Continuous,
+            :Company6 => Continuous,
+            :Company7 => Continuous,
+            :Company8 => Continuous,
+            :Company9 => Continuous,
+            :Company10 => Continuous
+        ))
     return df, :Company10
 end
 
@@ -114,7 +114,7 @@ function triazines()
             :activity,
         ]
     ) |>
-         (X -> coerce(X, :p2_pi_doner => Continuous))
+    (X -> coerce(X, :p2_pi_doner => Continuous))
     return df, :activity
 end
 
