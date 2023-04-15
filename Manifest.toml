@@ -762,7 +762,7 @@ version = "0.6.0"
 
 [[deps.LIBSVM]]
 deps = ["BinaryBuilder", "FileIO", "JLD2", "LIBLINEAR", "LinearAlgebra", "Preferences", "RDatasets", "ScikitLearnBase", "Serialization", "SparseArrays", "Statistics", "Test", "libsvm_jll"]
-git-tree-sha1 = "11d36f2eccd594fb78b6802000a9808fd61f85ee"
+git-tree-sha1 = "88b929da8e47c579516e493d9c948786a805dd99"
 repo-rev = "master"
 repo-url = "https://github.com/Leixb/LIBSVM.jl"
 uuid = "b1bec4e5-fd48-53fe-b0cb-9723c09d164b"
@@ -2056,11 +2056,11 @@ version = "1.0.20+0"
 
 [[deps.libsvm_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "LLVMOpenMP_jll", "Libdl", "Pkg"]
-git-tree-sha1 = "de1ced72e4d0cb94976ba8af90c74975cf0b0bdc"
+git-tree-sha1 = "02879bc1271927f4dc5ce44a439ac6f8a6da5e0b"
 repo-rev = "main"
 repo-url = "https://github.com/Leixb/libsvm_jll.jl"
 uuid = "08558c22-525a-5d2a-acf6-0ac6658ffce4"
-version = "3.31.1+0"
+version = "3.31.2+0"
 
 [[deps.libvorbis_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Ogg_jll", "Pkg"]
