@@ -4,70 +4,150 @@
 \subsection{Kernels}
 \label{sub:kernels}
 
+\begin{table}[H]
+    \begin{tabular}{ccc}
+        \toprule
+        \textbf{Kernel} & \textbf{Distribution} & \textbf{Activation function} \\
+        \midrule
+        Arc sine & \textit{Gaussian} & \textit{erf} \\
+        Arc cosine $n=0$ & \textit{Gaussian} & \textit{heavyside} \\
+        Arc cosine $n=1$ & \textit{Gaussian} & \textit{ReLu} \\
+        Arc cosine $n=2$ & \textit{Gaussian} & \textit{RePu} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\Textcite{williamsComputationInfiniteNeural1998} introduced the concept of
+infinitely wide neural networks 
+
+\textcite{nealBayesianLearningNeural1996}
+
+\subsubsection{Arc sine kernel}
+
 \textcite{frenayParameterinsensitiveKernelExtreme2011,williamsComputationInfiniteNeural1998}:
 
 \begin{equation}\label{eq:erf}
-    erf(x) = \frac{2}{\sqrt{\pi}} \int_0^x e^{-t^2} \,dt
+    \text{erf}(x) = \frac{2}{\sqrt{\pi}} \int_0^x e^{-t^2} \,dt
 \end{equation}
+
+Appropriately scaled, the graph of this function is very similar to the \texttt{tanh} function,
+which is more commonly used in the neural networks literature
+\cite{williamsComputationInfiniteNeural1998}.
 
 \newcommand{\x}{\mathbf{x}}
 \newcommand{\z}{\mathbf{z}}
 \newcommand{\y}{\mathbf{y}}
 
 \begin{equation}\label{eq:kernel_asin}
-    k(\x,\,\z \mid p \to + \infty)  = \frac{2}{\pi}
-    \arcsin \frac{1 + \left\langle \x,\,\z \right\rangle}{\sqrt{
-            \left(
-                \frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
-            \right)
-            \left(
-                \frac{1}{2\sigma_w^2} + 1 + \left\langle \z,\,\z \right\rangle
-            \right)
-    }}
+	k(\x,\,\z \mid p \to + \infty)  = \frac{2}{\pi}
+	\arcsin \frac{1 + \left\langle \x,\,\z \right\rangle}{\sqrt{
+			\left(
+			\frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
+			\right)
+			\left(
+			\frac{1}{2\sigma_w^2} + 1 + \left\langle \z,\,\z \right\rangle
+			\right)
+		}}
 \end{equation}
 
 \begin{equation}
-    \gamma = \frac{1}{2\sigma_w^2}
+	\gamma = \frac{1}{2\sigma_w^2}
 \end{equation}
+
+\paragraph{Normalization}
 
 \begin{equation}\label{eq:normalized}
-    \tilde{k}(\x,\,\z \mid p \to + \infty) = \frac{
-    k(\x,\,\z \mid p \to + \infty) }{
-        \sqrt{
-        k(\x,\,\x \mid p \to + \infty)
-        k(\z,\,\z \mid p \to + \infty)
-        }
-}
+	\tilde{k}(\x,\,\z \mid p \to + \infty) = \frac{
+		k(\x,\,\z \mid p \to + \infty) }{
+		\sqrt{
+			k(\x,\,\x \mid p \to + \infty)
+			k(\z,\,\z \mid p \to + \infty)
+		}
+	}
 \end{equation}
 
-\textcite{choLargemarginClassificationInfinite2010}
+\begin{align*}\label{eq:kernel_asin_xx}
+	k(\x,\,\x \mid p \to + \infty)
+	 & = \frac{2}{\pi}
+	\arcsin \frac{1 + \left\langle \x,\,\x \right\rangle}{\sqrt{
+			\left(
+			\frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
+			\right)
+			\left(
+			\frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
+			\right)
+	}}                 \\
+	 & = \frac{2}{\pi}
+	\arcsin \frac{1 + \left\langle \x,\,\x \right\rangle}{
+		\frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
+	}                  \\
+\end{align*}
+
+\begin{equation}
+	\tilde{k}(\x,\,\z \mid p \to + \infty) =
+	\frac{
+		\arcsin \frac{1 + \left\langle \x,\,\z \right\rangle}{\sqrt{
+				\left(
+				\frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
+				\right)
+				\left(
+				\frac{1}{2\sigma_w^2} + 1 + \left\langle \z,\,\z \right\rangle
+				\right)
+			}}
+	}{
+		\sqrt{
+			\arcsin \frac{1 + \left\langle \x,\,\x \right\rangle}{
+				\frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
+			}
+			\arcsin \frac{1 + \left\langle \z,\,\z \right\rangle}{
+				\frac{1}{2\sigma_w^2} + 1 + \left\langle \z,\,\z \right\rangle
+			}
+		}
+	}
+\end{equation}
+
+\subsubsection{Arc cosine kernel}
+
+\Textcite{choLargemarginClassificationInfinite2010} derive a kernel for the case of a standard normal
+distribution with Heavyside step function as activation function.
 
 \begin{equation}\label{eq:kernel_cho}
-    k_n(\x,\,\y) = \frac{1}{\pi} \left\lVert \x \right\rVert^n \left\lVert \y \right\rVert^n J_n(\theta)
+	k_n(\x,\,\y) = \frac{1}{\pi} \left\lVert \x \right\rVert^n \left\lVert \y \right\rVert^n J_n(\theta)
 \end{equation}
 
 \begin{equation}
-    J_n(\theta) = (-1)^n \left( \sin \theta \right)^{(2n+1)}
-    \left( \frac{1}{\sin \theta} \frac{\partial}{\partial \theta} \right)^2
-    \left( \frac{\pi - \theta}{\sin \theta} \right)
-    \quad \text{for} \quad \forall n \in \left\{ 0,\,1,\,2,\,\dots \right\}
+	J_n(\theta) = (-1)^n \left( \sin \theta \right)^{(2n+1)}
+	\left( \frac{1}{\sin \theta} \frac{\partial}{\partial \theta} \right)^2
+	\left( \frac{\pi - \theta}{\sin \theta} \right)
+	\quad \text{for} \quad \forall n \in \left\{ 0,\,1,\,2,\,\dots \right\}
 \end{equation}
 
 \begin{align}
-    J_0(\theta) &= \pi - \theta \\
-    J_1(\theta) &= \sin\theta + \left(\pi - \theta\right)\cos\theta \\
-    J_2(\theta) &= 3\sin\theta\cos\theta + \left(\pi - \theta\right)\left(1 + 2\cos^2\theta\right)
+	J_0(\theta) & = \pi - \theta                                                                    \\
+	J_1(\theta) & = \sin\theta + \left(\pi - \theta\right)\cos\theta                                \\
+	J_2(\theta) & = 3\sin\theta\cos\theta + \left(\pi - \theta\right)\left(1 + 2\cos^2\theta\right)
 \end{align}
 
 \begin{equation}
-    \theta = \arccos\frac{\x \cdot \y}{\left\lVert \x \right\rVert \left\lVert \y \right\rVert}
+	\theta = \arccos\frac{\x \cdot \y}{\left\lVert \x \right\rVert \left\lVert \y \right\rVert}
 \end{equation}
 
 
 \begin{align}
-    k_0(\x,\,\y) &= 1 - \frac{1}{\pi} \arccos\frac{\x \cdot \y}{\left\lVert \x \right\rVert \left\lVert \y \right\rVert} \\
-    k_1(\x,\,\y) &= \frac{1}{\pi} \left\lVert \x \right\rVert \left\lVert \y \right\rVert
-        \bigl( \sin\theta + \left(\pi - \theta\right)\cos\theta \bigr) \\
-    k_2(\x,\,\y) &= \frac{1}{\pi} \left\lVert \x \right\rVert^2 \left\lVert \y \right\rVert^2
-        \Bigl( 3\sin\theta\cos\theta + \left(\pi - \theta\right)\left(1 + 2\cos^2\theta\right) \Bigr)
+	k_0(\x,\,\y) & = 1 - \frac{1}{\pi} \arccos\frac{\x \cdot \y}{\left\lVert \x \right\rVert \left\lVert \y \right\rVert} \\
+	k_1(\x,\,\y) & = \frac{1}{\pi} \left\lVert \x \right\rVert \left\lVert \y \right\rVert
+	\bigl( \sin\theta + \left(\pi - \theta\right)\cos\theta \bigr)                                                        \\
+	k_2(\x,\,\y) & = \frac{1}{\pi} \left\lVert \x \right\rVert^2 \left\lVert \y \right\rVert^2
+	\Bigl( 3\sin\theta\cos\theta + \left(\pi - \theta\right)\left(1 + 2\cos^2\theta\right) \Bigr)
 \end{align}
+
+\subsubsection{Covariance arc cosine kernel}
+
+The formulation from \textcite{choLargemarginClassificationInfinite2010} is derived from a standard normal
+distribution. \Textcite{pandeyGoDeepWide2014} show that if instead the samples are drawn from a gaussian
+distribution with mean 0 and covariance $\Sigma$, then the kernel $K_{\Sigma,\,n}$ is related to the
+original kernel $K_{n}$ as follows:
+
+\begin{equation}\label{eq:kernel_pandey}
+K_{\Sigma,\,n}(\x,\,\y) = K_{n}\left(\Sigma^{\frac{1}{2}}\x,\,\Sigma^{\frac{1}{2}}\y\right)
+\end{equation}
