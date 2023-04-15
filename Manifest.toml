@@ -762,7 +762,7 @@ version = "0.6.0"
 
 [[deps.LIBSVM]]
 deps = ["BinaryBuilder", "FileIO", "JLD2", "LIBLINEAR", "LinearAlgebra", "Preferences", "RDatasets", "ScikitLearnBase", "Serialization", "SparseArrays", "Statistics", "Test", "libsvm_jll"]
-git-tree-sha1 = "88b929da8e47c579516e493d9c948786a805dd99"
+git-tree-sha1 = "18a56bb19fe9c9a0ab83d1ff0a2b26578698f14c"
 repo-rev = "master"
 repo-url = "https://github.com/Leixb/LIBSVM.jl"
 uuid = "b1bec4e5-fd48-53fe-b0cb-9723c09d164b"
@@ -971,7 +971,9 @@ version = "0.5.1"
 
 [[deps.MLJLIBSVMInterface]]
 deps = ["CategoricalArrays", "LIBSVM", "MLJModelInterface", "Statistics"]
-git-tree-sha1 = "4a056d2384a906ac2a2d13ed25f9092107f53eb0"
+git-tree-sha1 = "c8f3246bd23f68039b1e375e2c5b1c1b8cab31ee"
+repo-rev = "master"
+repo-url = "https://github.com/Leixb/MLJLIBSVMInterface.jl"
 uuid = "61c7150f-6c77-4bb1-949c-13197eac2a52"
 version = "0.2.1"
 
