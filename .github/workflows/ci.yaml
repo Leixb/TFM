@@ -23,5 +23,6 @@ jobs:
       run: nix build -L .#ci
     - name: julia tests
       run: |
-        echo "::warning JULIA_PROJECT=$JULIA_PROJECT"
+        export JULIA_PROJECT="$PWD"
+        echo "::info ::JULIA_PROJECT=$JULIA_PROJECT"
         nix develop --impure --command julia --color=yes test/runtests.jl
