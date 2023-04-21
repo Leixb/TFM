@@ -19,4 +19,7 @@ jobs:
         name: tfm
         authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
         extraPullNames: nix-community
-    - run: nix build -L .#ci
+    - name: devenv ci
+      run: nix build -L .#ci
+    - name: julia tests
+      run: nix develop --command julia --color=yes test/runtests.jl
