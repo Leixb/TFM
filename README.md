@@ -1,4 +1,4 @@
-# TFM
+# TFM [![built with nix](https://img.shields.io/static/v1?logo=nixos&logoColor=white&label=&message=Built%20with%20Nix&color=41439a)](https://builtwithnix.org "built with nix") [![CI](https://github.com/Leixb/TFM/actions/workflows/ci.yaml/badge.svg)](https://github.com/Leixb/TFM/actions/workflows/ci.yaml) 
 
 This code base is using the [Julia Language](https://julialang.org/) and
 [DrWatson](https://juliadynamics.github.io/DrWatson.jl/stable/)
