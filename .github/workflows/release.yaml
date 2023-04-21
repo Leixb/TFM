@@ -5,7 +5,7 @@ on:
       - '*'
 
 jobs:
-  build_document:
+  build-default-and-release:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3.2.0
