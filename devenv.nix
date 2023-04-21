@@ -39,6 +39,9 @@
   packages = with pkgs; [
     texlab
     texlive.combined.scheme-full
+    pdf2svg
+    poppler_utils
+    imagemagick
     inputs.poetry2nix.packages.${system}.poetry
     (inputs.poetry2nix.legacyPackages.${system}.mkPoetryEnv {
       projectDir = "";
@@ -50,6 +53,7 @@
     python3.pkgs.pygments
     nixpkgs-fmt
     gdb
+    gcc
   ];
 
   # https://devenv.sh/languages/
