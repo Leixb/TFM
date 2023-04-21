@@ -42,14 +42,14 @@
     pdf2svg
     poppler_utils
     imagemagick
-    inputs.poetry2nix.packages.${system}.poetry
-    (inputs.poetry2nix.legacyPackages.${system}.mkPoetryEnv {
-      projectDir = "";
-      preferWheels = true;
-      pyproject = ./pyproject.toml;
-      poetrylock = ./poetry.lock;
-      python = python3;
-    })
+    # inputs.poetry2nix.packages.${system}.poetry
+    # (inputs.poetry2nix.legacyPackages.${system}.mkPoetryEnv {
+    #   projectDir = "";
+    #   preferWheels = true;
+    #   pyproject = ./pyproject.toml;
+    #   poetrylock = ./poetry.lock;
+    #   python = python3;
+    # })
     python3.pkgs.pygments
     nixpkgs-fmt
     gdb
@@ -59,7 +59,7 @@
   # https://devenv.sh/languages/
   languages.nix.enable = true;
   languages.r = {
-    enable = true;
+    enable = false;
     package = pkgs.rWrapper.override {
       packages = lib.attrVals
         (lib.filter (p: p != "")
@@ -80,7 +80,7 @@
   };
 
   # https://devenv.sh/processes/
-  processes.jupyter.exec = "jupyter lab";
+  # processes.jupyter.exec = "jupyter lab";
   processes.latexmk.exec = "build-doc -pvc";
   processes.pluto.exec = "pluto";
 }
