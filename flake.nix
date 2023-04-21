@@ -37,16 +37,19 @@
           let
             datasets = pkgs.callPackage ./datasets.nix { };
 
+            document = pkgs.callPackage ./document/document.nix { SOURCE_DATE_EPOCH = self.lastModified; };
+
             datasets-tarball = pkgs.runCommand "datasets.tar.gz" { } ''
               tar -hczf $out -C ${datasets} .
             '';
           in
           {
             inherit (devenvShell) ci;
-            inherit datasets datasets-tarball;
+            inherit datasets datasets-tarball document;
 
             default = pkgs.linkFarmFromDrvs "default" [
               datasets-tarball
+              document
             ];
           };
       }
