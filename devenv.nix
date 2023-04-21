@@ -31,6 +31,7 @@
     if [ -d "$DATASETS" ]; then
       if [ ! -d data/exp_raw ] || [ "$(readlink -f data/exp_raw)" != "$DATASETS" ]; then
         echo "Linking data/exp_raw to $DATASETS"
+        mkdir -p data
         ln -sfn "$DATASETS" data/exp_raw
       fi
     fi
