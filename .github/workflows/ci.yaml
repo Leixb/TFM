@@ -22,4 +22,6 @@ jobs:
     - name: devenv ci
       run: nix build -L .#ci
     - name: julia tests
-      run: nix develop --command julia --color=yes test/runtests.jl
+      run: |
+        echo "::warning JULIA_PROJECT=$JULIA_PROJECT"
+        nix develop --impure --command julia --color=yes test/runtests.jl
