@@ -3,12 +3,11 @@
 , python3
 , which
 , outils
-, SOURCE_DATE_EPOCH
 }:
 
 runCommand "document.pdf"
 {
-  inherit SOURCE_DATE_EPOCH;
+  SOURCE_DATE_EPOCH = 1685620800; # 2023-06-01
   src = ./.;
   nativeBuildInputs = [
     texlive.combined.scheme-full

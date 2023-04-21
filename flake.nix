@@ -1,4 +1,6 @@
 {
+  description = "Master thesis on infinite neural network kernels";
+
   nixConfig = {
     tarball-ttl = 63072000; # 2 years
     extra-substituters = [
@@ -37,7 +39,7 @@
           let
             datasets = pkgs.callPackage ./datasets.nix { };
 
-            document = pkgs.callPackage ./document/document.nix { SOURCE_DATE_EPOCH = self.lastModified; };
+            document = pkgs.callPackage ./document/document.nix { };
 
             datasets-tarball = pkgs.runCommand "datasets.tar.gz" { } ''
               tar -hczf $out -C ${datasets} .
