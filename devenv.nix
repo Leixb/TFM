@@ -42,14 +42,14 @@
     pdf2svg
     poppler_utils
     imagemagick
-    # inputs.poetry2nix.packages.${system}.poetry
-    # (inputs.poetry2nix.legacyPackages.${system}.mkPoetryEnv {
-    #   projectDir = "";
-    #   preferWheels = true;
-    #   pyproject = ./pyproject.toml;
-    #   poetrylock = ./poetry.lock;
-    #   python = python3;
-    # })
+    inputs.poetry2nix.packages.${system}.poetry
+    (inputs.poetry2nix.legacyPackages.${system}.mkPoetryEnv {
+      projectDir = "";
+      preferWheels = true;
+      pyproject = ./pyproject.toml;
+      poetrylock = ./poetry.lock;
+      python = python3;
+    })
     python3.pkgs.pygments
     nixpkgs-fmt
     gdb
