@@ -1,0 +1,42 @@
+\section{Experiments}
+
+\subsection{Reproducing the results of \textcite{frenayParameterinsensitiveKernelExtreme2011}}
+\label{sec:reproducing-frenay}
+
+% \begin{figure}[H]
+% 	\includegraphics{frenay-cross-test}
+% 	\caption{Illustration of the cross-test method from \cite{frenayParameterinsensitiveKernelExtreme2011}}
+% 	\label{fig:frenay-cross-test}
+% \end{figure}
+
+In the paper, \textcite{frenayParameterinsensitiveKernelExtreme2011} use a double cross-test resampling
+method which is illustrated in \cref{fig:frenay-cross-test}. First, they perform a 10-fold cross validation,
+where the 9 folds of the training set are then used on a second 10-fold cross validation to determine the
+best hyperparameters. This means that there are 100 training processes in total.
+
+\begin{figure}[H]
+    \input{figures/frenay-cross-test.tikz}
+	\caption{Illustration of the cross-test method from \cite{frenayParameterinsensitiveKernelExtreme2011}}
+	\label{fig:frenay-cross-test}
+\end{figure}
+
+
+\subsection{Comparing the performance of the kernels with different datasets}
+
+\subsubsection{Resampling}
+
+Instead of using the double cross-test resampling used in \cref{sec:reproducing-frenay},
+we opted to use a 5-2 cross-validation resampling method as described by \textcite{dietterichApproximateStatisticalTests1998}.
+
+The 5-2 cross-validation
+consists of doing a 50-50 split of the dataset into two sets. First, we train on the first set and test on the second set
+and then we train on the second set and test on the first set. The process is repeated 5 times, each time
+with a different random split. We choose this method since it is faster then the double cross-test method
+requiring only 10 training processes instead of 100.
+
+% TODO: Add figure of the 5-2 cross-validation
+
+
+\begin{figure}
+    \input{figures/elm-kernel.tikz}
+\end{figure}
