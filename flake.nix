@@ -33,10 +33,22 @@
       in
       {
         devShells.default = devenvShell;
-        packages = {
-          inherit (devenvShell) ci;
-          datasets = pkgs.callPackage ./datasets.nix { };
-        };
+        packages =
+          let
+            datasets = pkgs.callPackage ./datasets.nix { };
+
+            datasets-tarball = pkgs.runCommand "datasets.tar.gz" { } ''
+              tar -hczf $out -C ${datasets} .
+            '';
+          in
+          {
+            inherit (devenvShell) ci;
+            inherit datasets datasets-tarball;
+
+            default = pkgs.linkFarmFromDrvs "default" [
+              datasets-tarball
+            ];
+          };
       }
     );
 }
