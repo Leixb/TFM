@@ -13,9 +13,10 @@ y, X = unpack(df, ==(target); shuffle=false)
 
 (Xtrain, Xtest), (ytrain, ytest) = partition((X, y), 0.8, rng=1234, multi=true)
 
-kernel = Kernel.RadialBasis
+# kernel = Kernel.RadialBasis
+kernel = Kernel.AsinNorm
 
-regressor = EpsilonSVR(kernel=kernel)
+regressor = EpsilonSVR(kernel=kernel, max_iter=Int32(100000))
 
 gamma_values = if kernel == Kernel.RadialBasis
         10 .^ (-3.0:1.0:0)
@@ -27,10 +28,10 @@ gamma_values = if kernel == Kernel.RadialBasis
 end
 
 hyper_grid = [
-    # range(regressor, :gamma, values = gamma_values),
-    # range(regressor, :epsilon, values = 10 .^ (-5:1.0:1)),
-    # range(regressor, :cost, values = 10 .^ (-2:1.0:6))
-    range(regressor, :cost, values = 10 .^ (-1:1.0:0))
+    range(regressor, :gamma, values = gamma_values),
+    range(regressor, :epsilon, values = 10 .^ (-5:1.0:1)),
+    range(regressor, :cost, values = 10 .^ (-2:1.0:6))
+    # range(regressor, :cost, values = 10 .^ (-1:1.0:0))
 ]
 
 display(hyper_grid)
@@ -63,4 +64,4 @@ println("mse: ", rms(yhat, ytest)^2)
 println("yhat: ", yhat[1:10])
 println("ytest: ", ytest[1:10])
 
-# MLJ.save("model_tuning.jls", mach)
+MLJ.save("model_tuning_asinnorm100k.jls", mach)
