@@ -93,4 +93,15 @@ end
     @test W.grade == X.grade
     @test W.height == X.height
     @test W.n_devices == X.n_devices
+
+    Xtest = (
+        vendor=categorical(["IBM", "HP", "DD", "DD", "IBM", "honeywell", "hello", "IBM"]),
+        height=[1.85, 1.67, 1.5, 1.67, 1.85, 1.7, 1.5, 1.67],
+        grade=categorical(["A", "B", "A", "D", "A", "B", "B", "A"], ordered=true),
+        n_devices=[3, 2, 4, 3, 3, 2, 4, 3]
+    )
+    Wtest = transform(mach, Xtest)
+
+    @test Wtest.vendor == categorical(["IBM", "HP", "OTHER", "OTHER", "IBM", "OTHER", "OTHER", "IBM"])
+    @test Wtest.grade == categorical(["A", "B", "A", "OTHER", "A", "B", "B", "A"], ordered=true)
 end

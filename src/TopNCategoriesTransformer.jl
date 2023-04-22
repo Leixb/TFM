@@ -44,7 +44,17 @@ function MLJBase.fit(transformer::TopCatTransformer, verbosity::Int, X)
         T = col_scitypes[j]
         if T <: allowed_scitypes && ftr in specified_features
             freqs = collect(StatsBase.countmap(col))
-            topn = sort(freqs, by = x -> (-x[2], x[1]))[1:min(transformer.n, length(freqs))]
+
+            n = transformer.n
+            # if n is negative, take all categories
+            if transformer.n < 0
+                n = length(freqs)
+            elseif transformer.n > length(freqs)
+                n = length(freqs)
+                @warn "n ($(transformer.n)) is greater than the number of categories for feature :$ftr. Setting n to $(n)"
+            end
+
+            topn = sort(freqs, by = x -> (-x[2], x[1]))[1:n]
             topn = map(collect(topn)) do (ref, _) ref end
             if verbosity > 0
                 @info "Top $(transformer.n) categories for feature :$ftr are $(topn)"
