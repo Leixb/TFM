@@ -75,3 +75,22 @@ using TFM.Resampling
         ]
     end
 end
+
+@testset "top n transformer" begin
+    using MLJ
+    using TFM
+    X = (vendor=categorical(["IBM", "HP", "HP", "Asus", "IBM", "honeywell", "hello", "IBM"]),
+         height=[1.85, 1.67, 1.5, 1.67, 1.85, 1.67, 1.5, 1.67],
+         grade=categorical(["A", "B", "A", "B", "A", "B", "B", "A"], ordered=true),
+         n_devices=[3, 2, 4, 3, 3, 2, 4, 3])
+    trans = TopCatTransformer(n=3)
+    mach = machine(trans, X)
+    fit!(mach)
+
+    W = transform(mach, X)
+
+    @test W.vendor == categorical(["IBM", "HP", "HP", "Asus", "IBM", "OTHER", "OTHER", "IBM"])
+    @test W.grade == X.grade
+    @test W.height == X.height
+    @test W.n_devices == X.n_devices
+end
