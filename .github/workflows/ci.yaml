@@ -9,7 +9,7 @@ jobs:
   run-devenv-ci:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3.2.0
+    - uses: actions/checkout@v3.5.2
     - uses: cachix/install-nix-action@v20
       with:
         extra_nix_config: |
