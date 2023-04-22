@@ -85,7 +85,7 @@ end
          n_devices=[3, 2, 4, 3, 3, 2, 4, 3])
     trans = TopCatTransformer(n=3)
     mach = machine(trans, X)
-    fit!(mach)
+    @test_logs (:info, "Training machine(TopCatTransformer(features = Symbol[], …), …).") (:warn, "n (3) is greater than the number of categories for feature :grade. Setting n to 2") fit!(mach)
 
     W = transform(mach, X)
 
@@ -104,4 +104,14 @@ end
 
     @test Wtest.vendor == categorical(["IBM", "HP", "OTHER", "OTHER", "IBM", "OTHER", "OTHER", "IBM"])
     @test Wtest.grade == categorical(["A", "B", "A", "OTHER", "A", "B", "B", "A"], ordered=true)
+
+    trans = TopCatTransformer(n=2, other="Other")
+    mach = machine(trans, X)
+    @test_logs (:info, "Training machine(TopCatTransformer(features = Symbol[], …), …).") fit!(mach)
+
+    W = transform(mach, X)
+    @test W.vendor == categorical(["IBM", "HP", "HP", "Other", "IBM", "Other", "Other", "IBM"])
+    @test W.grade == X.grade
+    @test W.height == X.height
+    @test W.n_devices == X.n_devices
 end

@@ -57,7 +57,7 @@ function MLJBase.fit(transformer::TopCatTransformer, verbosity::Int, X)
             topn = sort(freqs, by = x -> (-x[2], x[1]))[1:n]
             topn = map(collect(topn)) do (ref, _) ref end
             if verbosity > 0
-                @info "Top $(transformer.n) categories for feature :$ftr are $(topn)"
+                @debug "Top $(transformer.n) categories for feature :$ftr are $(topn)"
             end
 
             top_n_given_feature[ftr] = topn
@@ -83,7 +83,6 @@ function MMI.transform(transformer::TopCatTransformer, fitresult, X)
         if !(ftr in features_to_be_transformed)
             continue
         end
-        @info "Transforming feature :$ftr"
         col = MMI.selectcols(X, ftr)
         others = setdiff(Set(MMI.classes(col)), Set(d[ftr])) |> collect
         recode!(col, others => transformer.other)
