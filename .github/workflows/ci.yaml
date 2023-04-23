@@ -21,6 +21,10 @@ jobs:
         extraPullNames: nix-community
     - name: devenv ci
       run: nix build -L .#ci
+    - uses: julia-actions/cache@v1.2.2
+      with:
+        cache-compiled: "true"
+        cache-registries: "true"
     - name: julia tests
       run: |
         export JULIA_PROJECT="$PWD"
