@@ -58,10 +58,6 @@ doi(::Frenay) = "10.1016/j.neucom.2010.11.037"
 abstract type Large <: Frenay end
 abstract type Small <: Frenay end
 
-@enum Size large small
-size(::Large) = large
-size(::Small) = small
-
 datasetdir(path...) = datadir("exp_raw", path...)
 
 ################################################################################
