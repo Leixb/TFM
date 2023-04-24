@@ -7,103 +7,116 @@ import CSV
 import DataFrames.DataFrame
 using MLJ: coerce, Multiclass, Continuous
 
-# DataSet is an abstract type that represents a dataset.
+# DataSet is an abstract type that provides the interface for reading
+# and preprocessing a dataset.
 
 abstract type DataSet end
 
+# These methods should only be implemented if the dataset is not
+# in a proper CSV format.
 data(ds::DataSet) = raw_data(ds) |> preprocess(ds)
 raw_data(ds::DataSet) = CSV.read(path(ds), DataFrame; header=header(ds))
 
-header(ds::DataSet) = false
-preprocess(::DataSet) = identity
-
-# These methods must be implemented for each DataSet type.
-# Optionally, you can implement header(ds::DataSet) to specify
-# the column names of the dataset, and preprocess(ds::DataSet)
-# to transform the raw data into a form suitable for MLJ.
-
+# These methods should be implemented for each dataset
 target(ds::DataSet) = error("target not implemented for $(typeof(ds))")
 path(ds::DataSet) = error("path not implemented for $(typeof(ds))")
 
+# The following methods are optional, but highly recommended
+header(ds::DataSet) = false
+preprocess(::DataSet) = identity
+
+# Metadata (optional)
+
+# url(ds::DataSet) returns the URL of the dataset (where it was downloaded from)
+url(ds::DataSet) = error("url not implemented for $(typeof(ds))")
+
+# doi(ds::DataSet) returns the DOI of the relevant paper that uses the dataset.
+doi(ds::DataSet) = error("doi not implemented for $(typeof(ds))")
+
+# Holds the list of all datasets defined in this file
+all = []
+
+# Helper macro to declare datasets
+macro dataset(type, name, path, header, target)
+    lowername = Symbol(lowercase(string(name)))
+    esc(quote
+        struct $name <: $type end
+        const $lowername = $name()
+        push!(all, $lowername)
+
+        path(::$name) = $path
+        header(::$name) = $header
+        target(::$name) = $target
+    end)
+end
+
 # DataSets that are used in Frenay and Verleysen (2016)
-abstract type FrenayDataSet <: DataSet end
-abstract type LargeDataSet <: FrenayDataSet end
-abstract type SmallDataSet <: FrenayDataSet end
+abstract type Frenay <: DataSet end
+doi(::Frenay) = "10.1016/j.neucom.2010.11.037"
 
-struct Abalone <: LargeDataSet end
-struct Ailerons <: LargeDataSet end
-struct CompActs <: LargeDataSet end
-struct Elevators <: LargeDataSet end
+# DataSet relative size according to Frenay and Verleysen (2016)
+abstract type Large <: Frenay end
+abstract type Small <: Frenay end
 
-struct Cancer <: SmallDataSet end
-struct CPU <: SmallDataSet end
-struct Stock <: SmallDataSet end
-struct Triazines <: SmallDataSet end
+@enum Size large small
+size(::Large) = large
+size(::Small) = small
 
-abalone = Abalone()
-ailerons = Ailerons()
-cancer = Cancer()
-compacts = CompActs()
-cpu = CPU()
-elevators = Elevators()
-stock = Stock()
-triazines = Triazines()
+datasetdir(path...) = datadir("exp_raw", path...)
 
-all_datasets = [
-    abalone,
-    ailerons,
-    cancer,
-    compacts,
-    cpu,
-    elevators,
-    stock,
-    triazines,
-]
+################################################################################
+# Abalone
+################################################################################
 
-
-# https://archive.ics.uci.edu/ml/datasets/Abalone
-
-path(::Abalone) = datadir("exp_raw", "abalone")
-header(::Abalone) = [:Sex, :Length, :Diameter, :Height, :Whole_weight, :Shucked_weight, :Viscera_weight, :Shell_weight, :Rings]
-target(::Abalone) = :Rings
+@dataset Large Abalone datasetdir("abalone") [
+    :Sex, :Length, :Diameter, :Height, :Whole_weight, :Shucked_weight, :Viscera_weight, :Shell_weight, :Rings
+] :Rings
 preprocess(ds::Abalone) = X -> coerce(X, target(ds) => Continuous)
 
+url(::Abalone) = "https://archive.ics.uci.edu/ml/machine-learning-databases/abalone/abalone.data"
 
-# https://archive.ics.uci.edu/ml/datasets/Ailerons
+################################################################################
+# Ailerons
+################################################################################
 
-path(::Ailerons) = datadir("exp_raw", "ailerons", "ailerons.data")
-header(::Ailerons) = [
+@dataset Large Ailerons datasetdir("ailerons", "ailerons.data") [
     :climbRate, :Sgz, :p, :q, :curPitch, :curRoll, :absRoll, :diffClb, :diffRollRate, :diffDiffClb,
     :SeTime1, :SeTime2, :SeTime3, :SeTime4, :SeTime5, :SeTime6, :SeTime7,
     :SeTime8, :SeTime9, :SeTime10, :SeTime11, :SeTime12, :SeTime13, :SeTime14,
     :diffSeTime1, :diffSeTime2, :diffSeTime3, :diffSeTime4, :diffSeTime5, :diffSeTime6, :diffSeTime7,
     :diffSeTime8, :diffSeTime9, :diffSeTime10, :diffSeTime11, :diffSeTime12, :diffSeTime13, :diffSeTime14,
     :alpha, :Se, :goal,
-]
-target(::Ailerons) = :goal
+] :goal
 
+url(::Ailerons) = "https://www.dcc.fc.up.pt/~ltorgo/Regression/ailerons.tgz"
 
-# https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+(Diagnostic)
+################################################################################
+# Wisconsin Breast Cancer
+################################################################################
 
-path(::Cancer) = datadir("exp_raw", "cancer")
-target(::Cancer) = :Column2
+@dataset Small Cancer datasetdir("cancer") false :Column2
 
-# https://archive.ics.uci.edu/ml/datasets/Computer+Hardware
+url(::Cancer) = "https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data"
 
-path(::CompActs) = datadir("exp_raw", "compActs", "cpu_act.data")
-header(::CompActs) = [
+################################################################################
+# CompActs
+################################################################################
+
+@dataset Large CompActs datasetdir("compActs", "cpu_act.data") [
     :lread, :lwrite, :scall, :sread, :swrite, :fork, :exec, :rchar, :wchar,
     :pgout, :ppgout, :pgfree, :pgscan, :atch, :pgin, :ppgin, :pflt, :vflt,
     :runqsz, :freemem, :freeswap, :usr
-]
-target(::CompActs) = :usr
+] :usr
 
+url(::CompActs) = "https://www.dcc.fc.up.pt/~ltorgo/Regression/compact.tar.gz"
 
-# https://archive.ics.uci.edu/ml/datasets/Computer+Hardware
+################################################################################
+# CPU
+################################################################################
 
-path(::CPU) = datadir("exp_raw", "cpu")
-header(::CPU) = [:Vendor, :Model, :MYCT, :MMIN, :MMAX, :CACH, :CHMIN, :CHMAX, :PRP, :ERP]
-target(::CPU) = :ERP
+@dataset Small CPU datasetdir("cpu") [
+    :Vendor, :Model, :MYCT, :MMIN, :MMAX, :CACH, :CHMIN, :CHMAX, :PRP, :ERP
+] :ERP
 preprocess(::CPU) = (X -> coerce(X,
     :Model => Multiclass,
     :Vendor => Multiclass,
@@ -117,24 +130,28 @@ preprocess(::CPU) = (X -> coerce(X,
     :ERP => Continuous
 ))
 
-# Elevators
+url(::CPU) = "https://archive.ics.uci.edu/ml/machine-learning-databases/cpu-performance/machine.data"
 
-path(::Elevators) = datadir("exp_raw", "elevators", "elevators.data")
-header(::Elevators) = [
+################################################################################
+# Elevators
+################################################################################
+
+@dataset Large Elevators datasetdir("elevators", "elevators.data") [
     :climbRate, :Sgz, :p, :q, :curRoll, :absRoll, :diffClb, :diffRollRate, :diffDiffClb,
     :SaTime1, :SaTime2, :SaTime3, :SaTime4, :diffSaTime1, :diffSaTime2, :diffSaTime3, :diffSaTime4,
     :Sa, :Goal
-]
-target(::Elevators) = :Goal
+] :Goal
 
+url(::Elevators) = "https://www.dcc.fc.up.pt/~ltorgo/Regression/elevators.tgz"
+
+################################################################################
 # Stock
+################################################################################
 
-path(::Stock) = datadir("exp_raw", "stock", "stock.data")
-header(::Stock) = [
+@dataset Small Stock datasetdir("stock", "stock.data") [
     :Company1, :Company2, :Company3, :Company4, :Company5,
     :Company6, :Company7, :Company8, :Company9, :Company10,
-]
-target(::Stock) = :Company10
+] :Company10
 function raw_data(ds::Stock)
     CSV.read(path(ds), DataFrame; header=header(ds),
         delim="\t",
@@ -142,10 +159,13 @@ function raw_data(ds::Stock)
     )
 end
 
-# Triazines
+url(::Stock) = "https://www.dcc.fc.up.pt/~ltorgo/Regression/stock.tgz"
 
-path(::Triazines) = datadir("exp_raw", "triazines", "triazines.data")
-header(::Triazines) = [
+################################################################################
+# Triazines
+################################################################################
+
+@dataset Small Triazines datasetdir("exp_raw", "triazines", "triazines.data") [
     :p1_polar, :p1_size, :p1_flex, :p1_h_doner, :p1_h_acceptor, :p1_pi_doner, :p1_pi_acceptor, :p1_polarisable, :p1_sigma, :p1_branch,
     :p2_polar, :p2_size, :p2_flex, :p2_h_doner, :p2_h_acceptor, :p2_pi_doner, :p2_pi_acceptor, :p2_polarisable, :p2_sigma, :p2_branch,
     :p3_polar, :p3_size, :p3_flex, :p3_h_doner, :p3_h_acceptor, :p3_pi_doner, :p3_pi_acceptor, :p3_polarisable, :p3_sigma, :p3_branch,
@@ -153,8 +173,9 @@ header(::Triazines) = [
     :p5_polar, :p5_size, :p5_flex, :p5_h_doner, :p5_h_acceptor, :p5_pi_doner, :p5_pi_acceptor, :p5_polarisable, :p5_sigma, :p5_branch,
     :p6_polar, :p6_size, :p6_flex, :p6_h_doner, :p6_h_acceptor, :p6_pi_doner, :p6_pi_acceptor, :p6_polarisable, :p6_sigma, :p6_branch,
     :activity,
-]
-target(::Triazines) = :activity
+] :activity
 preprocess(::Triazines) = (X -> coerce(X, :p2_pi_doner => Continuous))
+
+url(::Triazines) = "https://www.dcc.fc.up.pt/~ltorgo/Regression/triazines.tgz"
 
 end
