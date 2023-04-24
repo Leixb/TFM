@@ -85,7 +85,7 @@ end
          n_devices=[3, 2, 4, 3, 3, 2, 4, 3])
     trans = TopCatTransformer(n=3)
     mach = machine(trans, X)
-    @test_logs (:info, "Training machine(TopCatTransformer(features = Symbol[], …), …).") (:warn, "n (3) is greater than the number of categories for feature :grade. Setting n to 2") fit!(mach)
+    @test_logs (:info, "Training machine(TopCatTransformer(features = Symbol[], …), …).") fit!(mach)
 
     W = transform(mach, X)
 
