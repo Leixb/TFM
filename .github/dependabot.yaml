@@ -6,9 +6,11 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    target-branch: "staging"
 
   # Maintain dependencies for Python Poetry
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
       interval: "weekly"
+    target-branch: "staging"
