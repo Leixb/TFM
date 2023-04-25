@@ -5,7 +5,14 @@ module DataSets
 import DrWatson.datadir
 import CSV
 import DataFrames.DataFrame
-using MLJ: coerce, Multiclass, Continuous
+using LIBSVM: Kernel
+
+using MLJ
+import MLJ: unpack, partition
+
+include("TopNCategoriesTransformer.jl")
+
+EpsilonSVR = @load EpsilonSVR pkg=LIBSVM verbosity=0
 
 # DataSet is an abstract type that provides the interface for reading
 # and preprocessing a dataset.
@@ -24,6 +31,23 @@ path(ds::DataSet) = error("path not implemented for $(typeof(ds))")
 # The following methods are optional, but highly recommended
 header(ds::DataSet) = false
 preprocess(::DataSet) = identity
+
+unpack(ds::DataSet; args...) = unpack(data(ds), ==(target(ds)); args...)
+partition(ds::DataSet; ratio=0.8, shuffle=true, rng=1234, args...) =
+    partition(unpack(ds), ratio; shuffle, rng, multi=true, args...)
+
+"""
+Creates an MLJ pipeline for the given dataset.
+
+The pipeline is a `ContinuousEncoder` followed by a `Standardizer` and
+a `TransformedTargetModel` which applies the `Standardizer` to
+the target variable also. The base model is an `EpsilonSVR` with the
+given kernel and arguments.
+"""
+pipeline(::DataSet; kernel=Kernel.RadialBasis, args...) =
+    ContinuousEncoder() |>
+    Standardizer() |>
+    TransformedTargetModel(EpsilonSVR(;kernel, args...); transformer=Standardizer())
 
 # Metadata (optional)
 
@@ -125,6 +149,19 @@ preprocess(::CPU) = (X -> coerce(X,
     :PRP => Continuous,
     :ERP => Continuous
 ))
+
+"""
+Specific pipeline for CPU dataset
+
+- `:Vendor` is encoded by keeping the top 3 most frequent values and setting
+the rest to `OTHER`.
+- `:Model` is dropped because it is nearly unique.
+
+"""
+pipeline(ds::CPU; args...) =
+    FeatureSelector(features=[:Model], ignore=true) |>
+    TopCatTransformer(n=3) |>
+    invoke(pipeline, Tuple{DataSet}, ds; args...)
 
 url(::CPU) = "https://archive.ics.uci.edu/ml/machine-learning-databases/cpu-performance/machine.data"
 
