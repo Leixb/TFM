@@ -1289,7 +1289,7 @@ version = "0.5.1"
 
 [[deps.MLJLIBSVMInterface]]
 deps = ["CategoricalArrays", "LIBSVM", "MLJModelInterface", "Statistics"]
-git-tree-sha1 = "c8f3246bd23f68039b1e375e2c5b1c1b8cab31ee"
+git-tree-sha1 = "476f333cab1b9e79bddc01957140dbed25298543"
 repo-rev = "master"
 repo-url = "https://github.com/Leixb/MLJLIBSVMInterface.jl"
 uuid = "61c7150f-6c77-4bb1-949c-13197eac2a52"
