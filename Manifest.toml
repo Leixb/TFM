@@ -1057,7 +1057,7 @@ version = "0.6.0"
 
 [[deps.LIBSVM]]
 deps = ["BinaryBuilder", "FileIO", "JLD2", "LIBLINEAR", "LinearAlgebra", "Preferences", "RDatasets", "ScikitLearnBase", "Serialization", "SparseArrays", "Statistics", "Test", "libsvm_jll"]
-git-tree-sha1 = "18a56bb19fe9c9a0ab83d1ff0a2b26578698f14c"
+git-tree-sha1 = "3d56f40406f567d6a757664c005750676bc6d598"
 repo-rev = "master"
 repo-url = "https://github.com/Leixb/LIBSVM.jl"
 uuid = "b1bec4e5-fd48-53fe-b0cb-9723c09d164b"
