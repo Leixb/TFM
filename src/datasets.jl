@@ -244,7 +244,9 @@ url(::Triazines) = "https://www.dcc.fc.up.pt/~ltorgo/Regression/triazines.tgz"
 # MNIST
 ################################################################################
 
-struct MNIST <: CategoricalDataSet end
+abstract type ChoSaul <: CategoricalDataSet end
+doi(::ChoSaul) = "10.1162/NECO_a_00018"
+struct MNIST <: ChoSaul end
 
 const mnist = MNIST()
 push!(all, mnist)
