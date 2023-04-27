@@ -118,11 +118,12 @@ end
 
 @testset "datasets" begin
     using TFM.DataSets
+    using TFM.Models
     map(DataSets.all) do ds
         # All datasets can be loaded, partitioned and the machines built
         # without warnings
         @test_nowarn begin
-            pipe = DataSets.pipeline(ds)
+            pipe = Models.pipeline(ds)
             (Xtrain, Xtest), (ytrain, ytest) = partition(ds)
             mach = machine(pipe, Xtrain, ytrain)
         end

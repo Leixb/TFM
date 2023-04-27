@@ -1,8 +1,13 @@
 #!/usr/bin/env julia
 
+"""
+Module to specify all datasets used in the project.
+
+This should contain the methods necessary to read and do minimal
+pre-processing. For models, see `models.jl`.
+"""
 module DataSets
 
-import DrWatson.datadir
 import CSV
 import DataFrames.DataFrame
 using LIBSVM: Kernel
@@ -12,11 +17,10 @@ import MLJ: unpack, partition
 
 using MLDatasets: MNIST as MNISTData
 
-include("TopNCategoriesTransformer.jl")
-
-# DataSet is an abstract type that provides the interface for reading
-# and preprocessing a dataset.
-
+"""
+DataSet is the top abstract type that provides the interface for reading
+and preprocessing a dataset.
+"""
 abstract type DataSet end
 
 # These methods should only be implemented if the dataset is not
@@ -40,7 +44,7 @@ url(ds::DataSet) = error("url not implemented for $(typeof(ds))")
 # doi(ds::DataSet) returns the DOI of the relevant paper that uses the dataset.
 doi(ds::DataSet) = error("doi not implemented for $(typeof(ds))")
 
-# Holds the list of all datasets defined in this file
+"List of all datasets defined in the module"
 all = []
 
 """
@@ -90,27 +94,6 @@ abstract type Large <: Frenay end
 abstract type Small <: Frenay end
 
 datasetdir(path...) = joinpath(ENV["DATASETS"], path...)
-
-unpack(ds::DataSet; args...) = unpack(data(ds), !=(target(ds)); args...)
-partition(ds::DataSet; ratio=0.8, shuffle=true, rng=1234, args...) =
-    partition(unpack(ds), ratio; shuffle, rng, multi=true, args...)
-
-
-"""
-# Create an MLJ pipeline for the given dataset.
-
-The pipeline is a `ContinuousEncoder` followed by a `Standardizer` and
-a `TransformedTargetModel` which applies the `Standardizer` to
-the target variable also. The base model is an `EpsilonSVR` with the
-given kernel and arguments.
-"""
-pipeline(ds::DataSet; kernel=Kernel.RadialBasis, args...) =
-    ContinuousEncoder() |>
-    Standardizer() |>
-    TransformedTargetModel(basemodel(ds)(;kernel, args...); transformer=Standardizer())
-
-basemodel(::RegressionDataSet) = @load EpsilonSVR pkg=LIBSVM verbosity=0
-basemodel(::CategoricalDataSet) = @load SVC pkg=LIBSVM verbosity=0
 
 ################################################################################
 # Abalone
@@ -177,20 +160,6 @@ preprocess(::CPU) = (X -> coerce(X,
     :PRP => Continuous,
     :ERP => Continuous
 ))
-
-"""
-
-# Specific pipeline for CPU dataset
-
-- `:Vendor` is encoded by keeping the top 3 most frequent values and setting
-the rest to `OTHER`.
-- `:Model` is dropped because it is nearly unique.
-
-"""
-pipeline(ds::CPU; args...) =
-    FeatureSelector(features=[:Model], ignore=true) |>
-    TopCatTransformer(n=3) |>
-    invoke(pipeline, Tuple{DataSet}, ds; args...)
 
 url(::CPU) = "https://archive.ics.uci.edu/ml/machine-learning-databases/cpu-performance/machine.data"
 
@@ -266,10 +235,6 @@ preprocess(::MNIST) = function(data)
 end
 
 unpack(ds::MNIST) = data(ds)
-
-# No need to one-hot encode or standardize for MNIST
-# Also, we use SVC, since it is a classification problem
-pipeline(ds::MNIST; kernel=Kernel.RadialBasis, args...) = basemodel(ds)(;kernel, args...)
 
 url(::MNIST) = "http://yann.lecun.com/exdb/mnist/"
 
