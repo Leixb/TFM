@@ -10,9 +10,12 @@ using LIBSVM: Kernel
 using MLJ
 import MLJ: unpack, partition
 
+using MLDatasets: MNIST
+
 include("TopNCategoriesTransformer.jl")
 
 EpsilonSVR = @load EpsilonSVR pkg=LIBSVM verbosity=0
+SVC = @load SVC pkg=LIBSVM verbosity=0
 
 # DataSet is an abstract type that provides the interface for reading
 # and preprocessing a dataset.
@@ -211,5 +214,33 @@ url(::Stock) = "https://www.dcc.fc.up.pt/~ltorgo/Regression/stock.tgz"
 preprocess(::Triazines) = (X -> coerce(X, :p2_pi_doner => Continuous))
 
 url(::Triazines) = "https://www.dcc.fc.up.pt/~ltorgo/Regression/triazines.tgz"
+
+################################################################################
+# MNIST
+################################################################################
+
+struct Mnist <: DataSet end
+
+raw_data(::Mnist) = MNIST(;split=:train), MNIST(;split=:test)
+
+preprocess(::Mnist) = function(data)
+    train, test = data
+
+    X = cat(train.features, test.features; dims=3)
+    y = vcat(train.targets, test.targets)
+
+    # Flatten images into vectors
+    Xflat = reshape(X, :, size(X, 3))'
+    
+    return categorical(y), table(Xflat)
+end
+
+unpack(ds::Mnist) = data(ds)
+
+# No need to one-hot encode or standardize for MNIST
+# Also, we use SVC, since it is a classification problem
+pipeline(::Mnist; kernel=Kernel.RadialBasis, args...) = SVC(;kernel, args...)
+
+url(::Mnist) = "http://yann.lecun.com/exdb/mnist/"
 
 end
