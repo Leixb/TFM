@@ -89,7 +89,7 @@ doi(::Frenay) = "10.1016/j.neucom.2010.11.037"
 abstract type Large <: Frenay end
 abstract type Small <: Frenay end
 
-datasetdir(path...) = datadir("exp_raw", path...)
+datasetdir(path...) = joinpath(ENV["DATASETS"], path...)
 
 unpack(ds::DataSet; args...) = unpack(data(ds), !=(target(ds)); args...)
 partition(ds::DataSet; ratio=0.8, shuffle=true, rng=1234, args...) =
