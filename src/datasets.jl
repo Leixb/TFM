@@ -227,7 +227,7 @@ url(::Stock) = "https://www.dcc.fc.up.pt/~ltorgo/Regression/stock.tgz"
 # Triazines
 ################################################################################
 
-@dataset Small Triazines datasetdir("exp_raw", "triazines", "triazines.data") [
+@dataset Small Triazines datasetdir("triazines", "triazines.data") [
     :p1_polar, :p1_size, :p1_flex, :p1_h_doner, :p1_h_acceptor, :p1_pi_doner, :p1_pi_acceptor, :p1_polarisable, :p1_sigma, :p1_branch,
     :p2_polar, :p2_size, :p2_flex, :p2_h_doner, :p2_h_acceptor, :p2_pi_doner, :p2_pi_acceptor, :p2_polarisable, :p2_sigma, :p2_branch,
     :p3_polar, :p3_size, :p3_flex, :p3_h_doner, :p3_h_acceptor, :p3_pi_doner, :p3_pi_acceptor, :p3_polarisable, :p3_sigma, :p3_branch,

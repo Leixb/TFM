@@ -115,3 +115,16 @@ end
     @test W.height == X.height
     @test W.n_devices == X.n_devices
 end
+
+@testset "datasets" begin
+    using TFM.DataSets
+    map(DataSets.all) do ds
+        # All datasets can be loaded, partitioned and the machines built
+        # without warnings
+        @test_nowarn begin
+            pipe = DataSets.pipeline(ds)
+            (ytrain, ytest), (Xtrain, Xtest) = partition(ds)
+            mach = machine(pipe, Xtrain, ytrain)
+        end
+    end
+end
