@@ -13,7 +13,6 @@ import DataFrames.DataFrame
 using LIBSVM: Kernel
 
 using MLJ
-import MLJ: unpack, partition
 
 using MLDatasets: MNIST as MNISTData
 
@@ -233,8 +232,6 @@ preprocess(::MNIST) = function(data)
 
     return table(Xflat), categorical(y)
 end
-
-unpack(ds::MNIST) = data(ds)
 
 url(::MNIST) = "http://yann.lecun.com/exdb/mnist/"
 

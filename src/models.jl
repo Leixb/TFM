@@ -1,16 +1,25 @@
 module Models
 
 using MLJ
+using MLJBase
+using MLJLIBSVMInterface
 using LIBSVM: Kernel
+
+import MLJ: unpack, partition
 
 using ..DataSets: DataSet, data, target, CategoricalDataSet, RegressionDataSet, CPU, MNIST
 import ..TopCatTransformer
-
+import ..mse
 
 """
 Split the dataset into features and target.
 """
 unpack(ds::DataSet; args...) = unpack(data(ds), !=(target(ds)); args...)
+
+"""
+MNIST is already in the right format.
+"""
+unpack(ds::MNIST) = data(ds)
 
 """
 Partition the dataset into training and test sets.
@@ -32,8 +41,10 @@ partition(ds::DataSet; ratio=0.8, shuffle=true, rng=1234, args...) =
 
 The models used for each type of dataset.
 """
-basemodel(::RegressionDataSet) = @load EpsilonSVR pkg=LIBSVM verbosity=0
-basemodel(::CategoricalDataSet) = @load SVC pkg=LIBSVM verbosity=0
+EpsilonSVR = @load EpsilonSVR pkg=LIBSVM verbosity=0
+SVC = @load SVC pkg=LIBSVM verbosity=0
+basemodel(::RegressionDataSet) = EpsilonSVR
+basemodel(::CategoricalDataSet) = SVC
 
 """
 # Create an MLJ pipeline for the given dataset.
@@ -69,5 +80,46 @@ pipeline(ds::CPU; args...) =
 We do not need to one-hot encode or standardize anything.
 """
 pipeline(ds::MNIST; kernel=Kernel.RadialBasis, args...) = basemodel(ds)(;kernel, args...)
+
+
+function tuned_model(model; step=1.0, resampling=CV(nfolds=10), measure=mse, args...)
+    gamma_values = let
+        sigma_range = 10.0 .^ (-3:1.0:3)
+        sigma2gamma = sigma -> 1 ./ (2 .*sigma.^2)
+        sigma2gamma(sigma_range)
+    end
+
+    if model isa MLJBase.DeterministicPipeline
+        inner_model = model.transformed_target_model_deterministic.model
+    else
+        inner_model = model
+    end
+
+    param_range = [
+        range(inner_model, :cost, values = 10 .^ (-2:step:6))
+    ]
+
+    if inner_model isa MLJLIBSVMInterface.EpsilonSVR
+        param_range = vcat(param_range,
+            range(model, :epsilon, values = 10 .^ (-5:step:1)),
+        )
+    elseif ! (inner_model isa MLJLIBSVMInterface.SVC)
+        error("Model $(typeof(inner_model)) not supported")
+    end
+
+    if inner_model.kernel == Kernel.RadialBasis
+        param_range = vcat(param_range,
+            range(model, :(gamma), values = 10 .^ (-3:step:0)),
+        )
+    elseif inner_model.kernel == Kernel.Asin
+        param_range = vcat(param_range,
+            range(model, :(gamma), values = gamma_values),
+        )
+    else
+        error("Kernel $(inner_model.kernel) not supported")
+    end
+
+    TunedModel(;model, resampling, tuning = Grid(), range=param_range, measure, args...)
+end
 
 end
