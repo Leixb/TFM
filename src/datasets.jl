@@ -91,7 +91,7 @@ abstract type Small <: Frenay end
 
 datasetdir(path...) = datadir("exp_raw", path...)
 
-unpack(ds::DataSet; args...) = unpack(data(ds), ==(target(ds)); args...)
+unpack(ds::DataSet; args...) = unpack(data(ds), !=(target(ds)); args...)
 partition(ds::DataSet; ratio=0.8, shuffle=true, rng=1234, args...) =
     partition(unpack(ds), ratio; shuffle, rng, multi=true, args...)
 
@@ -260,7 +260,7 @@ preprocess(::Mnist) = function(data)
     # Flatten images into vectors
     Xflat = reshape(X, :, size(X, 3))'
 
-    return categorical(y), table(Xflat)
+    return table(Xflat), categorical(y)
 end
 
 unpack(ds::Mnist) = data(ds)

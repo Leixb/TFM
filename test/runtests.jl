@@ -123,7 +123,7 @@ end
         # without warnings
         @test_nowarn begin
             pipe = DataSets.pipeline(ds)
-            (ytrain, ytest), (Xtrain, Xtest) = partition(ds)
+            (Xtrain, Xtest), (ytrain, ytest) = partition(ds)
             mach = machine(pipe, Xtrain, ytrain)
         end
     end
