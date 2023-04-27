@@ -10,7 +10,7 @@ using LIBSVM: Kernel
 using MLJ
 import MLJ: unpack, partition
 
-using MLDatasets: MNIST
+using MLDatasets: MNIST as MNISTData
 
 include("TopNCategoriesTransformer.jl")
 
@@ -244,14 +244,14 @@ url(::Triazines) = "https://www.dcc.fc.up.pt/~ltorgo/Regression/triazines.tgz"
 # MNIST
 ################################################################################
 
-struct Mnist <: CategoricalDataSet end
+struct MNIST <: CategoricalDataSet end
 
-const mnist = Mnist()
+const mnist = MNIST()
 push!(all, mnist)
 
-raw_data(::Mnist) = MNIST(;split=:train), MNIST(;split=:test)
+raw_data(::MNIST) = MNISTData(;split=:train), MNISTData(;split=:test)
 
-preprocess(::Mnist) = function(data)
+preprocess(::MNIST) = function(data)
     train, test = data
 
     X = cat(train.features, test.features; dims=3)
@@ -263,12 +263,12 @@ preprocess(::Mnist) = function(data)
     return table(Xflat), categorical(y)
 end
 
-unpack(ds::Mnist) = data(ds)
+unpack(ds::MNIST) = data(ds)
 
 # No need to one-hot encode or standardize for MNIST
 # Also, we use SVC, since it is a classification problem
-pipeline(ds::Mnist; kernel=Kernel.RadialBasis, args...) = basemodel(ds)(;kernel, args...)
+pipeline(ds::MNIST; kernel=Kernel.RadialBasis, args...) = basemodel(ds)(;kernel, args...)
 
-url(::Mnist) = "http://yann.lecun.com/exdb/mnist/"
+url(::MNIST) = "http://yann.lecun.com/exdb/mnist/"
 
 end
