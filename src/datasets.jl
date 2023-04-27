@@ -14,9 +14,6 @@ using MLDatasets: MNIST
 
 include("TopNCategoriesTransformer.jl")
 
-EpsilonSVR = @load EpsilonSVR pkg=LIBSVM verbosity=0
-SVC = @load SVC pkg=LIBSVM verbosity=0
-
 # DataSet is an abstract type that provides the interface for reading
 # and preprocessing a dataset.
 
@@ -34,23 +31,6 @@ path(ds::DataSet) = error("path not implemented for $(typeof(ds))")
 # The following methods are optional, but highly recommended
 header(ds::DataSet) = false
 preprocess(::DataSet) = identity
-
-unpack(ds::DataSet; args...) = unpack(data(ds), ==(target(ds)); args...)
-partition(ds::DataSet; ratio=0.8, shuffle=true, rng=1234, args...) =
-    partition(unpack(ds), ratio; shuffle, rng, multi=true, args...)
-
-"""
-# Create an MLJ pipeline for the given dataset.
-
-The pipeline is a `ContinuousEncoder` followed by a `Standardizer` and
-a `TransformedTargetModel` which applies the `Standardizer` to
-the target variable also. The base model is an `EpsilonSVR` with the
-given kernel and arguments.
-"""
-pipeline(::DataSet; kernel=Kernel.RadialBasis, args...) =
-    ContinuousEncoder() |>
-    Standardizer() |>
-    TransformedTargetModel(EpsilonSVR(;kernel, args...); transformer=Standardizer())
 
 # Metadata (optional)
 
@@ -99,7 +79,10 @@ macro dataset(type, name, path, header, target)
 end
 
 # DataSets that are used in Frenay and Verleysen (2016)
-abstract type Frenay <: DataSet end
+abstract type CategoricalDataSet <: DataSet end
+abstract type RegressionDataSet <: DataSet end
+
+abstract type Frenay <: CategoricalDataSet end
 doi(::Frenay) = "10.1016/j.neucom.2010.11.037"
 
 # DataSet relative size according to Frenay and Verleysen (2016)
@@ -107,6 +90,27 @@ abstract type Large <: Frenay end
 abstract type Small <: Frenay end
 
 datasetdir(path...) = datadir("exp_raw", path...)
+
+unpack(ds::DataSet; args...) = unpack(data(ds), ==(target(ds)); args...)
+partition(ds::DataSet; ratio=0.8, shuffle=true, rng=1234, args...) =
+    partition(unpack(ds), ratio; shuffle, rng, multi=true, args...)
+
+
+"""
+# Create an MLJ pipeline for the given dataset.
+
+The pipeline is a `ContinuousEncoder` followed by a `Standardizer` and
+a `TransformedTargetModel` which applies the `Standardizer` to
+the target variable also. The base model is an `EpsilonSVR` with the
+given kernel and arguments.
+"""
+pipeline(ds::DataSet; kernel=Kernel.RadialBasis, args...) =
+    ContinuousEncoder() |>
+    Standardizer() |>
+    TransformedTargetModel(basemodel(ds)(;kernel, args...); transformer=Standardizer())
+
+basemodel(::RegressionDataSet) = @load EpsilonSVR pkg=LIBSVM verbosity=0
+basemodel(::CategoricalDataSet) = @load SVC pkg=LIBSVM verbosity=0
 
 ################################################################################
 # Abalone
@@ -240,7 +244,10 @@ url(::Triazines) = "https://www.dcc.fc.up.pt/~ltorgo/Regression/triazines.tgz"
 # MNIST
 ################################################################################
 
-struct Mnist <: DataSet end
+struct Mnist <: CategoricalDataSet end
+
+const mnist = Mnist()
+push!(all, mnist)
 
 raw_data(::Mnist) = MNIST(;split=:train), MNIST(;split=:test)
 
@@ -252,7 +259,7 @@ preprocess(::Mnist) = function(data)
 
     # Flatten images into vectors
     Xflat = reshape(X, :, size(X, 3))'
-    
+
     return categorical(y), table(Xflat)
 end
 
@@ -260,7 +267,7 @@ unpack(ds::Mnist) = data(ds)
 
 # No need to one-hot encode or standardize for MNIST
 # Also, we use SVC, since it is a classification problem
-pipeline(::Mnist; kernel=Kernel.RadialBasis, args...) = SVC(;kernel, args...)
+pipeline(ds::Mnist; kernel=Kernel.RadialBasis, args...) = basemodel(ds)(;kernel, args...)
 
 url(::Mnist) = "http://yann.lecun.com/exdb/mnist/"
 
