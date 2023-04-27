@@ -63,9 +63,30 @@ doi(ds::DataSet) = error("doi not implemented for $(typeof(ds))")
 # Holds the list of all datasets defined in this file
 all = []
 
+"""
 # Helper macro to declare datasets
+
+The macro takes the following arguments:
+
+- `type`: the type of the dataset (e.g. `Large`, `Small`)
+- `name`: the name of the dataset (e.g. `Abalone`)
+- `path`: the path to the dataset (e.g. `datadir("abalone")`)
+- `header`: An integer to say which row has the header, or an
+array of strings to specify the header manually (`false` to generate
+a header automatically)
+- `target`: the name of the target variable (e.g. `:Rings`).
+
+### Important
+
+The compilation will fail if the target is not part of the header.
+
+"""
 macro dataset(type, name, path, header, target)
     lowername = Symbol(lowercase(string(name)))
+    # if header is an array, check that target is in it
+    if eval(header) isa AbstractArray
+        @assert eval(target) in eval(header) "target not in header"
+    end
     esc(quote
         struct $name <: $type end
         const $lowername = $name()
