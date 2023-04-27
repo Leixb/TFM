@@ -28,6 +28,7 @@ jobs:
     - name: julia tests
       run: |
         export JULIA_PROJECT="$PWD"
+        export DATADEPS_ALWAYS_ACCEPT=true
         echo "::info ::JULIA_PROJECT=$JULIA_PROJECT"
         nix develop --impure --command julia --eval "using Pkg; Pkg.instantiate()"
         nix develop --impure --command julia --color=yes test/runtests.jl
