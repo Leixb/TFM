@@ -37,7 +37,7 @@ partition(ds::DataSet; ratio=0.8, shuffle=true, rng=1234, args...) =
     partition(unpack(ds), ratio; shuffle, rng, multi=true, args...)
 
 """
-Creates an MLJ pipeline for the given dataset.
+# Create an MLJ pipeline for the given dataset.
 
 The pipeline is a `ContinuousEncoder` followed by a `Standardizer` and
 a `TransformedTargetModel` which applies the `Standardizer` to
@@ -151,7 +151,8 @@ preprocess(::CPU) = (X -> coerce(X,
 ))
 
 """
-Specific pipeline for CPU dataset
+
+# Specific pipeline for CPU dataset
 
 - `:Vendor` is encoded by keeping the top 3 most frequent values and setting
 the rest to `OTHER`.

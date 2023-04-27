@@ -6,22 +6,6 @@ using MLJModelInterface
 
 const MMI = MLJModelInterface
 
-"""
-Takes all categorical columns and only uses the top n categories for each. The
-rest are replaced with a new category called "OTHER".
-
-# Arguments
- - `features`: a vector of features to be encoded. If empty, all categorical
-   features are encoded.
- - `n`: the number of top categories to be used. If negative or nothing, all
-  categories are used.
- - `cutoff`: if cutoff is an integer, take all categories with count >= cutoff,
-   if it's a float (between 0 and 1), take all with higher relative frequency.
- - `other`: the name of the new category for the rest of the categories.
- - `ordered_factor`: if true, consider also ordered factors.
- - `ignore`: if true, ignore the features specified in `features` and encode
-   all categorical features except those.
-"""
 @mlj_model mutable struct TopCatTransformer <: Unsupervised
     features::Vector{Symbol}                     = Symbol[]
     n::Union{Int,Nothing}                        = 5
@@ -30,6 +14,23 @@ rest are replaced with a new category called "OTHER".
     ordered_factor::Bool                         = true
     ignore::Bool                                 = false
 end
+
+@doc """
+Takes all categorical columns and only uses the top n categories for each. The
+rest are replaced with a new category called "OTHER".
+
+### Arguments
+ - `features`: a vector of features to be encoded. If empty, all categorical
+   features are encoded.
+ - `n`: the number of top categories to be used. If negative or nothing, all
+   categories are used.
+ - `cutoff`: if cutoff is an integer, take all categories with count >= cutoff,
+   if it's a float (between 0 and 1), take all with higher relative frequency.
+ - `other`: the name of the new category for the rest of the categories.
+ - `ordered_factor`: if true, consider also ordered factors.
+ - `ignore`: if true, ignore the features specified in `features` and encode
+   all categorical features except those.
+""" TopCatTransformer
 
 export TopCatTransformer
 
