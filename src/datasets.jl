@@ -85,7 +85,7 @@ end
 abstract type CategoricalDataSet <: DataSet end
 abstract type RegressionDataSet <: DataSet end
 
-abstract type Frenay <: CategoricalDataSet end
+abstract type Frenay <: RegressionDataSet end
 doi(::Frenay) = "10.1016/j.neucom.2010.11.037"
 
 # DataSet relative size according to Frenay and Verleysen (2016)
@@ -101,7 +101,7 @@ datasetdir(path...) = joinpath(ENV["DATASETS"], path...)
 @dataset Large Abalone datasetdir("abalone") [
     :Sex, :Length, :Diameter, :Height, :Whole_weight, :Shucked_weight, :Viscera_weight, :Shell_weight, :Rings
 ] :Rings
-preprocess(ds::Abalone) = X -> coerce(X, target(ds) => Continuous)
+preprocess(ds::Abalone) = X -> coerce(X, target(ds) => Continuous, :Sex => Multiclass)
 
 url(::Abalone) = "https://archive.ics.uci.edu/ml/machine-learning-databases/abalone/abalone.data"
 
