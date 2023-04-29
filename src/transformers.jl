@@ -1,3 +1,5 @@
+module Transformers
+
 using MLJBase
 using Tables
 using CategoricalArrays
@@ -14,6 +16,8 @@ const MMI = MLJModelInterface
     ordered_factor::Bool                         = true
     ignore::Bool                                 = false
 end
+
+export TopCatTransformer
 
 @doc """
 Takes all categorical columns and only uses the top n categories for each. The
@@ -118,4 +122,6 @@ function MMI.transform(transformer::TopCatTransformer, fitresult, X)
     end
 
     return X
+end
+
 end

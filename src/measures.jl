@@ -1,8 +1,9 @@
+module Measures
+
 using MLJBase
 using StatisticalTraits
 
-abstract type Measure <: MLJType end
-abstract type Aggregated <: Measure end
+import MLJBase: Measure, Aggregated
 
 struct MeanSquaredError <: Aggregated end
 
@@ -29,3 +30,5 @@ metadata_measure(MeanSquaredError;
                  prediction_type          = :deterministic,
                  orientation              = :loss,
                  aggregation              = MeanSquare())
+
+end

@@ -8,8 +8,8 @@ using LIBSVM: Kernel
 import MLJ: unpack, partition
 
 using ..DataSets: DataSet, data, target, CategoricalDataSet, RegressionDataSet, CPU, MNIST, Cancer
-import ..TopCatTransformer
-import ..mse
+import ..Transformers: TopCatTransformer
+import ..Measures: mse
 
 """
 Split the dataset into features and target.

@@ -78,7 +78,7 @@ end
 
 @testset "top n transformer" begin
     using MLJ
-    using TFM
+    using TFM.Transformers
     X = (vendor=categorical(["IBM", "HP", "HP", "Asus", "IBM", "honeywell", "hello", "IBM"]),
          height=[1.85, 1.67, 1.5, 1.67, 1.85, 1.67, 1.5, 1.67],
          grade=categorical(["A", "B", "A", "B", "A", "B", "B", "A"], ordered=true),

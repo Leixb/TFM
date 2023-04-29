@@ -1,13 +1,17 @@
 module TFM
 
-include("./TopNCategoriesTransformer.jl")
-export TopCatTransformer
+using Reexport
+
+@reexport using DataFrames, MLJ
+
+include("./transformers.jl")
+export Transformers
 
 include("./resampling.jl")
 export Resampling
 
-include("./mse.jl")
-export MSE, MeanSquaredError, mse, mean_squared_error
+include("./measures.jl")
+export Measures
 
 include("./datasets.jl")
 export DataSets
