@@ -19,4 +19,7 @@ export DataSets
 include("./models.jl")
 export Models
 
+include("./experiments.jl")
+export Experiments
+
 end # module TFM
