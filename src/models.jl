@@ -7,7 +7,7 @@ using LIBSVM: Kernel
 
 import MLJ: unpack, partition
 
-using ..DataSets: DataSet, data, target, CategoricalDataSet, RegressionDataSet, CPU, MNIST
+using ..DataSets: DataSet, data, target, CategoricalDataSet, RegressionDataSet, CPU, MNIST, Cancer
 import ..TopCatTransformer
 import ..mse
 
@@ -71,6 +71,10 @@ the rest to `OTHER`.
 pipeline(ds::CPU; args...) =
     FeatureSelector(features=[:Model], ignore=true) |>
     TopCatTransformer(n=3) |>
+    invoke(pipeline, Tuple{DataSet}, ds; args...)
+
+pipeline(ds::Cancer; args...) =
+    FeatureSelector(features=[:Column1], ignore=true) |>
     invoke(pipeline, Tuple{DataSet}, ds; args...)
 
 """
