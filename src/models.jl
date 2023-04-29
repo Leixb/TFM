@@ -100,24 +100,26 @@ function tuned_model(model; step=1.0, resampling=CV(nfolds=10), measure=mse, arg
     end
 
     param_range = [
-        range(inner_model, :cost, values = 10 .^ (-2:step:6))
+        range(model, :(transformed_target_model_deterministic.model.cost), values = 10 .^ (-2:step:6))
     ]
 
     if inner_model isa MLJLIBSVMInterface.EpsilonSVR
         param_range = vcat(param_range,
-            range(model, :epsilon, values = 10 .^ (-5:step:1)),
+            range(model, :(transformed_target_model_deterministic.model.epsilon), values = 10 .^ (-5:step:1)),
         )
-    elseif ! (inner_model isa MLJLIBSVMInterface.SVC)
+    elseif inner_model isa MLJLIBSVMInterface.SVC
+        measure = accuracy
+    else
         error("Model $(typeof(inner_model)) not supported")
     end
 
     if inner_model.kernel == Kernel.RadialBasis
         param_range = vcat(param_range,
-            range(model, :(gamma), values = 10 .^ (-3:step:0)),
+            range(model, :(transformed_target_model_deterministic.model.gamma), values = 10 .^ (-3:step:0)),
         )
-    elseif inner_model.kernel == Kernel.Asin
+    elseif inner_model.kernel == Kernel.Asin || inner_model.kernel == Kernel.AsinNorm
         param_range = vcat(param_range,
-            range(model, :(gamma), values = gamma_values),
+            range(model, :(transformed_target_model_deterministic.model.gamma), values = gamma_values),
         )
     else
         error("Kernel $(inner_model.kernel) not supported")
