@@ -27,8 +27,7 @@ for ds in DataSets.all
         filename="$(ds)_$(kernel).jld2"
         if isfile(filename)
             @info "$(filename) already exists, loading and skipping..."
-            mach = MLJ.load(filename)
-            machines["$(ds) $(kernel)"] = mach
+            machines["$(ds) $(kernel)"] = machine(filename)
             continue
         end
 
