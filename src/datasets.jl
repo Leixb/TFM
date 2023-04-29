@@ -22,6 +22,14 @@ and preprocessing a dataset.
 """
 abstract type DataSet end
 
+function Base.show(io::IO, ds::DataSet)
+    type_name = string(typeof(ds))
+    name = split(type_name, '.') |> last
+    print(io, name)
+end
+
+Base.show(io::IO, ::MIME"text/plain", ds::DataSet) = print(io, typeof(ds), "()")
+
 # These methods should only be implemented if the dataset is not
 # in a proper CSV format.
 data(ds::DataSet) = raw_data(ds) |> preprocess(ds)
