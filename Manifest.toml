@@ -2,7 +2,7 @@
 
 julia_version = "1.9.0-rc1"
 manifest_format = "2.0"
-project_hash = "bf5e7d191c9c612d2f9ac68f81939235e6243802"
+project_hash = "9c9d424b6fa335dc575594530597aeaad4e30f52"
 
 [[deps.ARFFFiles]]
 deps = ["CategoricalArrays", "Dates", "Parsers", "Tables"]
@@ -375,6 +375,12 @@ git-tree-sha1 = "249fe38abf76d48563e2f4556bebd215aa317e15"
 uuid = "a8cc5b0e-0ffa-5ad4-8c14-923d3ee1735f"
 version = "4.1.1"
 
+[[deps.Cthulhu]]
+deps = ["CodeTracking", "FoldingTrees", "InteractiveUtils", "JuliaSyntax", "Preferences", "REPL", "SnoopPrecompile", "TypedSyntax", "UUIDs", "Unicode", "WidthLimitedIO"]
+git-tree-sha1 = "c0a1ee2a81539f438a3bfcf19c4ec0805d523a4d"
+uuid = "f68482b8-f384-11e8-15f7-abe071a5a75f"
+version = "2.8.13"
+
 [[deps.DataAPI]]
 git-tree-sha1 = "e8119c1a33d267e16108be441a287a6981ba1630"
 uuid = "9a962f9c-6df0-11e9-0e5d-c546b8b5ee8a"
@@ -585,6 +591,12 @@ deps = ["Statistics"]
 git-tree-sha1 = "335bfdceacc84c5cdf16aadc768aa5ddfc5383cc"
 uuid = "53c48c17-4a7d-5ca2-90c5-79b7896eea93"
 version = "0.8.4"
+
+[[deps.FoldingTrees]]
+deps = ["AbstractTrees", "REPL"]
+git-tree-sha1 = "d94efd85f2fe192cdf664aa8b7c431592faed59e"
+uuid = "1eca21be-9b9b-4ed8-839a-6d8ae26b1781"
+version = "1.2.1"
 
 [[deps.FoldsThreads]]
 deps = ["Accessors", "FunctionWrappers", "InitialValues", "SplittablesBase", "Transducers"]
@@ -1018,6 +1030,11 @@ deps = ["CodeTracking", "InteractiveUtils", "Random", "UUIDs"]
 git-tree-sha1 = "6a125e6a4cb391e0b9adbd1afa9e771c2179f8ef"
 uuid = "aa1ae85d-cabe-5617-a682-6adf51b2e16a"
 version = "0.9.23"
+
+[[deps.JuliaSyntax]]
+git-tree-sha1 = "fbdb318bfd2dc9e42174f1943ed91b9beca6df55"
+uuid = "70703baa-626e-46a2-a12c-08ffd08c73b4"
+version = "0.3.4"
 
 [[deps.JuliaVariables]]
 deps = ["MLStyle", "NameResolution"]
@@ -1512,6 +1529,12 @@ deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "887579a3eb005446d514ab7aeac5d1d027658b8f"
 uuid = "e7412a2a-1a6e-54c0-be00-318e2571c051"
 version = "1.3.5+1"
+
+[[deps.OhMyREPL]]
+deps = ["Crayons", "JLFzf", "JuliaSyntax", "Markdown", "Pkg", "Printf", "REPL"]
+git-tree-sha1 = "db0348e63d192fc5e28eaa3ec82483c6e9bd44d4"
+uuid = "5fb14364-9ced-5910-84b2-373655c76a03"
+version = "0.5.20"
 
 [[deps.OpenBLAS_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
@@ -2241,6 +2264,12 @@ version = "0.1.1"
 deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]
 uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
+[[deps.TestEnv]]
+deps = ["Pkg"]
+git-tree-sha1 = "b5a483bcc8c9f0df569101df166601e5e699f346"
+uuid = "1e6cf692-eddd-4d53-88a5-2d735e33781b"
+version = "1.9.3"
+
 [[deps.TestItemDetection]]
 deps = ["CSTParser"]
 git-tree-sha1 = "c63abb8bf01ba3f0e5421760454d578ee9bd12ca"
@@ -2314,6 +2343,12 @@ git-tree-sha1 = "3c712976c47707ff893cf6ba4354aa14db1d8938"
 uuid = "9d95972d-f1c8-5527-a6e0-b4b365fa01f6"
 version = "1.3.0"
 
+[[deps.TypedSyntax]]
+deps = ["CodeTracking", "JuliaSyntax"]
+git-tree-sha1 = "fa9ca390d3b437f35c9ab33954fc0b294b011e09"
+uuid = "d265eb64-f81a-44ad-a842-4247ee1503de"
+version = "1.1.9"
+
 [[deps.URIs]]
 git-tree-sha1 = "074f993b0ca030848b897beff716d93aca60f06a"
 uuid = "5c2747f8-b7ea-4ff2-ba2e-563bfd36b1d4"
@@ -2382,6 +2417,12 @@ deps = ["Observables"]
 git-tree-sha1 = "30a1d631eb06e8c868c559599f915a62d55c2601"
 uuid = "eead4739-05f7-45a1-878c-cee36b57321c"
 version = "0.1.4"
+
+[[deps.WidthLimitedIO]]
+deps = ["Unicode"]
+git-tree-sha1 = "71142739e695823729a335e9bc124ef41ec1433a"
+uuid = "b8c1c048-cf81-46c6-9da0-18c1d99e41f2"
+version = "1.0.1"
 
 [[deps.WoodburyMatrices]]
 deps = ["LinearAlgebra", "SparseArrays"]
