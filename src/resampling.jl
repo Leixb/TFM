@@ -102,4 +102,11 @@ function FiveTwo(; rng=nothing)
     return FiveTwo(rng)
 end
 
+# Functions to print resampling strategies inside filenames
+Base.show(io::IO, resampling::CV) = print(io, "CV-$(resampling.nfolds)")
+Base.show(io::IO, resampling::Holdout) = print(io, "Holdout-$(resampling.fraction_train)")
+Base.show(io::IO, ::TwoFold) = print(io, "TwoFold")
+Base.show(io::IO, resampling::RepeatedCV{TwoFold}) = print(io, resampling.repeats, "x2")
+Base.show(io::IO, resampling::RepeatedCV) = print(io, "$(resampling.repeats)x", resampling.resampling)
+
 end
