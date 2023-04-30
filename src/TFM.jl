@@ -5,6 +5,14 @@ using Reexport
 @reexport using DataFrames, MLJ
 @reexport import LIBSVM
 
+"""
+Root type for all custom types in the TFM module.
+
+Note: this is only used for types that are not part of the MLJ framework
+or any other package.
+"""
+abstract type TFMType end
+
 include("./transformers.jl")
 export Transformers
 
