@@ -12,6 +12,8 @@ import CSV
 import DataFrames.DataFrame
 using LIBSVM: Kernel
 
+import ..TFMType
+
 using MLJ
 
 using MLDatasets: MNIST as MNISTData
@@ -20,7 +22,7 @@ using MLDatasets: MNIST as MNISTData
 DataSet is the top abstract type that provides the interface for reading
 and preprocessing a dataset.
 """
-abstract type DataSet end
+abstract type DataSet <: TFMType end
 
 function Base.show(io::IO, ds::DataSet)
     type_name = string(typeof(ds))

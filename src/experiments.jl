@@ -10,6 +10,8 @@ import ..Measures: MeanSquaredError
 import ..Resampling
 import ..Models
 
+import ..TFMType
+
 """
 # Experiment
 
