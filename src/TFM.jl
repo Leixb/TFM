@@ -3,6 +3,7 @@ module TFM
 using Reexport
 
 @reexport using DataFrames, MLJ
+@reexport import LIBSVM
 
 include("./transformers.jl")
 export Transformers
