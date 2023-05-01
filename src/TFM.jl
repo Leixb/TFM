@@ -22,11 +22,6 @@ export Resampling
 include("./measures.jl")
 export Measures
 
-# HACK: Export `mse` like this so that deserialization works with machines
-# that were saved before the Measures module was created.
-function mse(ŷ, y) return Measures.mse(ŷ, y) end
-export mse
-
 include("./datasets.jl")
 export DataSets
 
@@ -35,5 +30,13 @@ export Models
 
 include("./experiments.jl")
 export Experiments
+
+# HACK: Export `mse` like this so that deserialization works with machines
+# that were saved before the Measures module was created.
+import .Measures
+function mse(ŷ, y) return Measures.mse(ŷ, y) end
+export mse
+
+@reexport import .Transformers: TopCatTransformer, TopCatResult
 
 end # module TFM
