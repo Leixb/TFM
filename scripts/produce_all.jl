@@ -32,7 +32,7 @@ parameters_asin = Dict(
     parameters_common...
 )
 
-parameters_all = dict_list(parameters_asin) + dict_list(parameters_rbf)
+parameters_all = [dict_list(parameters_asin) ; dict_list(parameters_rbf)]
 
 @info "This will run $(length(parameters_all)) experiments ..."
 
