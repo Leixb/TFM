@@ -11,7 +11,7 @@ const MMI = MLJModelInterface
 @mlj_model mutable struct TopCatTransformer <: Unsupervised
     features::Vector{Symbol}                     = Symbol[]
     n::Union{Int,Nothing}                        = 5
-    cutoff::Union{Integer,AbstractFloat,Nothing} = nothing # if cutoff is an integer, take all categories with count >= cutoff, if it's a float (between 0 and 1), take all with higher relative frequency.
+    cutoff::Union{UInt,Float64,Nothing} = nothing # if cutoff is an integer, take all categories with count >= cutoff, if it's a float (between 0 and 1), take all with higher relative frequency.
     other::String                                = "OTHER"
     ordered_factor::Bool                         = true
     ignore::Bool                                 = false
@@ -58,7 +58,7 @@ function MLJBase.fit(transformer::TopCatTransformer, verbosity::Int, X)
     end
 
     allowed_scitypes = ifelse(transformer.ordered_factor, Finite, Multiclass)
-    top_n_given_feature = Dict{Symbol,AbstractArray{AbstractString}}()
+    top_n_given_feature = Dict{Symbol,Vector{String}}()
     col_scitypes = schema(X).scitypes
     # apply on each feature
     for j in eachindex(all_features)
@@ -81,7 +81,7 @@ function MLJBase.fit(transformer::TopCatTransformer, verbosity::Int, X)
                     topn = Iterators.takewhile(topn) do (ref, count)
                         count >= transformer.cutoff
                     end
-                else # transformer.cutoff isa AbstractFloat
+                else # transformer.cutoff isa Float
                     @assert 0 <= transformer.cutoff <= 1 "cutoff must be between 0 and 1 (or an integer)"
                     topn = Iterators.takewhile(topn) do (ref, count)
                         count / length(col) >= transformer.cutoff
