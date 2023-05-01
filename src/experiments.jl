@@ -92,8 +92,13 @@ model_parameters(::SVCConfig) = [ :kernel, :cost, :gamma ]
 
 allaccess(svm::SVMConfig) = [ :dataset, :resampling, :measure, model_parameters(svm)...]
 
-default_prefix(ex::EpsilonSVRConfig) = "svr_$(ex.info.date)"
-default_prefix(ex::SVCConfig) = "svc_$(ex.info.date)"
+has_run(ex::SVMConfig) = ex.info isa ExecutionInfo
+_assert_has_run(ex::SVMConfig) = @assert has_run(ex) "$(ex) has not been run yet."
+
+function default_prefix(ex::SVMConfig)
+    _assert_has_run(ex)
+    "svc_$(ex.info.date)"
+end
 
 default_allowed(::TFMType) = (
     Real, String, Symbol, TimeType, Kernel.KERNEL, DataSet, ResamplingStrategy, MLJBase.Measure
