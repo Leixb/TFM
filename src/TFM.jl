@@ -31,6 +31,9 @@ export Models
 include("./experiments.jl")
 export Experiments
 
+include("./utils.jl")
+export Utils
+
 # HACK: Export `mse` like this so that deserialization works with machines
 # that were saved before the Measures module was created.
 import .Measures
