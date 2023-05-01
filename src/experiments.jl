@@ -75,7 +75,7 @@ end
 
 abstract type SVMConfig <: TFMType end
 
-Base.@kwdef mutable struct EpsilonSVRConfig <: SVMConfig
+Base.@kwdef struct EpsilonSVRConfig <: SVMConfig
     dataset::RegressionDataSet
 
     # Evaluation parameters
@@ -88,14 +88,9 @@ Base.@kwdef mutable struct EpsilonSVRConfig <: SVMConfig
     gamma::Float64 = 0.0
     epsilon::Float64 = 0.1
     extra_params::Dict{Symbol, Any} = Dict{Symbol, Any}()
-
-    # Execution metadata
-    info::Union{Nothing, ExecutionInfo} = nothing
-    mach::Union{Nothing, MLJBase.Machine} = nothing
-    result::Union{Nothing, PerformanceEvaluation} = nothing
 end
 
-Base.@kwdef mutable struct SVCConfig <: SVMConfig
+Base.@kwdef struct SVCConfig <: SVMConfig
     dataset::CategoricalDataSet
 
     # Evaluation parameters
@@ -107,11 +102,6 @@ Base.@kwdef mutable struct SVCConfig <: SVMConfig
     cost::Float64 = 1.0
     gamma::Float64 = 0.0
     extra_params::Dict{Symbol, Any} = Dict{Symbol, Any}()
-
-    # Execution metadata
-    info::Union{Nothing, ExecutionInfo} = nothing
-    mach::Union{Nothing, MLJBase.Machine} = nothing
-    result::Union{Nothing, PerformanceEvaluation} = nothing
 end
 
 model_parameters(::EpsilonSVRConfig) = [ :kernel, :cost, :gamma, :epsilon ]
@@ -120,9 +110,6 @@ model_parameters(::SVCConfig) = [ :kernel, :cost, :gamma ]
 # savename configuration
 
 allaccess(svm::SVMConfig) = [ :dataset, :resampling, :measure, model_parameters(svm)...]
-
-has_run(ex::SVMConfig) = ex.info isa ExecutionInfo
-_assert_has_run(ex::SVMConfig) = @assert has_run(ex) "$(ex) has not been run yet."
 
 default_prefix(::SVMConfig) = "SVM"
 default_prefix(::EpsilonSVRConfig) = "SVR"
@@ -140,36 +127,45 @@ function model(svm::SVMConfig)
     Models.pipeline(svm.dataset; parameters..., svm.extra_params...)
 end
 
-function run!(svm::SVMConfig)::PerformanceEvaluation
+function run(svm::SVMConfig)::Tuple{PerformanceEvaluation, ExecutionInfo, Machine}
     start = Dates.now()
 
     X, y = unpack(svm.dataset)
-    svm.mach = machine(model(svm), X, y)
+    mach = machine(model(svm), X, y)
 
-    svm.result = evaluate!(svm.mach; svm.resampling, svm.measure)
+    result = evaluate!(mach; svm.resampling, svm.measure)
 
     duration = Dates.now() - start
-    svm.info = ExecutionInfo(;duration)
+    info = ExecutionInfo(;duration)
 
-    return svm.result
+    return result, info, mach
 end
 
-default_savefile(svm::SVMConfig) = datadir(savename(svm, "jld2"))
-
-function save(svm::SVMConfig; filename::String=default_savefile(svm))
-    _assert_has_run(svm)
-    @info "Saving to $(filename)"
-    tagsave(filename, struct2dict(svm))
-end
+default_savefile(svm::SVMConfig) = datadir("svms", savename(svm, "jld2"))
 
 function load(svm::SVMConfig; filename::String=default_savefile(svm))
     @info "Loading $(filename)"
     wload(filename)
 end
 
-produce_or_load(svm::SVMConfig) = produce_or_load(svm; filename=default_savefile(svm)) do ex
-    run!(ex)
-    struct2dict(ex)
+function produce_or_load(svm::SVMConfig; filename=default_savefile(svm), kwargs...)
+    produce_or_load(svm; prefix="", suffix="", filename, tag=true, kwargs...) do ex
+        perf, info, mach = run(ex)
+
+        result = merge(struct2dict(ex), struct2dict(info))
+
+        # From the performance evaluation, we save it into result and expose the
+        # two most important fields: measurement and per_fold
+        result[:result] = perf
+        result[:measurement] = perf.measurement[1]
+        result[:per_fold] = perf.per_fold[1]
+
+        # We also save the fitted machine, so that we can use it later to make predictions
+        # quickly
+        result[:machine] = mach
+
+        result
+    end
 end
 
 end # module Experiments
