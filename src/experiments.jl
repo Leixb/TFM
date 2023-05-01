@@ -2,14 +2,12 @@ module Experiments
 
 using Dates
 using MLJ, MLJBase
-using Base: @kwdef
 using LIBSVM
 
 import DrWatson: allaccess, default_prefix, default_allowed
 
 import ..DataSets: DataSet, CategoricalDataSet, RegressionDataSet
 import ..Measures: MeanSquaredError
-import ..Resampling: TwoFold, FiveTwo, RepeatedCV
 import ..Models
 
 import ..TFMType
@@ -29,7 +27,7 @@ be able to save it into a file and *to store and reproduce it* later.
 
 ## Interface
 
-- `run(experiment::Experiment)`: run the experiment and store the results.
+- `run!(experiment::Experiment)`: run the experiment and store the results.
 - `save(experiment::Experiment, filename::String)`: save the experiment to a file.
 - `load(filename::String)::Experiment`: load an experiment from a file.
 
@@ -38,119 +36,22 @@ be able to save it into a file and *to store and reproduce it* later.
 - [DrWatson: Saving Tools](https://juliadynamics.github.io/DrWatson.jl/dev/save/)
 
 """
-abstract type Experiment <: TFMType end
-
-default_prefix(::Experiment) = "experiment"
-default_allowed(::Experiment) = (
-    Real, String, Symbol, TimeType, Kernel.KERNEL, DataSet
-)
-
-default_allowed
-
-run!(ex::Experiment) = error("run!($(typeof(ex))) not implemented")
-save(ex::Experiment, ::String) = error("save($(typeof(ex)), filename) not implemented")
-
-abstract type MLJTunedModelExperimentResult end
-
-struct SimpleMLJTunedModelExperimentResult
-    machine::Any
-    # measure::Float64
-    elapsed::Dates.Period
-end
-
-
-@kwdef mutable struct MLJTunedModelExperiment <: Experiment
-    executed::Bool = false
-
+Base.@kwdef struct ExecutionInfo <: TFMType
     date::Date = Date(Dates.now())
     host::String = gethostname()
-
-    kernel::LIBSVM.Kernel.KERNEL
-    dataset::DataSet
-    model::Union{Nothing, Model}
-
-    resampling::ResamplingStrategy = CV(nfolds=5)
-    partition::Union{Nothing, AbstractFloat} = nothing
-    measure::MLJBase.Measure = MeanSquaredError()
-    grid_step::AbstractFloat = 1.0
-
-    start_time::Union{Nothing, Dates.TimeType} = nothing
-    end_time::Union{Nothing, Dates.TimeType} = nothing
-
-    result::Union{Nothing, SimpleMLJTunedModelExperimentResult} = nothing
-end
-
-allaccess(::MLJTunedModelExperiment) = [
-    :kernel, :dataset, :grid_step, :measure
-]
-default_prefix(ex::MLJTunedModelExperiment) = "experiment_mlj_$(ex.date)"
-
-function MLJTunedModelExperiment(kernel::LIBSVM.Kernel.KERNEL, dataset::DataSet, model::Union{Nothing, Model}=nothing; model_params::Dict{Symbol, Any}=Dict{Symbol, Any}(), kwargs...)
-    if model === nothing
-        model = Models.pipeline(dataset; kernel, model_params...)
-    end
-    out = MLJTunedModelExperiment(;kernel, dataset, model, kwargs...)
-    return out
-end
-
-function run!(ex::MLJTunedModelExperiment; force=false)::SimpleMLJTunedModelExperimentResult
-    if ex.executed && !force
-        @warn("Experiment already executed, loading results. (use force=true to force re-execution))")
-        return ex.result
-    end
-    ex.executed = true
-    ex.start_time = Dates.now()
-
-    @info "Loading dataset $(ex.dataset)"
-        Xtrain, ytrain = if ex.partition === nothing
-        @info "No partition defined, loading full dataset"
-        unpack(ex.dataset)
-    elseif 0.0 < ex.partition < 1.0
-        @info "Partition defined, loading $(ex.partition) of dataset as training set"
-        (Xtrain, Xtest), (ytrain, ytest) = partition(ex.dataset, ex.partition)
-    else
-        error("Invalid partition value: $(ex.partition)")
-    end
-    @info "Loading dataset $(ex.dataset) done after $(Dates.now() - ex.start_time)"
-
-    # Reset time, so that we measure only the time of the model fitting
-    ex.start_time = Dates.now()
-
-    mach = machine(ex.model, Xtrain, ytrain)
-    MLJ.fit!(mach)
-
-    ex.end_time = Dates.now()
-
-    ex.result = SimpleMLJTunedModelExperimentResult(
-        mach,
-        # r.best_model, r.measure,
-        ex.end_time - ex.start_time)
-
-    return ex.result
-end
-
-"""
-Execution metadata
-"""
-@kwdef struct ExecutionInfo <: TFMType
-    date::Date = Date(Dates.now())
-    host::String = gethostname()
-
-    start_time::Union{Nothing, Dates.TimeType} = nothing
-    end_time::Union{Nothing, Dates.TimeType} = nothing
-    duration::Union{Nothing, Dates.Period} = nothing
+    duration::Dates.Period
 end
 
 # SVM without using tuning from MLJ
 
 abstract type SVMConfig <: TFMType end
 
-@kwdef struct EpsilonSVRConfig <: SVMConfig
+Base.@kwdef mutable struct EpsilonSVRConfig <: SVMConfig
     dataset::RegressionDataSet
 
     # Evaluation parameters
     resampling::ResamplingStrategy = CV(nfolds=5)
-    measure::MLJBase.Measure = RootMeanSquaredError()
+    measure::MLJBase.Measure = MeanSquaredError()
 
     # Model parameters
     kernel::LIBSVM.Kernel.KERNEL = LIBSVM.Kernel.RadialBasis
@@ -160,74 +61,64 @@ abstract type SVMConfig <: TFMType end
     extra_params::Dict{Symbol, Any} = Dict{Symbol, Any}()
 
     # Execution metadata
-    info::ExecutionInfo = ExecutionInfo()
-
+    info::Union{Nothing, ExecutionInfo} = nothing
+    mach::Union{Nothing, MLJBase.Machine} = nothing
     result::Union{Nothing, PerformanceEvaluation} = nothing
 end
 
-@kwdef struct SVCConfig <: SVMConfig
+Base.@kwdef mutable struct SVCConfig <: SVMConfig
     dataset::CategoricalDataSet
 
     # Evaluation parameters
     resampling::ResamplingStrategy = CV(nfolds=5)
-    measure::MLJBase.Measure = RootMeanSquaredError()
+    measure::MLJBase.Measure = MeanSquaredError()
 
+    # Model parameters
     kernel::LIBSVM.Kernel.KERNEL = LIBSVM.Kernel.RadialBasis
     cost::Float64 = 1.0
     gamma::Float64 = 0.0
     extra_params::Dict{Symbol, Any} = Dict{Symbol, Any}()
 
     # Execution metadata
-    info::Base.RefValue{ExecutionInfo} = C_NULL
-    result::Base.RefValue{PerformanceEvaluation} = C_NULL
+    info::Union{Nothing, ExecutionInfo} = nothing
+    mach::Union{Nothing, MLJBase.Machine} = nothing
+    result::Union{Nothing, PerformanceEvaluation} = nothing
 end
+
+model_parameters(::EpsilonSVRConfig) = [ :kernel, :cost, :gamma, :epsilon ]
+model_parameters(::SVCConfig) = [ :kernel, :cost, :gamma ]
 
 # savename configuration
 
-allaccess(::EpsilonSVRConfig) = [ :dataset, :resampling, :kernel, :cost, :gamma, :epsilon ]
-allaccess(::SVCConfig) = [ :dataset, :resampling, :kernel, :cost, :gamma ]
+allaccess(svm::SVMConfig) = [ :dataset, :resampling, :measure, model_parameters(svm)...]
 
 default_prefix(ex::EpsilonSVRConfig) = "svr_$(ex.info.date)"
 default_prefix(ex::SVCConfig) = "svc_$(ex.info.date)"
 
 default_allowed(::TFMType) = (
-    Real, String, Symbol, TimeType, Kernel.KERNEL, DataSet, ResamplingStrategy
+    Real, String, Symbol, TimeType, Kernel.KERNEL, DataSet, ResamplingStrategy, MLJBase.Measure
 )
 
-model(ex::SVMConfig) = error("model($(typeof(ex))) not implemented")
+function model(svm::SVMConfig)
+    parameters = map(model_parameters(svm)) do param
+        (param, getfield(svm, param))
+    end
 
-model(ex::EpsilonSVRConfig) = LIBSVM.EpsilonSVR(
-    kernel=ex.kernel,
-    cost=ex.cost,
-    gamma=ex.gamma,
-    epsilon=ex.epsilon,
-    ex.extra_params...
-)
+    Models.pipeline(svm.dataset; parameters..., svm.extra_params...)
+end
 
-model(ex::SVCConfig) = LIBSVM.SVC(
-    kernel=ex.kernel,
-    cost=ex.cost,
-    gamma=ex.gamma,
-    ex.extra_params...
-)
-
-function run(svm::SVMConfig)::PerformanceEvaluation
-    model = Models.pipeline(svm.dataset; svm.kernel, svm.cost, svm.gamma, svm.extra_params...)
-
-    # svm.info[] = ExecutionInfo()
-    # svm.info[].start_time = Dates.now()
+function run!(svm::SVMConfig)::PerformanceEvaluation
+    start = Dates.now()
 
     X, y = unpack(svm.dataset)
-    mach = machine(model, X, y)
+    svm.mach = machine(model(svm), X, y)
 
-    result = evaluate!(mach; resampling=svm.resampling, measure=svm.measure)
+    svm.result = evaluate!(svm.mach; svm.resampling, svm.measure)
 
-    # svm.info[].end_time = Dates.now()
-    # svm.info[].duration = svm.info[].end_time - svm.info[].start_time
+    duration = Dates.now() - start
+    svm.info = ExecutionInfo(;duration)
 
-    # svm.result[] = result
-
-    return result
+    return svm.result
 end
 
 end # module Experiments
