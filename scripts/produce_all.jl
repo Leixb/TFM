@@ -6,7 +6,7 @@ using Distributed
 using DrWatson
 using ProgressMeter
 
-step = 3.0
+step = 1.0
 
 datasets = filter(DataSets.all) do d
     !(d in [DataSets.mnist, DataSets.cancer])
