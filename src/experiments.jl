@@ -18,7 +18,7 @@ load the results from disk instead.
 The typical workflow is as follows:
 
 ```julia
-ex = EpsilonSVRConfig(DataSets.cpu, kernel=LIBSVM.Kernel.RadialBasis, cost=1.0, gamma=0.0, epsilon=0.1)
+ex = SVMConfig(DataSets.cpu, kernel=LIBSVM.Kernel.RadialBasis, cost=1.0, gamma=0.0, epsilon=0.1)
 results, file = produce_or_load(ex)
 ```
 
@@ -32,7 +32,7 @@ c = Dict(
     :epsilon => [0.1, 0.2, 0.3]
 )
 grid = map(dict_list(c)) do params
-    EpsilonSVRConfig(;dataset=DataSets.cpu, params...)
+    SVMConfig(;dataset=DataSets.cpu, params...)
 end
 
 results = map(produce_or_load, grid)
@@ -73,10 +73,8 @@ end
 
 # SVM without using tuning from MLJ
 
-abstract type SVMConfig <: TFMType end
-
-Base.@kwdef struct EpsilonSVRConfig <: SVMConfig
-    dataset::RegressionDataSet
+Base.@kwdef struct SVMConfig <: TFMType
+    dataset::DataSet
 
     # Evaluation parameters
     resampling::ResamplingStrategy = CV(nfolds=5)
@@ -86,34 +84,24 @@ Base.@kwdef struct EpsilonSVRConfig <: SVMConfig
     kernel::LIBSVM.Kernel.KERNEL = LIBSVM.Kernel.RadialBasis
     cost::Float64 = 1.0
     gamma::Float64 = 0.0
-    epsilon::Float64 = 0.1
+
+    # Regression specific
+    epsilon::Union{Float64,Nothing} = 0.1
+
     extra_params::Dict{Symbol, Any} = Dict{Symbol, Any}()
 end
 
-Base.@kwdef struct SVCConfig <: SVMConfig
-    dataset::CategoricalDataSet
+SVMConfig(;dataset, resampling, measure, kernel, cost, gamma, epsilon=dataset isa RegressionDataSet? 0.1 : nothing, extra_params...) =
+    SVMConfig(dataset, resampling, measure, kernel, cost, gamma, epsilon, Dict(extra_params...))
 
-    # Evaluation parameters
-    resampling::ResamplingStrategy = CV(nfolds=5)
-    measure::MLJBase.Measure = MeanSquaredError()
+is_regression(svm::SVMConfig) = svm.dataset isa RegressionDataSet
 
-    # Model parameters
-    kernel::LIBSVM.Kernel.KERNEL = LIBSVM.Kernel.RadialBasis
-    cost::Float64 = 1.0
-    gamma::Float64 = 0.0
-    extra_params::Dict{Symbol, Any} = Dict{Symbol, Any}()
-end
-
-model_parameters(::EpsilonSVRConfig) = [ :kernel, :cost, :gamma, :epsilon ]
-model_parameters(::SVCConfig) = [ :kernel, :cost, :gamma ]
+model_parameters(svm::SVMConfig) = [ :kernel, :cost, :gamma, (if is_regression(svm) :epsilon  end)]
 
 # savename configuration
-
 allaccess(svm::SVMConfig) = [ :dataset, :resampling, :measure, model_parameters(svm)...]
 
-default_prefix(::SVMConfig) = "SVM"
-default_prefix(::EpsilonSVRConfig) = "SVR"
-default_prefix(::SVCConfig) = "SVC"
+default_prefix(svm::SVMConfig) = is_regression(svm) ? "SVR" : "SVC"
 
 default_allowed(::TFMType) = (
     Real, String, Symbol, TimeType, Kernel.KERNEL, DataSet, ResamplingStrategy, MLJBase.Measure

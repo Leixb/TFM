@@ -42,14 +42,14 @@ readline() == "y" || error("Aborted.")
 addprocs(10)
 
 @everywhere begin
-    using TFM.Experiments: EpsilonSVRConfig, LoadedData
+    using TFM.Experiments: SVMConfig, LoadedData
     using DrWatson: produce_or_load
 
     ld = LoadedData()
 end
 
 successes = @showprogress pmap(parameters_all) do params
-    ex = EpsilonSVRConfig(;params...)
+    ex = SVMConfig(;params...)
     _, file = produce_or_load(ex; cache=ld, loadfile=false)
     1
 end
