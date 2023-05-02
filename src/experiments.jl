@@ -154,7 +154,7 @@ end
 function run(svm::SVMConfig, X, y)::Tuple{PerformanceEvaluation, ExecutionInfo, Machine}
     start = Dates.now()
 
-    mach = machine(model(svm), X, y)
+    mach = machine(model(svm), X, y, cache=false)
 
     result = evaluate!(mach; svm.resampling, svm.measure)
 
