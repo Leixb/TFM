@@ -50,8 +50,7 @@ end
 
 successes = @showprogress pmap(parameters_all) do params
     ex = SVMConfig(;params...)
-    # WARNING: Remove the `force=true` argument once this special run is done
-    _, file = produce_or_load(ex; loadfile=false, force=true)
+    _, file = produce_or_load(ex; loadfile=false)
     1
 end
 
