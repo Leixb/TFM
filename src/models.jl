@@ -59,7 +59,7 @@ pipeline(ds::DataSet; kernel=Kernel.RadialBasis, args...) =
     Standardizer() |>
     TransformedTargetModel(basemodel(ds)(;kernel, args...); transformer=Standardizer())
 
-drop_columns(features::Symbol...) = FeatureSelector(features=features, ignore=true)
+drop_columns(features::Symbol...) = FeatureSelector(features=[features...], ignore=true)
 
 """
 
