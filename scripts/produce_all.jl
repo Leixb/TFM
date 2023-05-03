@@ -44,10 +44,8 @@ readline() == "y" || error("Aborted.")
 addprocs(10)
 
 @everywhere begin
-    using TFM.Experiments: SVMConfig, LoadedData
+    using TFM.Experiments: SVMConfig
     using DrWatson: produce_or_load
-
-    ld = LoadedData()
 end
 
 successes = @showprogress pmap(parameters_all) do params
