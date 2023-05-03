@@ -117,25 +117,6 @@ function model(svm::SVMConfig)
     Models.pipeline(svm.dataset; parameters..., svm.extra_params...)
 end
 
-Base.@kwdef struct LoadedData <: TFMType
-    data::Dict{DataSet, Tuple{Any, Any}} = Dict{DataSet, Tuple{Any, Any}}()
-end
-
-function cached_unpack!(data::LoadedData, ds::DataSet)::Tuple{Any, Any}
-    if haskey(data.data, ds)
-        return data.data[ds]
-    else
-        X, y = unpack(ds)
-        data.data[ds] = (X, y)
-        return X, y
-    end
-end
-
-function run(svm::SVMConfig, data::LoadedData)::Tuple{PerformanceEvaluation, ExecutionInfo, Machine}
-    X, y = cached_unpack!(data, svm.dataset)
-    run(svm, X, y)
-end
-
 function run(svm::SVMConfig)::Tuple{PerformanceEvaluation, ExecutionInfo, Machine}
     X, y = unpack(svm.dataset)
     run(svm, X, y)
@@ -161,16 +142,10 @@ function load(svm::SVMConfig; filename::String=default_savefile(svm))
     wload(filename)
 end
 
-function produce_or_load(svm::SVMConfig; cache::Union{Nothing, LoadedData}=nothing, filename=default_savefile(svm), kwargs...)
-
-    method = if cache === nothing
-        run
-    else
-        x -> run(x, cache)
-    end
+function produce_or_load(svm::SVMConfig; filename=default_savefile(svm), kwargs...)
 
     produce_or_load(svm; prefix="", suffix="", filename, tag=true, kwargs...) do ex
-        perf, info, mach = method(ex)
+        perf, info, mach = run(ex)
 
         result = merge(struct2dict(ex), struct2dict(info))
 

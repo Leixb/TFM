@@ -60,19 +60,10 @@ pipeline(ds::DataSet; kernel=Kernel.RadialBasis, args...) =
     TransformedTargetModel(basemodel(ds)(;kernel, args...); transformer=Standardizer())
 
 drop_columns(features::Symbol...) = FeatureSelector(features=[features...], ignore=true)
+select_columns(features::Symbol...) = FeatureSelector(features=[features...], ignore=false)
 
-"""
-
-# Specific pipeline for CPU dataset
-
-- `:Vendor` is encoded by keeping the top 3 most frequent values and setting
-the rest to `OTHER`.
-- `:Model` is dropped because it is nearly unique.
-
-"""
 pipeline(ds::CPU; args...) =
-    drop_columns(:Model) |>
-    TopCatTransformer(n=3) |>
+    drop_columns(:Model, :Vendor, :PRP) |>
     invoke(pipeline, Tuple{DataSet}, ds; args...)
 
 
@@ -86,14 +77,14 @@ pipeline(ds::Triazines; args...) =
     drop_columns(:p5_flex, :p5_h_doner) |>
     invoke(pipeline, Tuple{DataSet}, ds; args...)
 
-# Ailerons has a column with all 0
+# Ailerons has a column with all 0 and one with only 1 value different from 0
 pipeline(ds::Ailerons; args...) =
-    drop_columns(:diffSeTime2) |>
+    select_columns(:climbRate, :Sgz, :p, :q, :curPitch, :curRoll, :absRoll) |>
     invoke(pipeline, Tuple{DataSet}, ds; args...)
 
 # Elevators has a column with all 0
 pipeline(ds::Elevators; args...) =
-    drop_columns(:diffSaTime4) |>
+    select_columns(:climbRate, :Sgz, :p, :q, :curRoll, :absRoll) |>
     invoke(pipeline, Tuple{DataSet}, ds; args...)
 """
 
