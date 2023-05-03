@@ -9,8 +9,9 @@ using ProgressMeter
 step = 1.0
 
 datasets = filter(DataSets.all) do d
+    # WARNING: put this back once the special run is done
     # !(d in [DataSets.mnist, DataSets.cancer])
-    d in [DataSets.ailerons, DataSets.triazines, DataSets.elevators] # 3 datasets that had issues
+    d in [DataSets.cpu, DataSets.ailerons, DataSets.triazines, DataSets.elevators] # 4 datasets that had issues
 end
 
 parameters_common = Dict(
