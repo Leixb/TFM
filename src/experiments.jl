@@ -73,7 +73,7 @@ end
 
 # SVM without using tuning from MLJ
 
-Base.@kwdef struct SVMConfig <: TFMType
+@kwdef struct SVMConfig <: TFMType
     dataset::DataSet
 
     # Evaluation parameters
@@ -91,12 +91,14 @@ Base.@kwdef struct SVMConfig <: TFMType
     extra_params::Dict{Symbol, Any} = Dict{Symbol, Any}()
 end
 
-SVMConfig(;dataset, resampling, measure, kernel, cost, gamma, epsilon=dataset isa RegressionDataSet? 0.1 : nothing, extra_params...) =
-    SVMConfig(dataset, resampling, measure, kernel, cost, gamma, epsilon, Dict(extra_params...))
-
 is_regression(svm::SVMConfig) = svm.dataset isa RegressionDataSet
 
-model_parameters(svm::SVMConfig) = [ :kernel, :cost, :gamma, (if is_regression(svm) :epsilon  end)]
+function model_parameters(svm::SVMConfig)
+    common = [ :kernel, :cost, :gamma ]
+
+    if is_regression(svm) return [ common ; :epsilon ] end
+    return common
+end
 
 # savename configuration
 allaccess(svm::SVMConfig) = [ :dataset, :resampling, :measure, model_parameters(svm)...]

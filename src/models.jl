@@ -7,7 +7,7 @@ using LIBSVM: Kernel
 
 import MLJ: unpack, partition
 
-using ..DataSets: DataSet, data, target, CategoricalDataSet, RegressionDataSet, CPU, MNIST, Cancer
+using ..DataSets: DataSet, data, target, CategoricalDataSet, RegressionDataSet, CPU, MNIST, Cancer, Triazines, Ailerons, Elevators
 import ..Transformers: TopCatTransformer
 import ..Measures: mse
 
@@ -59,6 +59,8 @@ pipeline(ds::DataSet; kernel=Kernel.RadialBasis, args...) =
     Standardizer() |>
     TransformedTargetModel(basemodel(ds)(;kernel, args...); transformer=Standardizer())
 
+drop_columns(features::Symbol...) = FeatureSelector(features=features, ignore=true)
+
 """
 
 # Specific pipeline for CPU dataset
@@ -69,14 +71,30 @@ the rest to `OTHER`.
 
 """
 pipeline(ds::CPU; args...) =
-    FeatureSelector(features=[:Model], ignore=true) |>
+    drop_columns(:Model) |>
     TopCatTransformer(n=3) |>
     invoke(pipeline, Tuple{DataSet}, ds; args...)
 
+
+# Column1 is just an index
 pipeline(ds::Cancer; args...) =
-    FeatureSelector(features=[:Column1], ignore=true) |>
+    drop_columns(:Column1) |>
     invoke(pipeline, Tuple{DataSet}, ds; args...)
 
+# Triazines has two columns with all 0
+pipeline(ds::Triazines; args...) =
+    drop_columns(:p5_flex, :p5_h_doner) |>
+    invoke(pipeline, Tuple{DataSet}, ds; args...)
+
+# Ailerons has a column with all 0
+pipeline(ds::Ailerons; args...) =
+    drop_columns(:diffSeTime2) |>
+    invoke(pipeline, Tuple{DataSet}, ds; args...)
+
+# Elevators has a column with all 0
+pipeline(ds::Elevators; args...) =
+    drop_columns(:diffSaTime4) |>
+    invoke(pipeline, Tuple{DataSet}, ds; args...)
 """
 
 # Specific pipeline for MNIST
