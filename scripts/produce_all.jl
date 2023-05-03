@@ -9,7 +9,8 @@ using ProgressMeter
 step = 1.0
 
 datasets = filter(DataSets.all) do d
-    !(d in [DataSets.mnist, DataSets.cancer])
+    # !(d in [DataSets.mnist, DataSets.cancer])
+    d in [DataSets.ailerons, DataSets.triazines, DataSets.elevators] # 3 datasets that had issues
 end
 
 parameters_common = Dict(
@@ -50,7 +51,8 @@ end
 
 successes = @showprogress pmap(parameters_all) do params
     ex = SVMConfig(;params...)
-    _, file = produce_or_load(ex; cache=ld, loadfile=false)
+    # WARNING: Remove the `force=true` argument once this special run is done
+    _, file = produce_or_load(ex; loadfile=false, force=true)
     1
 end
 
