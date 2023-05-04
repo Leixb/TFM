@@ -62,6 +62,7 @@ import DrWatson: allaccess, default_prefix, default_allowed, produce_or_load
 import ..DataSets: DataSet, CategoricalDataSet, RegressionDataSet
 import ..Measures: MeanSquaredError
 import ..Models
+import ..Utils
 
 import ..TFMType
 
@@ -125,6 +126,9 @@ end
 function run(svm::SVMConfig, X, y)::Tuple{PerformanceEvaluation, ExecutionInfo, Machine}
     start = Dates.now()
 
+    if svm.kernel in [ LIBSVM.Kernel.Acos0, LIBSVM.Kernel.Acos1, LIBSVM.Kernel.Acos2 ]
+        X = sqrt(Utils.gamma2sigma(svm.gamma)) .* X
+    end
     mach = machine(model(svm), X, y, cache=false)
 
     result = evaluate!(mach; svm.resampling, svm.measure)

@@ -9,9 +9,7 @@ using ProgressMeter
 step = 1.0
 
 datasets = filter(DataSets.all) do d
-    # WARNING: put this back once the special run is done
-    # !(d in [DataSets.mnist, DataSets.cancer])
-    d in [DataSets.cpu, DataSets.ailerons, DataSets.triazines, DataSets.elevators] # 4 datasets that had issues
+    !(d in [DataSets.mnist, DataSets.cancer])
 end
 
 parameters_common = Dict(
@@ -29,17 +27,16 @@ parameters_rbf = Dict(
 sigma_asin = 10 .^ (-3:step:3)
 
 parameters_asin = Dict(
-    :kernel => [LIBSVM.Kernel.Asin, LIBSVM.Kernel.AsinNorm],
+    # :kernel => [LIBSVM.Kernel.Asin, LIBSVM.Kernel.AsinNorm, LIBSVM.Kernel.Acos0, LIBSVM.Kernel.Acos1, LIBSVM.Kernel.Acos2],
+    :kernel => [LIBSVM.Kernel.Acos0, LIBSVM.Kernel.Acos1, LIBSVM.Kernel.Acos2],
     :gamma => Utils.sigma2gamma.(sigma_asin),
     parameters_common...
 )
 
-parameters_all = [dict_list(parameters_asin) ; dict_list(parameters_rbf)]
+# parameters_all = [dict_list(parameters_asin) ; dict_list(parameters_rbf)]
+parameters_all = dict_list(parameters_asin)
 
-@info "This will run $(length(parameters_all)) experiments ..."
-
-@warn "Proceed? [y/n]"
-readline() == "y" || error("Aborted.")
+@warn "This will run $(length(parameters_all)) experiments ..."
 
 addprocs(10)
 
