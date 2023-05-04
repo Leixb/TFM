@@ -24,7 +24,8 @@ parameters_rbf = Dict(
     :gamma => 10 .^ (-3:step:0), parameters_common...
 )
 
-sigma_asin = 10 .^ (-3:step:3)
+# sigma_asin = 10 .^ (-3:step:3)
+sigma_asin = 10 .^ (-3:3.0:3)
 
 parameters_asin = Dict(
     # :kernel => [LIBSVM.Kernel.Asin, LIBSVM.Kernel.AsinNorm, LIBSVM.Kernel.Acos0, LIBSVM.Kernel.Acos1, LIBSVM.Kernel.Acos2],
