@@ -8,7 +8,8 @@ using LIBSVM: Kernel
 import MLJ: unpack, partition
 
 using ..DataSets: DataSet, data, target, CategoricalDataSet, RegressionDataSet, CPU, MNIST, Cancer, Triazines, Ailerons, Elevators
-import ..Transformers: TopCatTransformer
+import ..Transformers
+import ..Utils
 import ..Measures: mse
 
 """
@@ -54,10 +55,17 @@ a `TransformedTargetModel` which applies the `Standardizer` to
 the target variable also. The base model is an `EpsilonSVR` with the
 given kernel and arguments.
 """
-pipeline(ds::DataSet; kernel=Kernel.RadialBasis, args...) =
-    ContinuousEncoder() |>
-    Standardizer() |>
-    TransformedTargetModel(basemodel(ds)(;kernel, args...); transformer=Standardizer())
+function pipeline(ds::DataSet; kernel=Kernel.RadialBasis, gamma=0.5, args...)
+    common = ContinuousEncoder() |>
+    Standardizer()
+
+    if kernel in [Kernel.Acos0, Kernel.Acos1, Kernel.Acos2]
+        common = common |> Transformers.Multiplier(factor=sqrt(Utils.gamma2sigma(gamma)))
+    end
+
+    common |>
+        TransformedTargetModel(basemodel(ds)(;kernel, gamma, args...); transformer=Standardizer())
+end
 
 drop_columns(features::Symbol...) = FeatureSelector(features=[features...], ignore=true)
 select_columns(features::Symbol...) = FeatureSelector(features=[features...], ignore=false)

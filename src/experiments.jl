@@ -126,10 +126,11 @@ end
 function run(svm::SVMConfig, X, y)::Tuple{PerformanceEvaluation, ExecutionInfo, Machine}
     start = Dates.now()
 
+    pipe = model(svm)
     if svm.kernel in [ LIBSVM.Kernel.Acos0, LIBSVM.Kernel.Acos1, LIBSVM.Kernel.Acos2 ]
-        X = sqrt(Utils.gamma2sigma(svm.gamma)) .* X
+        pipe.multiplier.factor = sqrt(Utils.gamma2sigma(svm.gamma))
     end
-    mach = machine(model(svm), X, y, cache=false)
+    mach = machine(pipe, X, y, cache=false)
 
     result = evaluate!(mach; svm.resampling, svm.measure)
 

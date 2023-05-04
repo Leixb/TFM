@@ -124,4 +124,18 @@ function MMI.transform(transformer::TopCatTransformer, fitresult, X)
     return X
 end
 
+@mlj_model mutable struct Multiplier <: Static
+    factor::Float64 = 1.0
+end
+
+export Multiplier
+
+function MMI.transform(transformer::Multiplier, _, X)
+    return X .* transformer.factor
+end
+
+function MMI.inverse_transform(transformer::Multiplier, _, X)
+    return X ./ transformer.factor
+end
+
 end
