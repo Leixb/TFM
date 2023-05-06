@@ -59,7 +59,7 @@ using LIBSVM
 using DrWatson
 import DrWatson: allaccess, default_prefix, default_allowed, produce_or_load
 
-import ..DataSets: DataSet, CategoricalDataSet, RegressionDataSet
+import ..DataSets: DataSet, CategoricalDataSet, RegressionDataSet, MNIST
 import ..Measures: MeanSquaredError
 import ..Models
 import ..Utils
@@ -147,22 +147,39 @@ function load(svm::SVMConfig; filename::String=default_savefile(svm))
     wload(filename)
 end
 
+inner_model_path(::RegressionDataSet) = :transformed_target_model_deterministic.model.libsvm_model
+inner_model_path(::MNIST) = :libsvm_model
+
+# Fields in results that we don't want to collect in the final DataFrame
+# since they are not relevant for the analysis and they take up a lot of space
+default_ignore_results() = string.([:machine, :result, :per_fold])
+
+# struct2dict from DrWatson but with string as the dictionary key
+function struct2strdict(s)
+    Dict(string(x) => getfield(s, x) for x in fieldnames(typeof(s)))
+end
+
 function produce_or_load(svm::SVMConfig; filename=default_savefile(svm), kwargs...)
 
     produce_or_load(svm; prefix="", suffix="", filename, tag=true, kwargs...) do ex
         perf, info, mach = run(ex)
 
-        result = merge(struct2dict(ex), struct2dict(info))
+        result = merge(struct2strdict(ex), struct2strdict(info))
 
         # From the performance evaluation, we save it into result and expose the
         # two most important fields: measurement and per_fold
-        result[:result] = perf
-        result[:measurement] = perf.measurement[1]
-        result[:per_fold] = perf.per_fold[1]
+        result["result"] = perf
+        result["measurement"] = perf.measurement[1]
+        result["per_fold"] = perf.per_fold[1]
+
+        result["std"] = std(perf.per_fold[1])
+
+        n_iter = :(fitted_params(mach).$(inner_model_path(ex.dataset)).n_iter)
+        result["n_iter"] = sum(eval(n_iter))
 
         # We also save the fitted machine, so that we can use it later to make predictions
         # quickly
-        result[:machine] = mach
+        result["machine"] = mach
 
         result
     end
