@@ -15,6 +15,7 @@ using LIBSVM: Kernel
 import ..TFMType
 
 using MLJ
+import MLJ: unpack
 
 using MLDatasets: MNIST as MNISTData
 
@@ -38,9 +39,14 @@ data(ds::DataSet) = raw_data(ds) |> preprocess(ds)
 raw_data(ds::DataSet) = read_data(ds; select=select_columns(ds), drop=drop_columns(ds))
 read_data(ds::DataSet; kwargs...) = CSV.read(path(ds), DataFrame; header=header(ds), kwargs...)
 
+(ds::DataSet)() = unpack(ds)
+
 # These methods should be implemented for each dataset
 target(ds::DataSet) = error("target not implemented for $(typeof(ds))")
 path(ds::DataSet) = error("path not implemented for $(typeof(ds))")
+
+# Split dataset into features and target (X, y)
+unpack(ds::DataSet; args...) = unpack(data(ds), !=(target(ds)); args...)
 
 # The following methods are optional, but highly recommended
 header(ds::DataSet) = false
@@ -246,6 +252,8 @@ preprocess(::MNIST) = function(data)
 
     return table(Xflat), categorical(y)
 end
+
+unpack(ds::MNIST) = data(ds)
 
 url(::MNIST) = "http://yann.lecun.com/exdb/mnist/"
 

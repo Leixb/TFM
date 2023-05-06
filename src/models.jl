@@ -5,22 +5,12 @@ using MLJBase
 using MLJLIBSVMInterface
 using LIBSVM: Kernel
 
-import MLJ: unpack, partition
+import MLJ: partition
 
 using ..DataSets: DataSet, data, target, CategoricalDataSet, RegressionDataSet, MNIST
 import ..Transformers
 import ..Utils
 import ..Measures: mse
-
-"""
-Split the dataset into features and target.
-"""
-unpack(ds::DataSet; args...) = unpack(data(ds), !=(target(ds)); args...)
-
-"""
-MNIST is already in the right format.
-"""
-unpack(ds::MNIST) = data(ds)
 
 """
 Partition the dataset into training and test sets.
