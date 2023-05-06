@@ -46,7 +46,12 @@ target(ds::DataSet) = error("target not implemented for $(typeof(ds))")
 path(ds::DataSet) = error("path not implemented for $(typeof(ds))")
 
 # Split dataset into features and target (X, y)
-unpack(ds::DataSet; args...) = unpack(data(ds), !=(target(ds)); args...)
+function unpack(ds::DataSet; args...)
+    if ds.X === nothing || ds.y === nothing || args != ()
+        ds.X, ds.y = unpack(data(ds), !=(target(ds)); args...)
+    end
+    ds.X, ds.y
+end
 
 # The following methods are optional, but highly recommended
 header(ds::DataSet) = false
@@ -92,7 +97,10 @@ macro dataset(type, name, path, header, target)
         @assert eval(target) in eval(header) "target not in header"
     end
     esc(quote
-        struct $name <: $type end
+        @kwdef mutable struct $name <: $type
+            X::Union{DataFrame,Nothing} = nothing
+            y::Union{Vector{Real},Nothing} = nothing
+        end
         const $lowername = $name()
         push!(all, $lowername)
 
@@ -233,9 +241,14 @@ url(::Triazines) = "https://www.dcc.fc.up.pt/~ltorgo/Regression/triazines.tgz"
 # MNIST
 ################################################################################
 
+import Tables
+
 abstract type ChoSaul <: CategoricalDataSet end
 doi(::ChoSaul) = "10.1162/NECO_a_00018"
-struct MNIST <: ChoSaul end
+@kwdef mutable struct MNIST <: ChoSaul
+    X::Union{Nothing,Tables.MatrixTable} = nothing
+    y::Union{Nothing,Vector{UInt8}} = nothing
+end
 
 const mnist = MNIST()
 push!(all, mnist)
@@ -254,7 +267,12 @@ preprocess(::MNIST) = function(data)
     return table(Xflat), categorical(y)
 end
 
-unpack(ds::MNIST) = data(ds)
+function unpack(ds::MNIST)
+    if ds.X === nothing || ds.y === nothing
+        ds.X, ds.y = data(ds)
+    end
+    ds.X, ds.y
+end
 
 url(::MNIST) = "http://yann.lecun.com/exdb/mnist/"
 
