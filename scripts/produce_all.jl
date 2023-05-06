@@ -4,7 +4,6 @@ using TFM
 using LIBSVM
 using Distributed
 using DrWatson
-using ProgressMeter
 
 step = 1.0
 
@@ -50,6 +49,8 @@ addprocs(10)
 
 @everywhere begin
     using DrWatson: produce_or_load
+    using ProgressMeter
+    using TFM
 end
 
 successes = @showprogress pmap(configs) do ex
