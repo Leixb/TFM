@@ -147,8 +147,10 @@ function load(svm::SVMConfig; filename::String=default_savefile(svm))
     wload(filename)
 end
 
-inner_model_path(::RegressionDataSet) = :(transformed_target_model_deterministic.model.libsvm_model)
-inner_model_path(::MNIST) = :libsvm_model
+# HACK: This is should properly figure out the inner model structure in the
+# machine instead of relying on the fact that we know how the model is built
+inner_model(machine::Machine, ::RegressionDataSet) = fitted_params(machine).transformed_target_model_deterministic.model.libsvm_model
+inner_model(machine::Machine, ::MNIST) = fitted_params(machine).libsvm_model
 
 # Fields in results that we don't want to collect in the final DataFrame
 # since they are not relevant for the analysis and they take up a lot of space
@@ -173,9 +175,7 @@ function produce_or_load(svm::SVMConfig; filename=default_savefile(svm), kwargs.
         result["per_fold"] = perf.per_fold[1]
 
         result["std"] = std(perf.per_fold[1])
-
-        n_iter = :(fitted_params(mach).$(inner_model_path(ex.dataset)).n_iter)
-        result["n_iter"] = sum(eval(n_iter))
+        result["n_iter"] = sum(inner_model(mach, svm.dataset).n_iter)
 
         # We also save the fitted machine, so that we can use it later to make predictions
         # quickly
