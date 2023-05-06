@@ -76,44 +76,69 @@ using TFM.Resampling
     end
 end
 
-@testset "top n transformer" begin
-    using MLJ
-    using TFM.Transformers
-    X = (vendor=categorical(["IBM", "HP", "HP", "Asus", "IBM", "honeywell", "hello", "IBM"]),
-         height=[1.85, 1.67, 1.5, 1.67, 1.85, 1.67, 1.5, 1.67],
-         grade=categorical(["A", "B", "A", "B", "A", "B", "B", "A"], ordered=true),
-         n_devices=[3, 2, 4, 3, 3, 2, 4, 3])
-    trans = TopCatTransformer(n=3)
-    mach = machine(trans, X)
-    @test_logs (:info, "Training machine(TopCatTransformer(features = Symbol[], …), …).") fit!(mach)
+@testset "transformers" begin
+    @testset "top n transformer" begin
+        using MLJ
+        using TFM.Transformers
+        X = (vendor=categorical(["IBM", "HP", "HP", "Asus", "IBM", "honeywell", "hello", "IBM"]),
+             height=[1.85, 1.67, 1.5, 1.67, 1.85, 1.67, 1.5, 1.67],
+             grade=categorical(["A", "B", "A", "B", "A", "B", "B", "A"], ordered=true),
+             n_devices=[3, 2, 4, 3, 3, 2, 4, 3])
+        trans = TopCatTransformer(n=3)
+        mach = machine(trans, X)
+        @test_logs (:info, "Training machine(TopCatTransformer(features = Symbol[], …), …).") fit!(mach)
 
-    W = transform(mach, X)
+        W = transform(mach, X)
 
-    @test W.vendor == categorical(["IBM", "HP", "HP", "Asus", "IBM", "OTHER", "OTHER", "IBM"])
-    @test W.grade == X.grade
-    @test W.height == X.height
-    @test W.n_devices == X.n_devices
+        @test W.vendor == categorical(["IBM", "HP", "HP", "Asus", "IBM", "OTHER", "OTHER", "IBM"])
+        @test W.grade == X.grade
+        @test W.height == X.height
+        @test W.n_devices == X.n_devices
 
-    Xtest = (
-        vendor=categorical(["IBM", "HP", "DD", "DD", "IBM", "honeywell", "hello", "IBM"]),
-        height=[1.85, 1.67, 1.5, 1.67, 1.85, 1.7, 1.5, 1.67],
-        grade=categorical(["A", "B", "A", "D", "A", "B", "B", "A"], ordered=true),
-        n_devices=[3, 2, 4, 3, 3, 2, 4, 3]
-    )
-    Wtest = transform(mach, Xtest)
+        Xtest = (
+            vendor=categorical(["IBM", "HP", "DD", "DD", "IBM", "honeywell", "hello", "IBM"]),
+            height=[1.85, 1.67, 1.5, 1.67, 1.85, 1.7, 1.5, 1.67],
+            grade=categorical(["A", "B", "A", "D", "A", "B", "B", "A"], ordered=true),
+            n_devices=[3, 2, 4, 3, 3, 2, 4, 3]
+        )
+        Wtest = transform(mach, Xtest)
 
-    @test Wtest.vendor == categorical(["IBM", "HP", "OTHER", "OTHER", "IBM", "OTHER", "OTHER", "IBM"])
-    @test Wtest.grade == categorical(["A", "B", "A", "OTHER", "A", "B", "B", "A"], ordered=true)
+        @test Wtest.vendor == categorical(["IBM", "HP", "OTHER", "OTHER", "IBM", "OTHER", "OTHER", "IBM"])
+        @test Wtest.grade == categorical(["A", "B", "A", "OTHER", "A", "B", "B", "A"], ordered=true)
 
-    trans = TopCatTransformer(n=2, other="Other")
-    mach = machine(trans, X)
-    @test_logs (:info, "Training machine(TopCatTransformer(features = Symbol[], …), …).") fit!(mach)
+        trans = TopCatTransformer(n=2, other="Other")
+        mach = machine(trans, X)
+        @test_logs (:info, "Training machine(TopCatTransformer(features = Symbol[], …), …).") fit!(mach)
 
-    W = transform(mach, X)
-    @test W.vendor == categorical(["IBM", "HP", "HP", "Other", "IBM", "Other", "Other", "IBM"])
-    @test W.grade == X.grade
-    @test W.height == X.height
-    @test W.n_devices == X.n_devices
+        W = transform(mach, X)
+        @test W.vendor == categorical(["IBM", "HP", "HP", "Other", "IBM", "Other", "Other", "IBM"])
+        @test W.grade == X.grade
+        @test W.height == X.height
+        @test W.n_devices == X.n_devices
+    end
+
+    @testset "multiplier transformer" begin
+        using MLJ
+        using TFM.Transformers
+
+        X = [
+            1 2 3 4 5 6;
+            2 3 4 5 6 7;
+            3 4 5 6 7 8;
+            4 5 6 7 8 9;
+        ]
+
+        trans = Multiplier(factor=2.5)
+        mach = machine(trans)
+        W = transform(mach, X)
+
+        @test W == [
+            2.5 5.0 7.5 10.0 12.5 15.0;
+            5.0 7.5 10.0 12.5 15.0 17.5;
+            7.5 10.0 12.5 15.0 17.5 20.0;
+            10.0 12.5 15.0 17.5 20.0 22.5;
+        ]
+    end
 end
 
 @testset "datasets" begin
