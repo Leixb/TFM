@@ -147,7 +147,7 @@ function load(svm::SVMConfig; filename::String=default_savefile(svm))
     wload(filename)
 end
 
-inner_model_path(::RegressionDataSet) = :transformed_target_model_deterministic.model.libsvm_model
+inner_model_path(::RegressionDataSet) = :(transformed_target_model_deterministic.model.libsvm_model)
 inner_model_path(::MNIST) = :libsvm_model
 
 # Fields in results that we don't want to collect in the final DataFrame
