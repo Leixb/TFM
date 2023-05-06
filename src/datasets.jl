@@ -143,11 +143,12 @@ select_columns(::Ailerons) = [:climbRate, :Sgz, :p, :q, :curPitch, :curRoll, :ab
 url(::Ailerons) = "https://www.dcc.fc.up.pt/~ltorgo/Regression/ailerons.tgz"
 
 ################################################################################
-# Wisconsin Breast Cancer
+# Wisconsin Breast Cancer (Prognostic)
 ################################################################################
 
-@dataset Small Cancer datasetdir("cancer") false :Column2
-drop_columns(::Cancer) = [:Column1]
+@dataset Small Cancer datasetdir("cancer") false :Column3
+# Drop ID and diagnosis
+drop_columns(::Cancer) = [:Column1, :Column2]
 
 url(::Cancer) = "https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data"
 

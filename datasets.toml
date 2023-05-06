@@ -3,8 +3,8 @@ url = "https://archive.ics.uci.edu/ml/machine-learning-databases/abalone/abalone
 sha256 = "sha256:17s4g2y2zzi3p9g90s61i0gmyaihqbvliwhlsl4w6l5arb6wsdyy"
 
 [cancer]
-url = "https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data"
-sha256 = "sha256:0jjzd71r9zzz4x9kss6a73zz1ai5ni9bda552yiyhnry3x0sy1nn"
+url = "https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wpbc.data"
+sha256 = "sha256:13jw6jz5g8v175mbklygpzv0qhq7k4ql7h0d6wrahvq8nv6mrggj"
 
 [cpu]
 url = "https://archive.ics.uci.edu/ml/machine-learning-databases/cpu-performance/machine.data"
