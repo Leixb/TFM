@@ -35,7 +35,8 @@ Base.show(io::IO, ::MIME"text/plain", ds::DataSet) = print(io, typeof(ds), "()")
 # These methods should only be implemented if the dataset is not
 # in a proper CSV format.
 data(ds::DataSet) = raw_data(ds) |> preprocess(ds)
-raw_data(ds::DataSet) = CSV.read(path(ds), DataFrame; header=header(ds))
+raw_data(ds::DataSet) = read_data(ds; select=select_columns(ds), drop=drop_columns(ds))
+read_data(ds::DataSet; kwargs...) = CSV.read(path(ds), DataFrame; header=header(ds), kwargs...)
 
 # These methods should be implemented for each dataset
 target(ds::DataSet) = error("target not implemented for $(typeof(ds))")
@@ -44,6 +45,10 @@ path(ds::DataSet) = error("path not implemented for $(typeof(ds))")
 # The following methods are optional, but highly recommended
 header(ds::DataSet) = false
 preprocess(::DataSet) = identity
+
+# Which columns to select/drop
+select_columns(::DataSet) = nothing
+drop_columns(::DataSet) = nothing
 
 # Metadata (optional)
 
@@ -127,6 +132,7 @@ url(::Abalone) = "https://archive.ics.uci.edu/ml/machine-learning-databases/abal
     :diffSeTime8, :diffSeTime9, :diffSeTime10, :diffSeTime11, :diffSeTime12, :diffSeTime13, :diffSeTime14,
     :alpha, :Se, :goal,
 ] :goal
+select_columns(::Ailerons) = [:climbRate, :Sgz, :p, :q, :curPitch, :curRoll, :absRoll]
 
 url(::Ailerons) = "https://www.dcc.fc.up.pt/~ltorgo/Regression/ailerons.tgz"
 
@@ -135,6 +141,7 @@ url(::Ailerons) = "https://www.dcc.fc.up.pt/~ltorgo/Regression/ailerons.tgz"
 ################################################################################
 
 @dataset Small Cancer datasetdir("cancer") false :Column2
+drop_columns(::Cancer) = [:Column1]
 
 url(::Cancer) = "https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data"
 
@@ -157,18 +164,11 @@ url(::CompActs) = "https://www.dcc.fc.up.pt/~ltorgo/Regression/compact.tar.gz"
 @dataset Small CPU datasetdir("cpu") [
     :Vendor, :Model, :MYCT, :MMIN, :MMAX, :CACH, :CHMIN, :CHMAX, :PRP, :ERP
 ] :ERP
-preprocess(::CPU) = (X -> coerce(X,
-    :Model => Multiclass,
-    :Vendor => Multiclass,
-    :MYCT => Continuous,
-    :MMIN => Continuous,
-    :MMAX => Continuous,
-    :CACH => Continuous,
-    :CHMIN => Continuous,
-    :CHMAX => Continuous,
-    :PRP => Continuous,
-    :ERP => Continuous
-))
+# Frenay and Verleysen (2011) do not specify the target, but we assume it is ERP.
+# PRP is dropped since it is highly correlated with ERP and they only use 6
+# features in their experiments.
+drop_columns(::CPU) = [:Model, :Vendor, :PRP]
+
 
 url(::CPU) = "https://archive.ics.uci.edu/ml/machine-learning-databases/cpu-performance/machine.data"
 
@@ -181,6 +181,7 @@ url(::CPU) = "https://archive.ics.uci.edu/ml/machine-learning-databases/cpu-perf
     :SaTime1, :SaTime2, :SaTime3, :SaTime4, :diffSaTime1, :diffSaTime2, :diffSaTime3, :diffSaTime4,
     :Sa, :Goal
 ] :Goal
+select_columns(::Elevators) = [:climbRate, :Sgz, :p, :q, :curRoll, :absRoll]
 
 url(::Elevators) = "https://www.dcc.fc.up.pt/~ltorgo/Regression/elevators.tgz"
 
@@ -215,6 +216,9 @@ url(::Stock) = "https://www.dcc.fc.up.pt/~ltorgo/Regression/stock.tgz"
     :activity,
 ] :activity
 preprocess(::Triazines) = (X -> coerce(X, :p2_pi_doner => Continuous))
+# These two columns are all zeros. We could keep them, but they are not
+# useful and may confuse some algorithms.
+drop_columns(::Triazines) = [:p5_flex, :p5_h_doner]
 
 url(::Triazines) = "https://www.dcc.fc.up.pt/~ltorgo/Regression/triazines.tgz"
 

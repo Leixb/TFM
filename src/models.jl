@@ -7,7 +7,7 @@ using LIBSVM: Kernel
 
 import MLJ: unpack, partition
 
-using ..DataSets: DataSet, data, target, CategoricalDataSet, RegressionDataSet, CPU, MNIST, Cancer, Triazines, Ailerons, Elevators
+using ..DataSets: DataSet, data, target, CategoricalDataSet, RegressionDataSet, MNIST
 import ..Transformers
 import ..Utils
 import ..Measures: mse
@@ -67,33 +67,6 @@ function pipeline(ds::DataSet; kernel=Kernel.RadialBasis, gamma=0.5, args...)
         TransformedTargetModel(basemodel(ds)(;kernel, gamma, args...); transformer=Standardizer())
 end
 
-drop_columns(features::Symbol...) = FeatureSelector(features=[features...], ignore=true)
-select_columns(features::Symbol...) = FeatureSelector(features=[features...], ignore=false)
-
-pipeline(ds::CPU; args...) =
-    drop_columns(:Model, :Vendor, :PRP) |>
-    invoke(pipeline, Tuple{DataSet}, ds; args...)
-
-
-# Column1 is just an index
-pipeline(ds::Cancer; args...) =
-    drop_columns(:Column1) |>
-    invoke(pipeline, Tuple{DataSet}, ds; args...)
-
-# Triazines has two columns with all 0
-pipeline(ds::Triazines; args...) =
-    drop_columns(:p5_flex, :p5_h_doner) |>
-    invoke(pipeline, Tuple{DataSet}, ds; args...)
-
-# Ailerons has a column with all 0 and one with only 1 value different from 0
-pipeline(ds::Ailerons; args...) =
-    select_columns(:climbRate, :Sgz, :p, :q, :curPitch, :curRoll, :absRoll) |>
-    invoke(pipeline, Tuple{DataSet}, ds; args...)
-
-# Elevators has a column with all 0
-pipeline(ds::Elevators; args...) =
-    select_columns(:climbRate, :Sgz, :p, :q, :curRoll, :absRoll) |>
-    invoke(pipeline, Tuple{DataSet}, ds; args...)
 """
 
 # Specific pipeline for MNIST
