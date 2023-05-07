@@ -1,16 +1,16 @@
 #!/usr/bin/env julia
 
-using TFM
+using TFM.Experiments
 using LIBSVM
 using Distributed
 using DrWatson
 
-const parameters_all = TFM.Experiments.svm_parameter_grid()
+const parameters_all = Experiments.svm_parameter_grid()
 
 @warn "Generated $(length(parameters_all)) executable combinations ..."
 
 configs = map(parameters_all) do params
-    TFM.SVMConfig(;params...)
+    Experiments.SVMConfig(;params...)
 end
 
 configs = filter(configs) do c
