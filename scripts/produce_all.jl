@@ -5,45 +5,20 @@ using LIBSVM
 using Distributed
 using DrWatson
 
-step = 1.0
+const parameters_all = TFM.Experiments.svm_parameter_grid()
 
-# Blacklist MNIST since it takes too long to run
-datasets = filter(DataSets.all) do d
-    !(d in [DataSets.mnist])
+@warn "Generated $(length(parameters_all)) executable combinations ..."
+
+configs = map(parameters_all) do params
+    TFM.SVMConfig(;params...)
 end
-
-parameters_common = Dict(
-    :dataset => datasets,
-    :cost => [ 10 .^ (-2:step:3) ; @onlyif(:dataset isa DataSets.Small, 10 .^ ((3+step):step:6)) ],
-    :epsilon => 10 .^ (-5:step:1),
-)
-
-parameters_rbf = Dict(
-    :kernel => LIBSVM.Kernel.RadialBasis,
-    :gamma => 10 .^ (-3:step:0), parameters_common...
-)
-
-sigma_asin = 10 .^ (-3:step:3)
-
-parameters_asin = Dict(
-    :kernel => [LIBSVM.Kernel.Asin, LIBSVM.Kernel.AsinNorm, LIBSVM.Kernel.Acos0, LIBSVM.Kernel.Acos1, LIBSVM.Kernel.Acos2],
-    :gamma => Utils.sigma2gamma.(sigma_asin),
-    parameters_common...
-)
-
-parameters_all = [dict_list(parameters_asin) ; dict_list(parameters_rbf)]
-
-@warn "This will run $(length(parameters_all)) experiments ..."
-
-using TFM.Experiments: SVMConfig
-configs = map(parameters_all) do params SVMConfig(;params...) end
 
 configs = filter(configs) do c
     !isfile(Experiments.default_savefile(c))
 end
 
-@info "Skipping $(length(parameters_all) - length(configs)) experiments already done..."
-@info "Running $(length(configs)) experiments ..."
+@info "Skipping $(length(parameters_all) - length(configs)) executions which already exist..."
+@info "Running remaining $(length(configs)) ..."
 
 addprocs(10)
 
@@ -54,7 +29,7 @@ addprocs(10)
 end
 
 successes = @showprogress pmap(configs) do ex
-    _, file = produce_or_load(ex; loadfile=false)
+    produce_or_load(ex; loadfile=false)
     1
 end
 

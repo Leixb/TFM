@@ -60,6 +60,7 @@ using DrWatson
 import DrWatson: allaccess, default_prefix, default_allowed, produce_or_load
 
 import ..DataSets: DataSet, CategoricalDataSet, RegressionDataSet, MNIST
+import ..DataSets
 import ..Measures: MeanSquaredError
 import ..Models
 import ..Utils
@@ -183,6 +184,40 @@ function produce_or_load(svm::SVMConfig; filename=default_savefile(svm), kwargs.
 
         result
     end
+end
+
+"""
+# Parameter grid for SVM
+
+This returns a list of dictionaries with the parameters to use for creating SVMConfig
+objects.
+"""
+function svm_parameter_grid(step::Float64=1.0)::Vector{Dict{Symbol, Any}}
+    # Blacklist MNIST since it takes too long to run
+    datasets = filter(DataSets.all) do d
+        !(d in [DataSets.mnist])
+    end
+
+    parameters_common = Dict(
+        :dataset => datasets,
+        :cost => [ 10 .^ (-2:step:3) ; @onlyif(:dataset isa DataSets.Small, 10 .^ ((3+step):step:6)) ],
+        :epsilon => 10 .^ (-5:step:1),
+    )
+
+    parameters_rbf = Dict(
+        :kernel => LIBSVM.Kernel.RadialBasis,
+        :gamma => 10 .^ (-3:step:0), parameters_common...
+    )
+
+    sigma_asin = 10 .^ (-3:step:3)
+
+    parameters_asin = Dict(
+        :kernel => [LIBSVM.Kernel.Asin, LIBSVM.Kernel.AsinNorm, LIBSVM.Kernel.Acos0, LIBSVM.Kernel.Acos1, LIBSVM.Kernel.Acos2],
+        :gamma => Utils.sigma2gamma.(sigma_asin),
+        parameters_common...
+    )
+
+    [dict_list(parameters_asin) ; dict_list(parameters_rbf)]
 end
 
 end # module Experiments
