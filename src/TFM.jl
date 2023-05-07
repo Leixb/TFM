@@ -42,4 +42,13 @@ export mse
 
 @reexport import .Transformers: TopCatTransformer, TopCatResult
 
+@static if false
+    # HACK: Trick LSP into thinking that files outside `src` are part of the
+    # module.
+    # see: https://discourse.julialang.org/t/lsp-missing-reference-woes/98231/11
+    module LspLink
+        include("../scripts/produce_all.jl")
+    end
+end
+
 end # module TFM
