@@ -11,6 +11,7 @@ module DataSets
 import CSV
 import DataFrames.DataFrame
 using LIBSVM: Kernel
+using CategoricalArrays: CategoricalArray
 
 import ..TFMType
 
@@ -146,7 +147,7 @@ url(::Abalone) = "https://archive.ics.uci.edu/ml/machine-learning-databases/abal
     :diffSeTime8, :diffSeTime9, :diffSeTime10, :diffSeTime11, :diffSeTime12, :diffSeTime13, :diffSeTime14,
     :alpha, :Se, :goal,
 ] :goal
-select_columns(::Ailerons) = [:climbRate, :Sgz, :p, :q, :curPitch, :curRoll, :absRoll]
+select_columns(::Ailerons) = [:climbRate, :Sgz, :p, :q, :curPitch, :curRoll, :absRoll, :goal]
 
 url(::Ailerons) = "https://www.dcc.fc.up.pt/~ltorgo/Regression/ailerons.tgz"
 
@@ -196,7 +197,7 @@ url(::CPU) = "https://archive.ics.uci.edu/ml/machine-learning-databases/cpu-perf
     :SaTime1, :SaTime2, :SaTime3, :SaTime4, :diffSaTime1, :diffSaTime2, :diffSaTime3, :diffSaTime4,
     :Sa, :Goal
 ] :Goal
-select_columns(::Elevators) = [:climbRate, :Sgz, :p, :q, :curRoll, :absRoll]
+select_columns(::Elevators) = [:climbRate, :Sgz, :p, :q, :curRoll, :absRoll, :Goal]
 
 url(::Elevators) = "https://www.dcc.fc.up.pt/~ltorgo/Regression/elevators.tgz"
 
@@ -247,7 +248,7 @@ abstract type ChoSaul <: CategoricalDataSet end
 doi(::ChoSaul) = "10.1162/NECO_a_00018"
 @kwdef mutable struct MNIST <: ChoSaul
     X::Union{Nothing,Tables.MatrixTable} = nothing
-    y::Union{Nothing,Vector{UInt8}} = nothing
+    y::Union{Nothing,CategoricalArray} = nothing
 end
 
 const mnist = MNIST()

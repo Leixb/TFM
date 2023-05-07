@@ -145,6 +145,11 @@ end
     using TFM.DataSets
     using TFM.Models
     map(DataSets.all) do ds
+
+        # Check that the target is not dropped
+        @test DataSets.select_columns(ds) === nothing || DataSets.target(ds) in DataSets.select_columns(ds)
+        @test DataSets.drop_columns(ds) === nothing || !(DataSets.target(ds) in DataSets.drop_columns(ds))
+
         # All datasets can be loaded, partitioned and the machines built
         # without warnings
         @test_nowarn begin
