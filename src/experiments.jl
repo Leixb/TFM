@@ -212,7 +212,7 @@ function svm_parameter_grid(step::Float64=1.0)::Vector{Dict{Symbol, Any}}
     sigma_asin = 10 .^ (-3:step:3)
 
     parameters_asin = Dict(
-        :kernel => [[LIBSVM.Kernel.Asin, LIBSVM.Kernel.AsinNorm]; @onlyif(:dataset isa DataSets.Small, [LIBSVM.Kernel.Acos0, LIBSVM.Kernel.Acos1, LIBSVM.Kernel.Acos2])],
+        :kernel => [[LIBSVM.Kernel.Asin, LIBSVM.Kernel.AsinNorm]; @onlyif((:dataset isa DataSets.Small) && (:cost <1e4), [LIBSVM.Kernel.Acos0, LIBSVM.Kernel.Acos1, LIBSVM.Kernel.Acos2])],
         :gamma => Utils.sigma2gamma.(sigma_asin),
         parameters_common...
     )
