@@ -157,7 +157,7 @@ end
 # HACK: This is should properly figure out the inner model structure in the
 # machine instead of relying on the fact that we know how the model is built
 inner_model(machine::Machine, ::RegressionDataSet) = fitted_params(machine).transformed_target_model_deterministic.model.libsvm_model
-inner_model(machine::Machine, ::CategoricalDataSet) = fitted_params(machine).libsvm_model
+inner_model(machine::Machine, ::CategoricalDataSet) = fitted_params(machine).svc.libsvm_model
 inner_model(machine::Machine, ::MNIST) = fitted_params(machine).libsvm_model
 
 # Fields in results that we don't want to collect in the final DataFrame
@@ -208,7 +208,10 @@ function svm_parameter_grid(step::Float64=1.0)::Vector{Dict{Symbol, Any}}
     parameters_common = Dict(
         :dataset => datasets,
         :cost => [ 10 .^ (-2:step:3) ; @onlyif(:dataset isa DataSets.Small, 10 .^ ((3+step):step:6)) ],
-        :epsilon => 10 .^ (-5:step:1),
+        :epsilon => [
+            @onlyif(:dataset isa DataSets.RegressionDataSet, 10 .^ (-5:step:1));
+            @onlyif(:dataset isa DataSets.CategoricalDataSet, [0])
+        ],
     )
 
     parameters_rbf = Dict(
