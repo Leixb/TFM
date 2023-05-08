@@ -2710,11 +2710,11 @@ version = "1.0.20+0"
 
 [[deps.libsvm_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "LLVMOpenMP_jll", "Libdl", "Pkg"]
-git-tree-sha1 = "02879bc1271927f4dc5ce44a439ac6f8a6da5e0b"
+git-tree-sha1 = "c1acc120c03171959259a522f4e819c08c7e1d16"
 repo-rev = "main"
 repo-url = "https://github.com/Leixb/libsvm_jll.jl"
 uuid = "08558c22-525a-5d2a-acf6-0ac6658ffce4"
-version = "3.31.2+0"
+version = "3.31.3+0"
 
 [[deps.libvorbis_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Ogg_jll", "Pkg"]
