@@ -107,6 +107,8 @@ end
 abstract type CategoricalDataSet <: DataSet end
 abstract type RegressionDataSet <: DataSet end
 
+preprocess(ds::CategoricalDataSet) = X -> coerce(X, target(ds) => Multiclass)
+
 abstract type Frenay <: RegressionDataSet end
 doi(::Frenay) = "10.1016/j.neucom.2010.11.037"
 
@@ -237,6 +239,7 @@ url(::Triazines) = "https://www.dcc.fc.up.pt/~ltorgo/Regression/triazines.tgz"
 @dataset Small Servo datasetdir("servo") [
     :motor, :screw, :pgain, :vgain, :class
 ] :class
+preprocess(::Servo) = (X -> coerce(X, :motor => Multiclass, :screw => Multiclass))
 
 url(::Servo) = "https://archive.ics.uci.edu/ml/machine-learning-databases/servo/servo.data"
 
