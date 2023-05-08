@@ -13,8 +13,9 @@ configs = map(parameters_all) do params
     Experiments.SVMConfig(;params...)
 end
 
+files_done = Set(readdir(datadir("svms")))
 configs = filter(configs) do c
-    !isfile(Experiments.default_savefile(c))
+    !(savename(c, "jld2") in files_done)
 end
 
 @info "Skipping $(length(parameters_all) - length(configs)) executions which already exist..."
