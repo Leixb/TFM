@@ -75,12 +75,18 @@ end
 
 # SVM without using tuning from MLJ
 
+default_resampling(::RegressionDataSet) = CV(nfolds=5, shuffle=true, rng=1234)
+default_resampling(::CategoricalDataSet) = StratifiedCV(nfolds=5, shuffle=true, rng=1234)
+
+default_measure(::RegressionDataSet) = MeanSquaredError()
+default_measure(::CategoricalDataSet) = Accuracy()
+
 @kwdef struct SVMConfig <: TFMType
     dataset::DataSet
 
     # Evaluation parameters
-    resampling::ResamplingStrategy = Models.default_resampling(dataset)
-    measure::MLJBase.Measure = MeanSquaredError()
+    resampling::ResamplingStrategy = default_resampling(dataset)
+    measure::MLJBase.Measure = default_measure(dataset)
 
     # Model parameters
     kernel::LIBSVM.Kernel.KERNEL = LIBSVM.Kernel.RadialBasis

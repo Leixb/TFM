@@ -37,9 +37,6 @@ SVC = @load SVC pkg=LIBSVM verbosity=0
 basemodel(::RegressionDataSet) = EpsilonSVR
 basemodel(::CategoricalDataSet) = SVC
 
-default_resampling(::RegressionDataSet) = CV(nfolds=5, shuffle=true, rng=1234)
-default_resampling(::CategoricalDataSet) = StratifiedCV(nfolds=5, shuffle=true, rng=1234)
-
 """
 # Create an MLJ pipeline for the given dataset.
 
