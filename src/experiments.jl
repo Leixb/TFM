@@ -79,7 +79,7 @@ end
     dataset::DataSet
 
     # Evaluation parameters
-    resampling::ResamplingStrategy = CV(nfolds=5)
+    resampling::ResamplingStrategy = CV(nfolds=5, shuffle=true, rng=1234)
     measure::MLJBase.Measure = MeanSquaredError()
 
     # Model parameters
