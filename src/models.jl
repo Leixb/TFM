@@ -46,15 +46,19 @@ the target variable also. The base model is an `EpsilonSVR` with the
 given kernel and arguments.
 """
 function pipeline(ds::DataSet; kernel=Kernel.RadialBasis, gamma=0.5, args...)
-    common = ContinuousEncoder() |>
-    Standardizer()
+    common = ContinuousEncoder() |> Standardizer()
 
     if kernel in [Kernel.Acos0, Kernel.Acos1, Kernel.Acos2]
         common = common |> Transformers.Multiplier(factor=sqrt(Utils.gamma2sigma(gamma)))
     end
 
+    if ds isa RegressionDataSet
+        return common |>
+            TransformedTargetModel(basemodel(ds)(;kernel, gamma, args...); transformer=Standardizer())
+    end
+
     common |>
-        TransformedTargetModel(basemodel(ds)(;kernel, gamma, args...); transformer=Standardizer())
+        basemodel(ds)(;kernel, gamma, args...)
 end
 
 """

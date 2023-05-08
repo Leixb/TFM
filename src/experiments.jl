@@ -157,6 +157,7 @@ end
 # HACK: This is should properly figure out the inner model structure in the
 # machine instead of relying on the fact that we know how the model is built
 inner_model(machine::Machine, ::RegressionDataSet) = fitted_params(machine).transformed_target_model_deterministic.model.libsvm_model
+inner_model(machine::Machine, ::CategoricalDataSet) = fitted_params(machine).libsvm_model
 inner_model(machine::Machine, ::MNIST) = fitted_params(machine).libsvm_model
 
 # Fields in results that we don't want to collect in the final DataFrame
