@@ -29,3 +29,19 @@ sha256 = "sha256:0mma9c6qd1js19nwf63syclr22j1krlmq050hvafqb9f0p95ak9p"
 [triazines]
 url = "https://www.dcc.fc.up.pt/~ltorgo/Regression/triazines.tar.gz"
 sha256 = "sha256:0xkapr4p19ks429a8x704dmh1mgz6ajmzslgd1zlw9qzzz67g0rh"
+
+[iris]
+url = "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
+sha256 = "sha256:1h2n4sg5cn54f4mqg9zd6kbsprl4pkcv89sdkcqicwiilxqqnq3g"
+
+[wine]
+url = "https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data"
+sha256 = "sha256:0nd6mvb7qgfjjr7j0n1rd02x8g3ji9xyaw1sal5xyl9x7whb3rkb"
+
+[cancer_class]
+url = "https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data"
+sha256 = "sha256:0jjzd71r9zzz4x9kss6a73zz1ai5ni9bda552yiyhnry3x0sy1nn"
+
+[servo]
+url = "https://archive.ics.uci.edu/ml/machine-learning-databases/servo/servo.data"
+sha256 = "sha256:03x098fhl6f9qw4macg6jgw76mkvba58fd698g82nvzqwx9g68kz"

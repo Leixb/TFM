@@ -231,6 +231,52 @@ drop_columns(::Triazines) = [:p5_flex, :p5_h_doner]
 url(::Triazines) = "https://www.dcc.fc.up.pt/~ltorgo/Regression/triazines.tgz"
 
 ################################################################################
+# Servo
+################################################################################
+
+@dataset Small Servo datasetdir("servo") [
+    :motor, :screw, :pgain, :vgain, :class
+] :class
+
+url(::Servo) = "https://archive.ics.uci.edu/ml/machine-learning-databases/servo/servo.data"
+
+################################################################################
+# Iris
+################################################################################
+
+@dataset CategoricalDataSet Iris datasetdir("iris") [
+    :sepal_length, :sepal_width, :petal_length, :petal_width, :species
+] :species
+
+url(::Iris) = "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
+
+################################################################################
+# Wine
+################################################################################
+
+@dataset CategoricalDataSet Wine datasetdir("wine") [
+    :class, :alcohol, :malic_acid, :ash, :alcalinity_of_ash, :magnesium, :total_phenols, :flavanoids, :nonflavanoid_phenols, :proanthocyanins, :color_intensity, :hue, :od280_od315_of_diluted_wines, :proline
+] :class
+
+url(::Wine) = "https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data"
+
+################################################################################
+# Breast Cancer (Diagnostic)
+################################################################################
+
+@dataset CategoricalDataSet CancerDiagnostic datasetdir("cancer_class") [
+    :id, :diagnosis,
+    :radius_mean, :texture_mean, :perimeter_mean, :area_mean, :smoothness_mean, :compactness_mean, :concavity_mean, :concave_points_mean, :symmetry_mean, :fractal_dimension_mean,
+    :radius_se, :texture_se, :perimeter_se, :area_se, :smoothness_se, :compactness_se, :concavity_se, :concave_points_se, :symmetry_se, :fractal_dimension_se,
+    :radius_worst, :texture_worst, :perimeter_worst, :area_worst, :smoothness_worst, :compactness_worst, :concavity_worst, :concave_points_worst, :symmetry_worst, :fractal_dimension_worst
+] :diagnosis
+drop_columns(::CancerDiagnostic) = [:id]
+
+url(::CancerDiagnostic) = "https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data"
+
+doi(::Union{Servo,Iris,Wine,CancerDiagnostic}) = "10.1109/TNN.2009.2036259"
+
+################################################################################
 # MNIST
 ################################################################################
 
