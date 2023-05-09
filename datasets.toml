@@ -45,3 +45,67 @@ sha256 = "sha256:0jjzd71r9zzz4x9kss6a73zz1ai5ni9bda552yiyhnry3x0sy1nn"
 [servo]
 url = "https://archive.ics.uci.edu/ml/machine-learning-databases/servo/servo.data"
 sha256 = "sha256:03x098fhl6f9qw4macg6jgw76mkvba58fd698g82nvzqwx9g68kz"
+
+[pumadyn-8fh]
+url = "https://ftp.cs.toronto.edu/pub/neuron/delve/data/tarfiles/pumadyn-family/pumadyn-8fh.tar.gz"
+sha256 = "sha256:0dhd8r125kxff4x1n3d7f9niw56fn5hjwmd75k9bpn2j2pad7h1b"
+
+[pumadyn-8fm]
+url = "https://ftp.cs.toronto.edu/pub/neuron/delve/data/tarfiles/pumadyn-family/pumadyn-8fm.tar.gz"
+sha256 = "sha256:16vxp2zh679w573xicfh4qbrdkhfnznhl5d4hjah8gkgl94nclh4"
+
+[pumadyn-8nh]
+url = "https://ftp.cs.toronto.edu/pub/neuron/delve/data/tarfiles/pumadyn-family/pumadyn-8nh.tar.gz"
+sha256 = "sha256:17b6879xmdbgn39kfbyj4b5dzafxs5bwzf6s96x5rpr8i18rb0cc"
+
+[pumadyn-8nm]
+url = "https://ftp.cs.toronto.edu/pub/neuron/delve/data/tarfiles/pumadyn-family/pumadyn-8nm.tar.gz"
+sha256 = "sha256:09lvqabv8w9qhl6sdqfk8a1y3f0a6jcsn0p2krpx1ph654l6yrwq"
+
+[pumadyn-32fh]
+url = "https://ftp.cs.toronto.edu/pub/neuron/delve/data/tarfiles/pumadyn-family/pumadyn-32fh.tar.gz"
+sha256 = "sha256:1b7lmmlmd5lb4s3dpqhw3g6s7mafbgp7h4agv6x90gxgvjq3md12"
+
+[pumadyn-32fm]
+url = "https://ftp.cs.toronto.edu/pub/neuron/delve/data/tarfiles/pumadyn-family/pumadyn-32fm.tar.gz"
+sha256 = "sha256:0jnyamvy73v7i5654xxgwbrkikvm0j0zfzd9br7j5bx7qam2j7as"
+
+[pumadyn-32nh]
+url = "https://ftp.cs.toronto.edu/pub/neuron/delve/data/tarfiles/pumadyn-family/pumadyn-32nh.tar.gz"
+sha256 = "sha256:0bdwmgi7587dq43xnh8vn9fvc5cvpjcfw9r1crpyd01hipnfn69j"
+
+[pumadyn-32nm]
+url = "https://ftp.cs.toronto.edu/pub/neuron/delve/data/tarfiles/pumadyn-family/pumadyn-32nm.tar.gz"
+sha256 = "sha256:18jfinjsvzilqdlzv2cq714qlnv6w87w7iaiy7ggssiclfj86ykw"
+
+[bank-8fm]
+url = "https://ftp.cs.toronto.edu/pub/neuron/delve/data/tarfiles/bank-family/bank-8fm.tar.gz"
+sha256 = "sha256:1j78dawj0vhg1qvckm259d6gyhjgn4y3142wxqkkfjs6xfslja5n"
+
+[bank-8fh]
+url = "https://ftp.cs.toronto.edu/pub/neuron/delve/data/tarfiles/bank-family/bank-8fh.tar.gz"
+sha256 = "sha256:0jyqi8c4myc33i0cmm0bdi84009rj933p4wg3zm0b6yywb3kc9w7"
+
+[bank-8nm]
+url = "https://ftp.cs.toronto.edu/pub/neuron/delve/data/tarfiles/bank-family/bank-8nm.tar.gz"
+sha256 = "sha256:0pfy7bcj7zd7qqrz7amvxhjrv9f39zi11fbzszclbxjkqv53yv8y"
+
+[bank-8nh]
+url = "https://ftp.cs.toronto.edu/pub/neuron/delve/data/tarfiles/bank-family/bank-8nh.tar.gz"
+sha256 = "sha256:0fc162v7wk006sbbaa995hps3s28znsml4qhpqhism9qa36jcfhk"
+
+[bank-32fm]
+url = "https://ftp.cs.toronto.edu/pub/neuron/delve/data/tarfiles/bank-family/bank-32fm.tar.gz"
+sha256 = "sha256:04bnpflq6cwchhypc94ndjrcc6d0bzzac9wc7q1l5lmjzr5x4346"
+
+[bank-32fh]
+url = "https://ftp.cs.toronto.edu/pub/neuron/delve/data/tarfiles/bank-family/bank-32fh.tar.gz"
+sha256 = "sha256:1vs18n2dil657l9b74k0hadxm59fh83gb24p29vq6s8cm4rr468d"
+
+[bank-32nm]
+url = "https://ftp.cs.toronto.edu/pub/neuron/delve/data/tarfiles/bank-family/bank-32nm.tar.gz"
+sha256 = "sha256:0bi605qa2jywm96p5c5missc0npq63qkzw06x26jjvagns8rllgb"
+
+[bank-32nh]
+url = "https://ftp.cs.toronto.edu/pub/neuron/delve/data/tarfiles/bank-family/bank-32nh.tar.gz"
+sha256 = "sha256:1567ivhcnij02p2fb8vyzximp6ws3mk2hwxna0fcvw64py9hnrhz"
