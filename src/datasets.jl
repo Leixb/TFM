@@ -12,6 +12,7 @@ import CSV
 import DataFrames.DataFrame
 using LIBSVM: Kernel
 using CategoricalArrays: CategoricalArray
+using Random
 
 import ..TFMType
 
@@ -307,5 +308,28 @@ end
 unpack(ds::MNIST) = data(ds)
 
 url(::MNIST) = "http://yann.lecun.com/exdb/mnist/"
+
+################################################################################
+# Synthetic Datasets
+################################################################################
+
+abstract type CatSynthetic <: CategoricalDataSet end
+abstract type RegSynthetic <: RegressionDataSet end
+
+is_synthetic(::DataSet) = false
+is_synthetic(::Union{CatSynthetic,RegSynthetic}) = true
+
+@kwdef struct Blobs <: CatSynthetic
+    N::Int = 100
+    p::Int = 2
+    centers::Int = 3
+    cluster_std::Union{Float64,Vector{Float64}} = 2.0
+    rng::Int = 1234
+end
+
+raw_data(ds::Blobs) = MLJ.make_blobs(ds.N, ds.p; ds.centers, ds.cluster_std, ds.rng)
+unpack(ds::Blobs) = data(ds)
+preprocess(::Blobs) = identity
+Base.show(io::IO, ds::Blobs) = print(io, typeof(ds), "(", ds.N, ",", ds.p, ",", ds.centers, ",", ds.cluster_std, ",", ds.rng, ")")
 
 end
