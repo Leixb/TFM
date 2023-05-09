@@ -320,10 +320,10 @@ is_synthetic(::DataSet) = false
 is_synthetic(::Union{CatSynthetic,RegSynthetic}) = true
 
 @kwdef struct Blobs <: CatSynthetic
-    N::Int = 100
+    N::Int = 500
     p::Int = 2
     centers::Int = 3
-    cluster_std::Union{Float64,Vector{Float64}} = 2.0
+    cluster_std::Union{Float64,Vector{Float64}} = 1.75
     rng::Int = 1234
 end
 
@@ -331,5 +331,19 @@ raw_data(ds::Blobs) = MLJ.make_blobs(ds.N, ds.p; ds.centers, ds.cluster_std, ds.
 unpack(ds::Blobs) = data(ds)
 preprocess(::Blobs) = identity
 Base.show(io::IO, ds::Blobs) = print(io, typeof(ds), "(", ds.N, ",", ds.p, ",", ds.centers, ",", ds.cluster_std, ",", ds.rng, ")")
+
+@kwdef struct Regression <: RegSynthetic
+    N::Int = 300
+    p::Int = 5
+    noise::Float64 = 0.5
+    sparse::Float64 = 0.2
+    outliers::Float64 = 0.1
+    rng::Int = 1234
+end
+
+raw_data(ds::Regression) = MLJ.make_regression(ds.N, ds.p; ds.noise, ds.sparse, ds.outliers, ds.rng)
+unpack(ds::Regression) = data(ds)
+preprocess(::Regression) = identity
+Base.show(io::IO, ds::Regression) = print(io, typeof(ds), "(", ds.N, ",", ds.p, ",", ds.noise, ",", ds.sparse, ",", ds.outliers, ",", ds.rng, ")")
 
 end
