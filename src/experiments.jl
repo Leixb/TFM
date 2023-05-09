@@ -199,10 +199,12 @@ end
 This returns a list of dictionaries with the parameters to use for creating SVMConfig
 objects.
 """
-function svm_parameter_grid(step::Float64=1.0)::Vector{Dict{Symbol, Any}}
+function svm_parameter_grid(step::Float64=1.0; datasets=nothing)::Vector{Dict{Symbol, Any}}
     # Blacklist MNIST since it takes too long to run
-    datasets = filter(DataSets.all) do d
-        !(d in [DataSets.mnist])
+    if datasets isa Nothing
+        datasets = filter(DataSets.all) do d
+            !(d in [DataSets.mnist])
+        end
     end
 
     parameters_common = Dict(
