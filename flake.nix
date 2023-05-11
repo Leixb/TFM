@@ -14,7 +14,10 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
-    devenv.url = "github:cachix/devenv";
+    devenv = {
+      url = "github:cachix/devenv";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     poetry2nix = {
       url = "github:nix-community/poetry2nix";
