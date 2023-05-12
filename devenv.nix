@@ -42,6 +42,7 @@
     texlive.combined.scheme-full
     pdf2svg
     poppler_utils
+    hyperfine
     imagemagick
     inputs.poetry2nix.packages.${system}.poetry
     inputs.libsvm.packages.${system}.libsvm
