@@ -1,7 +1,6 @@
 module Benchmark
 
-import Base.length
-import Base.iterate
+import Base: length, iterate
 
 using StructTypes
 using JSON3
@@ -86,6 +85,9 @@ function Tables.schema(res::Vector{Result})
     names, types = fieldnames(Result), fieldtypes(Result)
 
     if length(res) > 0
+        # remove parameters from the schema
+        names = names[1:end-1]
+        types = types[1:end-1]
 
         names = [names...; Symbol.(keys(res[1].parameters))]
         types = [types...; typeof.(values(res[1].parameters))]
@@ -94,7 +96,7 @@ function Tables.schema(res::Vector{Result})
 end
 
 function Tables.getcolumn(row::Result, col::Symbol)
-    if hasproperty(row, col)
+    if hasproperty(row, col) && col != :parameters
         getproperty(row, col)
     else
         row.parameters[string(col)]
@@ -102,7 +104,7 @@ function Tables.getcolumn(row::Result, col::Symbol)
 end
 
 function Tables.getcolumn(row::Result, i::Int)
-    width = length(fieldnames(Result))
+    width = length(fieldnames(Result)) - 1 # -1 for parameters
     if i <= width
         getfield(row, i)
     else
