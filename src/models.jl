@@ -58,7 +58,7 @@ function pipeline(ds::DataSet; kernel=Kernel.RadialBasis, gamma=0.5, args...)
         common = common |> Transformers.Multiplier(factor=sqrt(Utils.gamma2sigma(gamma)))
     end
 
-    if ds isa RegressionDataSet
+    if ds isa RegressionDataSet || ds isa DelveRegressionDataSet
         return common |>
             TransformedTargetModel(basemodel(ds)(;kernel, gamma, args...); transformer=Standardizer())
     end

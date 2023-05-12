@@ -59,9 +59,9 @@ using LIBSVM
 using DrWatson
 import DrWatson: allaccess, default_prefix, default_allowed, produce_or_load
 
-import ..DataSets: DataSet, CategoricalDataSet, RegressionDataSet, MNIST
+import ..DataSets: DataSet, CategoricalDataSet, RegressionDataSet, MNIST, DelveRegressionDataSet
 import ..DataSets
-import ..Measures: MeanSquaredError
+import ..Measures: MeanSquaredError, NormalizedRootMeanSquaredError
 import ..Models
 import ..Utils
 import ..Resampling
@@ -71,18 +71,23 @@ import ..TFMType
 Base.@kwdef struct ExecutionInfo <: TFMType
     date::Date = Date(Dates.now())
     host::String = gethostname()
+    measure_test::Float64 = NaN
     duration::Dates.Period
 end
 
 # SVM without using tuning from MLJ
 
+default_resampling(::DataSet) = Resampling.FiveTwo(1234)
 default_resampling(::RegressionDataSet) = Resampling.FiveTwo(1234)
 default_resampling(::CategoricalDataSet) = Resampling.FiveTwo(1234)
 
-default_measure(::RegressionDataSet) = MeanSquaredError()
+default_measure(::RegressionDataSet) = NormalizedRootMeanSquaredError()
 default_measure(::CategoricalDataSet) = Accuracy()
 
+default_measure(::DelveRegressionDataSet) = NormalizedRootMeanSquaredError()
+
 @kwdef struct SVMConfig <: TFMType
+    folder::String = "svms"
     dataset::DataSet
 
     # Evaluation parameters
@@ -97,7 +102,7 @@ default_measure(::CategoricalDataSet) = Accuracy()
     # Regression specific
     epsilon::Union{Float64,Nothing} = 0.1
 
-    extra_params::Dict{Symbol, Any} = Dict{Symbol, Any}()
+    extra_params::Dict{Symbol, Any} = Dict{Symbol, Any}(:max_iter=>Int32(1e5))
 end
 
 is_regression(svm::SVMConfig) = svm.dataset isa RegressionDataSet
@@ -127,28 +132,29 @@ function model(svm::SVMConfig)
 end
 
 function run(svm::SVMConfig)::Tuple{PerformanceEvaluation, ExecutionInfo, Machine}
-    Xtrain, ytrain, _... = partition(svm.dataset)
-    run(svm, Xtrain, ytrain)
-end
-
-function run(svm::SVMConfig, X, y)::Tuple{PerformanceEvaluation, ExecutionInfo, Machine}
     start = Dates.now()
+
+    (Xtrain, Xtest), (ytrain, ytest) = partition(svm.dataset)
 
     pipe = model(svm)
     if svm.kernel in [ LIBSVM.Kernel.Acos0, LIBSVM.Kernel.Acos1, LIBSVM.Kernel.Acos2 ]
         pipe.multiplier.factor = sqrt(Utils.gamma2sigma(svm.gamma))
     end
-    mach = machine(pipe, X, y, cache=false)
+    mach = machine(pipe, Xtrain, ytrain, cache=false)
 
     result = evaluate!(mach; svm.resampling, svm.measure)
 
+    yhat = MLJ.predict(mach, Xtest)
+    measure_test = svm.measure(ytest, yhat)
+
     duration = Dates.now() - start
-    info = ExecutionInfo(;duration)
+
+    info = ExecutionInfo(;duration, measure_test)
 
     return result, info, mach
 end
 
-default_savefile(svm::SVMConfig) = datadir("svms", savename(svm, "jld2"))
+default_savefile(svm::SVMConfig) = datadir(svm.folder, savename(svm, "jld2"))
 
 function load(svm::SVMConfig; filename::String=default_savefile(svm))
     @info "Loading $(filename)"
@@ -160,6 +166,7 @@ end
 inner_model(machine::Machine, ::RegressionDataSet) = fitted_params(machine).transformed_target_model_deterministic.model.libsvm_model
 inner_model(machine::Machine, ::CategoricalDataSet) = fitted_params(machine).svc.libsvm_model
 inner_model(machine::Machine, ::MNIST) = fitted_params(machine).libsvm_model
+inner_model(machine::Machine, ::DelveRegressionDataSet) = fitted_params(machine).transformed_target_model_deterministic.model.libsvm_model
 
 # Fields in results that we don't want to collect in the final DataFrame
 # since they are not relevant for the analysis and they take up a lot of space
@@ -200,7 +207,7 @@ end
 This returns a list of dictionaries with the parameters to use for creating SVMConfig
 objects.
 """
-function frenay_parameter_grid(step::Float64=1.0; datasets=nothing)::Vector{Dict{Symbol, Any}}
+function frenay_parameter_grid(;step::Float64=1.0, datasets=nothing)::Vector{Dict{Symbol, Any}}
     # Blacklist MNIST since it takes too long to run
     if datasets isa Nothing
         datasets = filter(DataSets.all) do d
@@ -233,7 +240,7 @@ function frenay_parameter_grid(step::Float64=1.0; datasets=nothing)::Vector{Dict
     [dict_list(parameters_asin) ; dict_list(parameters_rbf)]
 end
 
-function svm_parameter_grid(step::Float64=1.0; datasets=nothing)::Vector{Dict{Symbol, Any}}
+function svm_parameter_grid(;step::Float64=1.0, datasets=nothing, acos=false, kwargs...)::Vector{Dict{Symbol, Any}}
     # Blacklist MNIST since it takes too long to run
     if datasets isa Nothing
         datasets = filter(DataSets.all) do d
@@ -243,11 +250,12 @@ function svm_parameter_grid(step::Float64=1.0; datasets=nothing)::Vector{Dict{Sy
 
     parameters_common = Dict(
         :dataset => datasets,
-        :cost => [ 10 .^ (-2:step:4) ],
+        :cost => 10 .^ (-2:step:4),
         :epsilon => [
             @onlyif(:dataset isa DataSets.RegressionDataSet, 10 .^ (-5:step:1));
             @onlyif(:dataset isa DataSets.CategoricalDataSet, [0])
         ],
+        kwargs...
     )
 
     parameters_rbf = Dict(
@@ -258,7 +266,7 @@ function svm_parameter_grid(step::Float64=1.0; datasets=nothing)::Vector{Dict{Sy
     sigma_asin = 10 .^ (-3:step:3)
 
     parameters_asin = Dict(
-        :kernel => [[LIBSVM.Kernel.Asin, LIBSVM.Kernel.AsinNorm]; @onlyif((:dataset isa DataSets.Small) && (:cost <1e4), [LIBSVM.Kernel.Acos0, LIBSVM.Kernel.Acos1, LIBSVM.Kernel.Acos2])],
+        :kernel => [[LIBSVM.Kernel.Asin, LIBSVM.Kernel.AsinNorm]; @onlyif(acos, [LIBSVM.Kernel.Acos0, LIBSVM.Kernel.Acos1, LIBSVM.Kernel.Acos2])],
         :gamma => Utils.sigma2gamma.(sigma_asin),
         parameters_common...
     )
