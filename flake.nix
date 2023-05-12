@@ -19,6 +19,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    libsvm = {
+      url = "github:LeixB/libsvm";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.follows = "flake-utils";
+    };
+
     poetry2nix = {
       url = "github:nix-community/poetry2nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -48,11 +54,11 @@
               tar -hczf $out -C ${datasets} .
             '';
           in
-          {
+          inputs.libsvm.packages.${system} // {
             inherit (devenvShell) ci;
             inherit datasets datasets-tarball document;
 
-            default = pkgs.linkFarmFromDrvs "default" [
+            default = pkgs.linkFarmFromDrvs "document_and_datasets" [
               datasets-tarball
               document
             ];

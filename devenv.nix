@@ -44,6 +44,7 @@
     poppler_utils
     imagemagick
     inputs.poetry2nix.packages.${system}.poetry
+    inputs.libsvm.packages.${system}.libsvm
     (inputs.poetry2nix.legacyPackages.${system}.mkPoetryEnv {
       projectDir = "";
       preferWheels = true;
