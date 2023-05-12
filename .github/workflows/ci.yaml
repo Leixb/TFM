@@ -20,7 +20,7 @@ jobs:
         authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
         extraPullNames: nix-community
     - name: devenv ci
-      run: nix build -L .#ci
+      run: nix build --impure -L .#ci
     - uses: julia-actions/cache@v1.2.2
       with:
         cache-compiled: "true"
