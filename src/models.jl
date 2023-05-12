@@ -7,7 +7,7 @@ using LIBSVM: Kernel
 
 import MLJ: partition
 
-using ..DataSets: DataSet, data, target, CategoricalDataSet, RegressionDataSet, MNIST
+using ..DataSets: DataSet, data, target, CategoricalDataSet, RegressionDataSet, MNIST, DelveRegressionDataSet
 import ..Transformers
 import ..Utils
 import ..Measures: mse
@@ -34,8 +34,14 @@ The models used for each type of dataset.
 """
 EpsilonSVR = @load EpsilonSVR pkg=LIBSVM verbosity=0
 SVC = @load SVC pkg=LIBSVM verbosity=0
+
+basemodel(::DataSet) = EpsilonSVR # default to regression
+
 basemodel(::RegressionDataSet) = EpsilonSVR
 basemodel(::CategoricalDataSet) = SVC
+
+basemodel(::DelveRegressionDataSet) = EpsilonSVR
+basemodel(::MNIST) = SVC
 
 """
 # Create an MLJ pipeline for the given dataset.

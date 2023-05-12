@@ -310,6 +310,76 @@ unpack(ds::MNIST) = data(ds)
 url(::MNIST) = "http://yann.lecun.com/exdb/mnist/"
 
 ################################################################################
+# Delve Datasets
+#
+# The ones we use have different variants with different number of features,
+# linearity and noise.
+
+#   size = 8 or 32 (number of features)
+#   linearity = "f" or "n" (fairly linear or non-linear)
+#   noise = "h" or "m" (high or medium)
+#
+################################################################################
+
+abstract type Delve <: DataSet end
+abstract type DelveRegressionDataSet <: Delve end
+
+url(::Delve) = "http://www.cs.toronto.edu/~delve/data/datasets.html"
+
+name(ds::Delve) = lowercase(string(typeof(ds))) * "-$(ds.size)$(ds.linearity)$(ds.noise)"
+
+function path(ds::Delve) # Most times Dataset.data.gz is available, but not always
+    compressed = datasetdir(name(ds), "Dataset.data.gz")
+    if isfile(compressed)
+        return compressed
+    end
+    return datasetdir(name(ds), "Dataset.data")
+end
+
+Base.show(io::IO, ds::Delve) = print(io, typeof(ds), ds.size, ds.linearity, ds.noise)
+Base.show(io::IO, ::MIME"text/plain", ds::Delve) = print(io, typeof(ds), "(", ds.size, ", ", ds.linearity, ", ", ds.noise, ")")
+
+function raw_data(ds::Delve)
+    CSV.read(path(ds), DataFrame; header=header(ds),
+        delim=" ",
+        ignorerepeated=true
+    )
+end
+
+# The target is the last column
+target(ds::Delve) = Symbol("Column$(ds.size+1)")
+
+macro delve_dataset(name, type=Delve)
+    it = Iterators.product((32, 8), "fn", "hm")
+
+    definition = esc(quote
+        struct $name <: $type
+            size::Int
+            linearity::Char
+            noise::Char
+        end
+    end)
+
+    declarations = map(it) do (size, linearity, noise)
+        esc(quote
+            function $(Symbol(name, size, linearity, noise))()
+                return $name($size, $linearity, $noise)
+            end
+
+            push!(all, $(Symbol(name, size, linearity, noise))())
+        end)
+    end
+
+    return quote
+        $definition
+        $(declarations...)
+    end
+end
+
+@delve_dataset Bank DelveRegressionDataSet
+@delve_dataset Pumadyn DelveRegressionDataSet
+
+################################################################################
 # Synthetic Datasets
 ################################################################################
 
