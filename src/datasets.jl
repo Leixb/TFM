@@ -326,7 +326,7 @@ abstract type DelveRegressionDataSet <: Delve end
 
 url(::Delve) = "http://www.cs.toronto.edu/~delve/data/datasets.html"
 
-name(ds::Delve) = lowercase(string(typeof(ds))) * "-$(ds.size)$(ds.linearity)$(ds.noise)"
+name(ds::Delve) = lowercase(split(string(typeof(ds)), ".")[end]) * "-$(ds.size)$(ds.linearity)$(ds.noise)"
 
 function path(ds::Delve) # Most times Dataset.data.gz is available, but not always
     compressed = datasetdir(name(ds), "Dataset.data.gz")
