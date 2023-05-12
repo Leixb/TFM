@@ -127,8 +127,8 @@ function model(svm::SVMConfig)
 end
 
 function run(svm::SVMConfig)::Tuple{PerformanceEvaluation, ExecutionInfo, Machine}
-    X, y = unpack(svm.dataset)
-    run(svm, X, y)
+    Xtrain, ytrain, _... = partition(svm.dataset)
+    run(svm, Xtrain, ytrain)
 end
 
 function run(svm::SVMConfig, X, y)::Tuple{PerformanceEvaluation, ExecutionInfo, Machine}
