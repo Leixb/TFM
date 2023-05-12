@@ -13,7 +13,7 @@ configs = map(parameters_all) do params
     Experiments.SVMConfig(;params...)
 end
 
-files_done = Set(readdir(datadir("svms")))
+files_done = Set(readdir(datadir("svms_2")))
 configs = filter(configs) do c
     !(savename(c, "jld2") in files_done)
 end

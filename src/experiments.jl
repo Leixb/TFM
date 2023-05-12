@@ -64,6 +64,7 @@ import ..DataSets
 import ..Measures: MeanSquaredError
 import ..Models
 import ..Utils
+import ..Resampling
 
 import ..TFMType
 
@@ -75,8 +76,8 @@ end
 
 # SVM without using tuning from MLJ
 
-default_resampling(::RegressionDataSet) = CV(nfolds=5, shuffle=true, rng=1234)
-default_resampling(::CategoricalDataSet) = StratifiedCV(nfolds=5, shuffle=true, rng=1234)
+default_resampling(::RegressionDataSet) = Resampling.FiveTwo(1234)
+default_resampling(::CategoricalDataSet) = Resampling.FiveTwo(1234)
 
 default_measure(::RegressionDataSet) = MeanSquaredError()
 default_measure(::CategoricalDataSet) = Accuracy()
@@ -199,7 +200,7 @@ end
 This returns a list of dictionaries with the parameters to use for creating SVMConfig
 objects.
 """
-function svm_parameter_grid(step::Float64=1.0; datasets=nothing)::Vector{Dict{Symbol, Any}}
+function frenay_parameter_grid(step::Float64=1.0; datasets=nothing)::Vector{Dict{Symbol, Any}}
     # Blacklist MNIST since it takes too long to run
     if datasets isa Nothing
         datasets = filter(DataSets.all) do d
@@ -210,6 +211,39 @@ function svm_parameter_grid(step::Float64=1.0; datasets=nothing)::Vector{Dict{Sy
     parameters_common = Dict(
         :dataset => datasets,
         :cost => [ 10 .^ (-2:step:3) ; @onlyif(:dataset isa DataSets.Small, 10 .^ ((3+step):step:6)) ],
+        :epsilon => [
+            @onlyif(:dataset isa DataSets.RegressionDataSet, 10 .^ (-5:step:1));
+            @onlyif(:dataset isa DataSets.CategoricalDataSet, [0])
+        ],
+    )
+
+    parameters_rbf = Dict(
+        :kernel => LIBSVM.Kernel.RadialBasis,
+        :gamma => 10 .^ (-3:step:0), parameters_common...
+    )
+
+    sigma_asin = 10 .^ (-3:step:3)
+
+    parameters_asin = Dict(
+        :kernel => [[LIBSVM.Kernel.Asin, LIBSVM.Kernel.AsinNorm]; @onlyif((:dataset isa DataSets.Small) && (:cost <1e4), [LIBSVM.Kernel.Acos0, LIBSVM.Kernel.Acos1, LIBSVM.Kernel.Acos2])],
+        :gamma => Utils.sigma2gamma.(sigma_asin),
+        parameters_common...
+    )
+
+    [dict_list(parameters_asin) ; dict_list(parameters_rbf)]
+end
+
+function svm_parameter_grid(step::Float64=1.0; datasets=nothing)::Vector{Dict{Symbol, Any}}
+    # Blacklist MNIST since it takes too long to run
+    if datasets isa Nothing
+        datasets = filter(DataSets.all) do d
+            !(d in [DataSets.mnist])
+        end
+    end
+
+    parameters_common = Dict(
+        :dataset => datasets,
+        :cost => [ 10 .^ (-2:step:4) ],
         :epsilon => [
             @onlyif(:dataset isa DataSets.RegressionDataSet, 10 .^ (-5:step:1));
             @onlyif(:dataset isa DataSets.CategoricalDataSet, [0])
