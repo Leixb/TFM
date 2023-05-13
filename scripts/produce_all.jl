@@ -5,7 +5,7 @@ using LIBSVM
 using Distributed
 using DrWatson
 
-const parameters_all = Experiments.svm_parameter_grid(;acos=false, step=2.0, folder="svms_2")
+const parameters_all = Experiments.svm_parameter_grid(;acos=false, step=1.0, folder="svms_2")
 
 @warn "Generated $(length(parameters_all)) executable combinations ..."
 

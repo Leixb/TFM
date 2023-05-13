@@ -145,7 +145,7 @@ function run(svm::SVMConfig)::Tuple{PerformanceEvaluation, ExecutionInfo, Machin
     result = evaluate!(mach; svm.resampling, svm.measure)
 
     yhat = MLJ.predict(mach, Xtest)
-    measure_test = svm.measure(ytest, yhat)
+    measure_test = svm.measure(yhat, ytest)
 
     duration = Dates.now() - start
 
