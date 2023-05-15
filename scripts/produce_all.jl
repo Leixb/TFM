@@ -5,7 +5,9 @@ using LIBSVM
 using Distributed
 using DrWatson
 
-const parameters_all = Experiments.svm_parameter_grid(;acos=false, step=1.0, folder="svms_2")
+folder = get(ARGS, 1, "svms_2")
+
+const parameters_all = Experiments.svm_parameter_grid(;acos=false, step=1.0, folder)
 
 @warn "Generated $(length(parameters_all)) executable combinations ..."
 
@@ -13,12 +15,12 @@ configs = map(parameters_all) do params
     Experiments.SVMConfig(;params...)
 end
 
-# files_done = Set(readdir(datadir(default_params.folder)))
-# configs = filter(configs) do c
-#     !(savename(c, "jld2") in files_done)
-# end
+files_done = Set(readdir(datadir(folder)))
+configs = filter(configs) do c
+    !(savename(c, "jld2") in files_done)
+end
 
-# @info "Skipping $(length(parameters_all) - length(configs)) executions which already exist..."
+@info "Skipping $(length(parameters_all) - length(configs)) executions which already exist..."
 @info "Running remaining $(length(configs)) ..."
 
 addprocs(11)
