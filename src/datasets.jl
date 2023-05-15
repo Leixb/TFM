@@ -336,7 +336,11 @@ function path(ds::Delve) # Most times Dataset.data.gz is available, but not alwa
     return datasetdir(name(ds), "Dataset.data")
 end
 
-Base.show(io::IO, ds::Delve) = print(io, typeof(ds), ds.size, ds.linearity, ds.noise)
+function Base.show(io::IO, ds::Delve)
+    type_name = string(typeof(ds))
+    name = split(type_name, '.') |> last
+    print(io, name, ds.size, ds.linearity, ds.noise)
+end
 Base.show(io::IO, ::MIME"text/plain", ds::Delve) = print(io, typeof(ds), "(", ds.size, ", ", ds.linearity, ", ", ds.noise, ")")
 
 function raw_data(ds::Delve)
