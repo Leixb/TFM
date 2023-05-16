@@ -13,10 +13,11 @@ For other purposed, we can use GLMakie of WGLMakie to quickly visualize and iter
 """
 module Plots
 
-using CairoMakie, GLMakie, LaTeXStrings
-using DrWatson
+using CairoMakie, GLMakie, LaTeXStrings, AlgebraOfGraphics
+using DataFrames, DataFramesMeta, MLJ, DrWatson
+using Printf, Dates
 
-import ..Utils
+import ..Utils, ..Experiments, ..DataSets
 
 function plot_asin(interactive=Makie.current_backend() == GLMakie)
     fig = Figure(fonts=(;regular="Latin Modern Roman"))
@@ -88,6 +89,174 @@ function plot_kernel_3d_interactive(kernel, args...; kwargs...)
     end
 
     surface!(ax, xs, xs, values)
+
+    fig
+
+end
+
+function experiment_data(folder="svms")
+	df = collect_results!(datadir(folder); black_list=Experiments.default_ignore_results())
+	df.kernel_cat = categorical(string.(df.kernel))
+	df.dataset_cat = categorical(string.(df.dataset))
+    df.sigma = Utils.gamma2sigma.(df.gamma)
+	df.kernel_family = map(x -> string(x)[1:4], df.kernel_cat)
+	df.cost = round.(df.cost, sigdigits=2)
+	df.cost_cat = map(df.cost) do cost @sprintf("%.0E", cost) end
+	df.ms = @. Dates.value(df.duration)
+	df.ms_per_iter = @. df.ms / df.n_iter / 5
+	df
+end
+
+function summarize_best(df, grouping::AbstractArray=[:dataset_cat, :kernel_cat], value=:measure_test, maximum=false)
+    # If maximum, we reverse the order
+    @chain df begin
+        sort(value, rev=maximum)
+        groupby(grouping)
+        combine(first)
+    end
+end
+
+is_regression(ds) = ds isa DataSets.RegressionDataSet || ds isa DataSets.DelveRegressionDataSet
+
+regression(df) = @rsubset(df, is_regression(:dataset))
+classification(df) = @rsubset(df, !is_regression(:dataset))
+
+function plot_best(df)
+    cols = mapping(
+        :kernel_cat,
+        :measure_test=>"nRMSE",
+		color=:kernel_cat=>"Kernel"
+	)
+	grp = mapping(layout = :dataset_cat)
+	geom = visual(BarPlot)
+
+	plt = data(df) * cols * grp * geom
+	fg = draw(plt, facet = (; linkyaxes = :none), axis=(;xticklabelrotation=pi/4))
+end
+
+function plot_sigma(df)
+    # cols = mapping(
+    #     :sigma,
+    #     :measure_test=>"nRMSE",
+    #     color=:kernel_cat=>"Kernel"
+    # )
+    # grp = mapping(layout = :dataset_cat)
+    # geom = visual(ScatterLines)
+	# plt = data(df) * cols * grp * geom
+	# fg = draw(plt, facet = (; linkyaxes = :none), axis=(;xscale=log10, xticklabelrotation=pi/4))
+
+    fig = Figure()
+
+    datasets = unique(df.dataset_cat)
+    kernels = unique(df.kernel_cat)
+
+    wcolors = Makie.wong_colors()
+
+    kernel_colors = Dict(k => wcolors[i] for (i, k) in enumerate(kernels))
+
+    toggles_dict = Dict(k => Toggle(fig, active=true, buttoncolor=kernel_colors[k]) for k in kernels)
+
+    gr = GridLayout(fig[1, 1])
+
+    n = Int(ceil(sqrt(length(datasets))))
+    m = Int(ceil(length(datasets) / n))
+
+    axes = [Axis(gr[i, j]) for i in 1:m, j in 1:n if (i-1)*n+j <= length(datasets)]
+    axes = reshape(axes, 1, :)
+
+    display(length(axes))
+
+    df_groups = @chain df begin
+        sort(:sigma)
+        groupby(:dataset_cat)
+    end
+
+    for (ax, df_group) in zip(axes, df_groups)
+        dataset = df_group.dataset_cat[1]
+
+        foreach(groupby(df_group, :kernel_cat)) do df_kernel
+            kernel = df_kernel.kernel_cat[1]
+
+            if kernel == "RadialBasis"
+                hline = hlines!(ax, [minimum(df_kernel.measure_test[1])], color=kernel_colors[kernel], linewidth=2)
+                connect!(hline.visible, toggles_dict[kernel].active)
+            else
+
+                slines = lines!(ax, df_kernel.sigma, df_kernel.measure_test,
+                    linestyle = df_kernel.kernel_family[1] == "Acos" ? :dash : :solid,
+                    label=string(kernel), visible = true, color=kernel_colors[kernel])
+                spoints = scatter!(ax, df_kernel.sigma, df_kernel.measure_test,
+                    label=string(kernel), visible = true, color=kernel_colors[kernel])
+
+                connect!(slines.visible, toggles_dict[kernel].active)
+                connect!(spoints.visible, toggles_dict[kernel].active)
+            end
+        end
+        ax.title = string(dataset)
+        ax.xscale = log10
+    end
+
+    toggles = collect(pairs(toggles_dict))
+
+    sort!(toggles, by = x -> x[1])
+
+    labels = map(toggles) do (kernel, _)
+        Label(fig, string(kernel))
+    end
+    toggles = map(toggles) do (_, toggle) toggle end
+
+    fig[1, 2] = grid!(
+        hcat(toggles, labels),
+        tellheight = false)
+
+    # fig[1, 2][length(toggles)+1, 1:2] = Legend(fig, axes[1], "Kernel", merge=true)
+
+    foreach(toggles) do toggle
+        on(toggle.active) do _
+            map(autolimits!, axes)
+        end
+    end
+
+    linkyaxes_toggle = Toggle(fig, active=false)
+    linkxaxes_toggle = Toggle(fig, active=true)
+
+    customize_toggles = [linkyaxes_toggle, linkxaxes_toggle]
+    customize_labels = [Label(fig, "Link Y"), Label(fig, "Link X")]
+
+    fig[1, 2][length(toggles)+1, 1:2] = grid!(
+        hcat(customize_toggles, customize_labels),
+    tellheight = false)
+
+    on(linkyaxes_toggle.active) do active
+        if active
+            linkyaxes!(axes...)
+        else
+            foreach(axes) do ax
+                ax.yaxislinks = Vector{Axis}()
+                reset_limits!(ax)
+            end
+        end
+    end
+    on(linkxaxes_toggle.active) do active
+        if active
+            linkxaxes!(axes...)
+        else
+            foreach(axes) do ax
+                ax.xaxislinks = Vector{Axis}()
+                reset_limits!(ax)
+            end
+        end
+    end
+
+    # resize_to_layout!(gr)
+
+    # Label(gr, "Sigma")
+    Label(gr[end, :, Bottom()], "Sigma", valign = :top, font=:bold,
+    )
+    Label(gr[:, :, Left()], "nRMSE", valign = :bottom, font=:bold,
+        rotation = pi/2
+    )
+    # Label(fig[2, 1], text = "Bottom Text", fontsize = 20, tellheight = false, tellwidth = false)
 
     fig
 
