@@ -134,7 +134,7 @@ function plot_best(df)
 	fg = draw(plt, facet = (; linkyaxes = :none), axis=(;xticklabelrotation=pi/4))
 end
 
-function plot_sigma(df)
+function plot_sigma(df, show_kernels=["Asin", "AsinNorm"])
     # cols = mapping(
     #     :sigma,
     #     :measure_test=>"nRMSE",
@@ -149,22 +149,21 @@ function plot_sigma(df)
 
     datasets = unique(df.dataset_cat)
     kernels = unique(df.kernel_cat)
+    sort!(kernels, by = x -> (startswith(x, "Acos") ? "B$x" : "A$x"))
 
     wcolors = Makie.wong_colors()
 
     kernel_colors = Dict(k => wcolors[i] for (i, k) in enumerate(kernels))
 
-    toggles_dict = Dict(k => Toggle(fig, active=true, buttoncolor=kernel_colors[k]) for k in kernels)
+    toggles_dict = Dict(k => Toggle(fig, active=k in show_kernels, buttoncolor=kernel_colors[k]) for k in kernels)
 
     gr = GridLayout(fig[1, 1])
 
     n = Int(ceil(sqrt(length(datasets))))
     m = Int(ceil(length(datasets) / n))
 
-    axes = [Axis(gr[i, j]) for i in 1:m, j in 1:n if (i-1)*n+j <= length(datasets)]
+    axes = [Axis(gr[j, i]) for i in 1:m, j in 1:n if (i-1)*n+j <= length(datasets)]
     axes = reshape(axes, 1, :)
-
-    display(length(axes))
 
     df_groups = @chain df begin
         sort(:sigma)
@@ -178,8 +177,13 @@ function plot_sigma(df)
             kernel = df_kernel.kernel_cat[1]
 
             if kernel == "RadialBasis"
-                hline = hlines!(ax, [minimum(df_kernel.measure_test[1])], color=kernel_colors[kernel], linewidth=2)
+                hline = hlines!(ax, [minimum(df_kernel.measure_test)], color=kernel_colors[kernel], linewidth=2)
                 connect!(hline.visible, toggles_dict[kernel].active)
+
+                # lines = lines!(ax, df_kernel.sigma, df_kernel.measure_test,
+                    # linestyle = :dot,
+                    # label=string(kernel), visible = true, color=kernel_colors[kernel])
+                # connect!(lines.visible, toggles_dict[kernel].active)
             else
 
                 slines = lines!(ax, df_kernel.sigma, df_kernel.measure_test,
@@ -209,7 +213,7 @@ function plot_sigma(df)
         hcat(toggles, labels),
         tellheight = false)
 
-    # fig[1, 2][length(toggles)+1, 1:2] = Legend(fig, axes[1], "Kernel", merge=true)
+    fig[1, 2][0, 1:2] = Label(fig, "Kernels", font=:bold)
 
     foreach(toggles) do toggle
         on(toggle.active) do _
@@ -218,48 +222,48 @@ function plot_sigma(df)
     end
 
     linkyaxes_toggle = Toggle(fig, active=false)
-    linkxaxes_toggle = Toggle(fig, active=true)
+    linkxaxes_toggle = Toggle(fig, active=false)
 
     customize_toggles = [linkyaxes_toggle, linkxaxes_toggle]
     customize_labels = [Label(fig, "Link Y"), Label(fig, "Link X")]
 
     fig[1, 2][length(toggles)+1, 1:2] = grid!(
         hcat(customize_toggles, customize_labels),
-    tellheight = false)
+        tellheight = false
+    )
 
     on(linkyaxes_toggle.active) do active
-        if active
-            linkyaxes!(axes...)
-        else
-            foreach(axes) do ax
-                ax.yaxislinks = Vector{Axis}()
-                reset_limits!(ax)
-            end
-        end
+        active ? linkyaxes!(axes...) : unlinkyaxes!(axes...)
     end
     on(linkxaxes_toggle.active) do active
-        if active
-            linkxaxes!(axes...)
-        else
-            foreach(axes) do ax
-                ax.xaxislinks = Vector{Axis}()
-                reset_limits!(ax)
-            end
-        end
+        active ? linkxaxes!(axes...) : unlinkxaxes!(axes...)
     end
 
-    # resize_to_layout!(gr)
-
-    # Label(gr, "Sigma")
-    Label(gr[end, :, Bottom()], "Sigma", valign = :top, font=:bold,
-    )
-    Label(gr[:, :, Left()], "nRMSE", valign = :bottom, font=:bold,
-        rotation = pi/2
-    )
-    # Label(fig[2, 1], text = "Bottom Text", fontsize = 20, tellheight = false, tellwidth = false)
+    Label(fig[1, 0], text = "nRMSE", font = :bold, fontsize = 20, tellheight = false,  rotation = pi/2)
+    Label(fig[2, 1], text = L"\sigma_w", font = :bold, fontsize = 20, tellwidth = false)
+    Label(fig[0, 1:2], text = "Sigma vs nRMSE by Dataset", font = :bold, fontsize = 20, tellwidth = false)
 
     fig
 
 end
+
+"""
+Reverse the effects of `linkaxes!` on the given axes.
+"""
+function unlinkaxes!(dir::Union{Val{:x}, Val{:y}}, a::Axis, others...)
+    axes = Axis[a; others...]
+    for ax in axes
+        setproperty!(ax, dir isa Val{:x} ? :xaxislinks : :yaxislinks, Vector{Axis}())
+        reset_limits!(ax)
+    end
+end
+
+function unlinkaxes!(a::Axis, others...)
+    unlinkxaxes!(a, others...)
+    unlinkyaxes!(a, others...)
+end
+
+unlinkxaxes!(a::Axis, others...) = unlinkaxes!(Val(:x), a, others...)
+unlinkyaxes!(a::Axis, others...) = unlinkaxes!(Val(:y), a, others...)
 
 end
