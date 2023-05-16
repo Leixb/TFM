@@ -12,6 +12,9 @@
 
     DATASETS = pkgs.callPackage ./datasets.nix { };
 
+    # Needed for OpenGL
+    LD_LIBRARY_PATH = "/run/opengl-driver/lib:/run/opengl-driver-32/lib";
+
     FREETYPE_ABSTRACTION_FONT_PATH = "${pkgs.lmodern}/share/fonts/opentype/public/lm";
   };
 
