@@ -2,26 +2,32 @@
 
 {
   # https://devenv.sh/basics/
-  env.PROJECT = "tfm";
+  env = {
+    PROJECT = "tfm";
 
-  # context for taskwarrior
-  env.TW_CONTEXT = "tfm";
+    # context for taskwarrior
+    TW_CONTEXT = "tfm";
 
-  env.JULIA_NUM_THREADS = 8;
+    JULIA_NUM_THREADS = 8;
 
-  env.DATASETS = pkgs.callPackage ./datasets.nix { };
+    DATASETS = pkgs.callPackage ./datasets.nix { };
+
+    FREETYPE_ABSTRACTION_FONT_PATH = "${pkgs.lmodern}/share/fonts/opentype/public/lm";
+  };
 
   # https://devenv.sh/scripts/
-  scripts.build-doc.exec = ''
-    latexmk -cd "$DEVENV_ROOT/document/000-main.tex" -lualatex -shell-escape -interaction=nonstopmode -file-line-error -view=none "$@"
-  '';
+  scripts = {
+    build-doc.exec = ''
+      latexmk -cd "$DEVENV_ROOT/document/000-main.tex" -lualatex -shell-escape -interaction=nonstopmode -file-line-error -view=none "$@"
+    '';
 
-  # Download bibliography from local zotero instance (using better-bibtex plugin)
-  scripts.fetch-biblio.exec = ''
-    curl -f http://127.0.0.1:23119/better-bibtex/export/collection?/1/TFM.biblatex -o "$DEVENV_ROOT/document/biblio.bib" || echo "Is Zotero running?"
-  '';
+    # Download bibliography from local zotero instance (using better-bibtex plugin)
+    fetch-biblio.exec = ''
+      curl -f http://127.0.0.1:23119/better-bibtex/export/collection?/1/TFM.biblatex -o "$DEVENV_ROOT/document/biblio.bib" || echo "Is Zotero running?"
+    '';
 
-  scripts.pluto.exec = "julia --project=$DEVENV_ROOT -e 'using Pkg; Pkg.instantiate(); using Pluto; Pluto.run(auto_reload_from_file=true)'";
+    pluto.exec = "julia --project=$DEVENV_ROOT -e 'using Pkg; Pkg.instantiate(); using Pluto; Pluto.run(auto_reload_from_file=true)'";
+  };
 
   enterShell = ''
     task project:$PROJECT summary || echo "No summary available"
@@ -60,19 +66,25 @@
   ];
 
   # https://devenv.sh/languages/
-  languages.nix.enable = true;
-  languages.r = {
-    enable = false;
-    package = pkgs.rWrapper.override {
-      packages = lib.attrVals
-        (lib.filter (p: p != "")
-          (lib.splitString "\n" (builtins.readFile ./dependencies.txt))
-        )
-        pkgs.rPackages;
+  languages = {
+    nix.enable = true;
+
+    r = {
+      enable = false;
+      package = pkgs.rWrapper.override {
+        packages = lib.attrVals
+          (lib.filter (p: p != "")
+            (lib.splitString "\n" (builtins.readFile ./dependencies.txt))
+          )
+          pkgs.rPackages;
+      };
+    };
+
+    julia = {
+      enable = true;
+      package = pkgs.julia_19;
     };
   };
-  languages.julia.enable = true;
-  languages.julia.package = pkgs.julia_19;
 
   # https://devenv.sh/pre-commit-hooks/
   pre-commit.hooks = {
@@ -83,7 +95,9 @@
   };
 
   # https://devenv.sh/processes/
-  # processes.jupyter.exec = "jupyter lab";
-  processes.latexmk.exec = "build-doc -pvc";
-  processes.pluto.exec = "pluto";
+  processes = {
+    # jupyter.exec = "jupyter lab";
+    latexmk.exec = "build-doc -pvc";
+    pluto.exec = "pluto";
+  };
 }
