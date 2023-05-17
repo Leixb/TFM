@@ -2,7 +2,7 @@
 
 julia_version = "1.9.0"
 manifest_format = "2.0"
-project_hash = "23e791ca14ffe443267302e10f831de33d7e8b58"
+project_hash = "0dfa2c8524deaad4dac62e25044aa5be34a94085"
 
 [[deps.ARFFFiles]]
 deps = ["CategoricalArrays", "Dates", "Parsers", "Tables"]
@@ -709,7 +709,10 @@ version = "1.8.3"
 
 [[deps.GLMakie]]
 deps = ["ColorTypes", "Colors", "FileIO", "FixedPointNumbers", "FreeTypeAbstraction", "GLFW", "GeometryBasics", "LinearAlgebra", "Makie", "Markdown", "MeshIO", "ModernGL", "Observables", "PrecompileTools", "Printf", "ShaderAbstractions", "StaticArrays"]
-git-tree-sha1 = "3d1c61fbaa0d688c1fbd80e393c8010457d5e409"
+git-tree-sha1 = "8b011c0d757cf2d8d86bd788c956cf6ddd8e70e6"
+repo-rev = "wm-window-close-fix"
+repo-subdir = "GLMakie"
+repo-url = "https://github.com/Leixb/Makie.jl"
 uuid = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
 version = "0.8.5"
 
