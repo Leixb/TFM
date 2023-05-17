@@ -108,6 +108,9 @@ end
 abstract type CategoricalDataSet <: DataSet end
 abstract type RegressionDataSet <: DataSet end
 
+is_regression(::CategoricalDataSet) = false
+is_regression(::RegressionDataSet) = true
+
 preprocess(ds::CategoricalDataSet) = X -> coerce(X, target(ds) => Multiclass)
 
 abstract type Frenay <: RegressionDataSet end
@@ -323,6 +326,8 @@ url(::MNIST) = "http://yann.lecun.com/exdb/mnist/"
 
 abstract type Delve <: DataSet end
 abstract type DelveRegressionDataSet <: Delve end
+
+is_regression(::DelveRegressionDataSet) = true
 
 url(::Delve) = "http://www.cs.toronto.edu/~delve/data/datasets.html"
 

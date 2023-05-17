@@ -1,13 +1,16 @@
 #!/usr/bin/env julia
 
 using TFM.Experiments
+using TFM.DataSets
 using LIBSVM
 using Distributed
 using DrWatson
 
 folder = get(ARGS, 1, "svms_2")
 
-const parameters_all = Experiments.svm_parameter_grid(;acos=false, step=1.0, folder)
+datasets = DataSets.all |> filter(DataSets.is_regression)
+
+const parameters_all = Experiments.svm_parameter_grid(;datasets, acos=false, rbf=false, step=1.0, folder, scale_sigma=true)
 
 @warn "Generated $(length(parameters_all)) executable combinations ..."
 
