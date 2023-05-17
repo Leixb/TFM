@@ -169,6 +169,7 @@ end
 
 function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
     ;linkyaxis=false, linkxaxis=false, show_rbf = false,
+    dims=nothing,
     interactive=Makie.current_backend() == GLMakie, kwargs...
 )
 
@@ -196,11 +197,14 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
 
     gr = GridLayout(fig[1, 1])
 
-    n = Int(ceil(sqrt(length(datasets))))
-    m = Int(ceil(length(datasets) / n))
+    if !(dims isa Nothing)
+        (m, n) = dims
+    else
+        n = Int(ceil(sqrt(length(datasets))))
+        m = Int(ceil(length(datasets) / n))
+    end
 
-    axes = [Axis(gr[j, i]) for i in 1:m, j in 1:n if (i-1)*n+j <= length(datasets)]
-    axes = reshape(axes, 1, :)
+    axes = [Axis(gr[i, j]) for j in 1:m, i in 1:n if (i-1)*n+j <= length(datasets)]
 
     df_groups = @chain df begin
         sort(:sigma)
@@ -246,8 +250,21 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
     Label(fig[2, 1], text = L"\sigma_w", font = :bold, fontsize = 20, tellwidth = false)
     Label(fig[0, 1:2], text = "Sigma vs nRMSE by Dataset", font = :bold, fontsize = 20, tellwidth = false)
 
-    linkyaxis && linkyaxes!(axes...)
-    linkxaxis && linkxaxes!(axes...)
+    if linkxaxis && !interactive
+        linkxaxes!(axes...)
+        for ax in axes[1:end-m]
+            hidexdecorations!(ax; grid=false, minorgrid=false)
+        end
+    end
+
+    if linkyaxis && !interactive
+        linkyaxes!(axes...)
+        for i in (setdiff(Set(1:length(axes)) , Set(1:m:length(axes))))
+            hideydecorations!(axes[i]; grid=false, minorgrid=false)
+        end
+    end
+
+    trim!(gr)
 
     if !interactive
         Legend(fig[1, 2], axes[1], "Kernels", merge=true, framevisible=false)
