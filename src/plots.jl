@@ -13,7 +13,7 @@ For other purposed, we can use GLMakie of WGLMakie to quickly visualize and iter
 """
 module Plots
 
-using CairoMakie, GLMakie, LaTeXStrings, AlgebraOfGraphics
+using CairoMakie, GLMakie, LaTeXStrings, AlgebraOfGraphics, MathTeXEngine
 using DataFrames, DataFramesMeta, MLJ, DrWatson
 using Printf, Dates
 
@@ -120,6 +120,14 @@ is_regression(ds) = ds isa DataSets.RegressionDataSet || ds isa DataSets.DelveRe
 
 regression(df) = @rsubset(df, is_regression(:dataset))
 classification(df) = @rsubset(df, !is_regression(:dataset))
+
+const theme_tex = Theme(fonts = (
+        regular = texfont(),
+        bold = texfont(:bold),
+        italic = texfont(:italic)
+    )
+)
+
 
 function plot_best(df)
     cols = mapping(
