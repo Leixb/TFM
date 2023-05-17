@@ -22,6 +22,7 @@ function tex_theme!()
 end
 
 import ..Utils, ..Experiments, ..DataSets
+import ..DataSets: is_regression
 
 function plot_asin(interactive=Makie.current_backend() == GLMakie)
     fig = Figure(fonts=(;regular="Latin Modern Roman"))
@@ -131,11 +132,9 @@ function summarize_best(df, grouping::AbstractArray=[:dataset_cat, :kernel_cat],
     @chain df begin
         sort(value, rev=maximum)
         groupby(grouping)
-        combine(first)
+        combine(first, nrow)
     end
 end
-
-is_regression(ds) = ds isa DataSets.RegressionDataSet || ds isa DataSets.DelveRegressionDataSet
 
 regression(df) = @rsubset(df, is_regression(:dataset))
 classification(df) = @rsubset(df, !is_regression(:dataset))
@@ -273,7 +272,7 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
 
     toggles = collect(pairs(toggles_dict))
 
-    sort!(toggles, by = x -> x[1])
+    sort!(toggles, by = first)
 
     labels = map(toggles) do (kernel, _)
         Label(fig, string(kernel))
@@ -314,6 +313,31 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
 
 end
 
+function exec_time(df::DataFrame, show_kernels=["Asin", "AsinNorm"];
+	grp = mapping(layout = :cost=>nonnumeric),
+	geom = visual(BoxPlot),
+    logscale=false, linkyaxes=false)
+	cols = mapping(
+		:kernel_cat=>"Kernel",
+		:n_iter=>"Iterations",
+		color=:kernel_cat=>"Kernel",
+	)
+
+	plt = data(@chain df begin
+		@rtransform(:n_iter=:n_iter+1)
+		@rsubset(:kernel_cat in show_kernels)
+	end) * cols * geom * grp
+	fg = draw(plt,
+		facet = (; linkyaxes),
+		axis=(;
+			xticklabelrotation=pi/4,
+			#limits=(nothing, (10, nothing)),
+			yscale=logscale ? log10 : identity,
+		),
+	)
+    plt, fg
+end
+
 """
 Reverse the effects of `linkaxes!` on the given axes.
 """
@@ -341,6 +365,7 @@ macro saveplot(name, args...)
 
     str_name = string(name) * ".pdf"
     esc(quote
+        @info("Plotting " * $str_name)
         $name = $(args...)
         save(plotsdir($str_name), $name)
     end)
