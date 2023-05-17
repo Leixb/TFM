@@ -17,6 +17,10 @@ using CairoMakie, GLMakie, LaTeXStrings, AlgebraOfGraphics, MathTeXEngine
 using DataFrames, DataFramesMeta, MLJ, DrWatson
 using Printf, Dates
 
+function tex_theme!()
+    Makie.update_theme!(fonts = (regular = texfont(), bold = texfont(:bold), italic = texfont(:italic)))
+end
+
 import ..Utils, ..Experiments, ..DataSets
 
 function plot_asin(interactive=Makie.current_backend() == GLMakie)
@@ -51,7 +55,7 @@ function plot_asin(interactive=Makie.current_backend() == GLMakie)
     fig
 end
 
-function plot_kernel_3d(kernel, args...; offset = pi/5, dims=(2, 2), kwargs...)
+function plot_kernel_3d_grid(kernel, args...; offset = pi/5, dims=(2, 2), kwargs...)
     fig = Figure()
     xs = range(-2, 2, length=100)
 	z = [ kernel(x, y, args...; kwargs...) for x in xs, y in xs]
@@ -94,6 +98,14 @@ function plot_kernel_3d_interactive(kernel, args...; kwargs...)
 
 end
 
+plot_kernel_3d(args...; interactive=Makie.current_backend() == GLMakie, kwargs...) =
+    if interactive
+        plot_kernel_3d_interactive(args...; kwargs...)
+    else
+        plot_kernel_3d_grid(args...; kwargs...)
+    end
+
+
 function experiment_data(folder="svms", scan=true)
     if scan 
 	    df = collect_results!(
@@ -128,14 +140,6 @@ is_regression(ds) = ds isa DataSets.RegressionDataSet || ds isa DataSets.DelveRe
 regression(df) = @rsubset(df, is_regression(:dataset))
 classification(df) = @rsubset(df, !is_regression(:dataset))
 
-const theme_tex = Theme(fonts = (
-        regular = texfont(),
-        bold = texfont(:bold),
-        italic = texfont(:italic)
-    )
-)
-
-
 function plot_best(df)
     cols = mapping(
         :kernel_cat,
@@ -149,7 +153,9 @@ function plot_best(df)
 	fg = draw(plt, facet = (; linkyaxes = :none), axis=(;xticklabelrotation=pi/4))
 end
 
-function plot_sigma(df, show_kernels=["Asin", "AsinNorm"])
+# function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], linkyaxis=false,
+#     show_rbf = true
+# )
     # cols = mapping(
     #     :sigma,
     #     :measure_test=>"nRMSE",
@@ -159,8 +165,14 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"])
     # geom = visual(ScatterLines)
 	# plt = data(df) * cols * grp * geom
 	# fg = draw(plt, facet = (; linkyaxes = :none), axis=(;xscale=log10, xticklabelrotation=pi/4))
+# end
 
-    fig = Figure()
+function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
+    ;linkyaxis=false, linkxaxis=false, show_rbf = false,
+    interactive=Makie.current_backend() == GLMakie, kwargs...
+)
+
+    fig = Figure(args...; kwargs...)
 
     datasets = unique(df.dataset_cat)
     kernels = unique(df.kernel_cat)
@@ -170,7 +182,17 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"])
 
     kernel_colors = Dict(k => wcolors[i] for (i, k) in enumerate(kernels))
 
-    toggles_dict = Dict(k => Toggle(fig, active=k in show_kernels, buttoncolor=kernel_colors[k]) for k in kernels)
+    toggles_dict = Dict(k =>
+        if interactive
+            Toggle(fig, active=k in show_kernels, buttoncolor=kernel_colors[k])
+        else
+            (;active=k in show_kernels)
+        end
+        for k in kernels)
+
+    if interactive
+        toggles_dict["RadialBasis"].active = show_rbf
+    end
 
     gr = GridLayout(fig[1, 1])
 
@@ -192,27 +214,44 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"])
             kernel = df_kernel.kernel_cat[1]
 
             if kernel == "RadialBasis"
-                hline = hlines!(ax, [minimum(df_kernel.measure_test)], color=kernel_colors[kernel], linewidth=2)
-                connect!(hline.visible, toggles_dict[kernel].active)
+                if show_rbf || interactive
+                    hline = hlines!(ax, [minimum(df_kernel.measure_test)], color=kernel_colors[kernel], linewidth=2, label="RBF (best)")
+                    interactive && connect!(hline.visible, toggles_dict[kernel].active)
+                end
 
                 # lines = lines!(ax, df_kernel.sigma, df_kernel.measure_test,
                     # linestyle = :dot,
                     # label=string(kernel), visible = true, color=kernel_colors[kernel])
                 # connect!(lines.visible, toggles_dict[kernel].active)
-            else
+            elseif kernel in show_kernels || interactive
 
                 slines = lines!(ax, df_kernel.sigma, df_kernel.measure_test,
                     linestyle = df_kernel.kernel_family[1] == "Acos" ? :dash : :solid,
                     label=string(kernel), visible = true, color=kernel_colors[kernel])
+
                 spoints = scatter!(ax, df_kernel.sigma, df_kernel.measure_test,
                     label=string(kernel), visible = true, color=kernel_colors[kernel])
 
-                connect!(slines.visible, toggles_dict[kernel].active)
-                connect!(spoints.visible, toggles_dict[kernel].active)
+                if interactive
+                    connect!(slines.visible, toggles_dict[kernel].active)
+                    connect!(spoints.visible, toggles_dict[kernel].active)
+                end
             end
         end
         ax.title = string(dataset)
         ax.xscale = log10
+    end
+
+    Label(fig[1, 0], text = "nRMSE", font = :bold, fontsize = 20, tellheight = false,  rotation = pi/2)
+    Label(fig[2, 1], text = L"\sigma_w", font = :bold, fontsize = 20, tellwidth = false)
+    Label(fig[0, 1:2], text = "Sigma vs nRMSE by Dataset", font = :bold, fontsize = 20, tellwidth = false)
+
+    linkyaxis && linkyaxes!(axes...)
+    linkxaxis && linkxaxes!(axes...)
+
+    if !interactive
+        Legend(fig[1, 2], axes[1], "Kernels", merge=true, framevisible=false)
+        return fig
     end
 
     toggles = collect(pairs(toggles_dict))
@@ -236,8 +275,8 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"])
         end
     end
 
-    linkyaxes_toggle = Toggle(fig, active=false)
-    linkxaxes_toggle = Toggle(fig, active=false)
+    linkyaxes_toggle = Toggle(fig, active=linkyaxis)
+    linkxaxes_toggle = Toggle(fig, active=linkxaxis)
 
     customize_toggles = [linkyaxes_toggle, linkxaxes_toggle]
     customize_labels = [Label(fig, "Link Y"), Label(fig, "Link X")]
@@ -253,10 +292,6 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"])
     on(linkxaxes_toggle.active) do active
         active ? linkxaxes!(axes...) : unlinkxaxes!(axes...)
     end
-
-    Label(fig[1, 0], text = "nRMSE", font = :bold, fontsize = 20, tellheight = false,  rotation = pi/2)
-    Label(fig[2, 1], text = L"\sigma_w", font = :bold, fontsize = 20, tellwidth = false)
-    Label(fig[0, 1:2], text = "Sigma vs nRMSE by Dataset", font = :bold, fontsize = 20, tellwidth = false)
 
     fig
 
