@@ -333,4 +333,19 @@ end
 unlinkxaxes!(a::Axis, others...) = unlinkaxes!(Val(:x), a, others...)
 unlinkyaxes!(a::Axis, others...) = unlinkaxes!(Val(:y), a, others...)
 
+macro saveplot(name, args...)
+    if name isa Expr
+        args = [name.args[2] ; args...]
+        name = name.args[1]
+    end
+
+    str_name = string(name) * ".pdf"
+    esc(quote
+        $name = $(args...)
+        save(plotsdir($str_name), $name)
+    end)
+end
+
+export @saveplot
+
 end
