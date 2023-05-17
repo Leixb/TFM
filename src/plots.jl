@@ -67,7 +67,7 @@ function plot_kernel_3d_grid(kernel, args...; offset = pi/5, dims=(2, 2), kwargs
 
 	for (ax, azimuth) in zip(axes, angles)
 		ax1 = Axis3(ax; azimuth)
-		surface!(ax1, xs, xs, z)
+		surface!(ax1, xs, xs, z, rasterize=true)
 	end
 
     fig
