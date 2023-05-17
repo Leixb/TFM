@@ -94,8 +94,15 @@ function plot_kernel_3d_interactive(kernel, args...; kwargs...)
 
 end
 
-function experiment_data(folder="svms")
-	df = collect_results!(datadir(folder); black_list=Experiments.default_ignore_results())
+function experiment_data(folder="svms", scan=true)
+    if scan 
+	    df = collect_results!(
+            datadir(folder);
+            black_list=Experiments.default_ignore_results()
+        )
+    else
+        df = wload(datadir("results_$folder.jld2"))["df"]
+    end
 	df.kernel_cat = categorical(string.(df.kernel))
 	df.dataset_cat = categorical(string.(df.dataset))
     df.sigma = Utils.gamma2sigma.(df.gamma)
