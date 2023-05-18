@@ -75,6 +75,8 @@ Base.@kwdef struct ExecutionInfo <: TFMType
     host::String = gethostname()
     measure_test::Float64 = NaN
     duration::Dates.Period
+    n_train::Int = -1
+    sigma_scaled::Float64 = NaN
 end
 
 # SVM without using tuning from MLJ
@@ -144,9 +146,9 @@ function run(svm::SVMConfig)::Tuple{PerformanceEvaluation, ExecutionInfo, Machin
     start = Dates.now()
 
     (Xtrain, Xtest), (ytrain, ytest) = partition(svm.dataset)
-
-    if svm.scale_sigma
-        sigma = Utils.gamma2sigma(svm.gamma) / length(ytrain)
+    n = length(ytrain)
+    if svm.scale_sigma && svm.kernel != LIBSVM.Kernel.RadialBasis
+        sigma = Utils.gamma2sigma(svm.gamma) / n
         gamma = Utils.sigma2gamma(sigma)
     end
 
@@ -163,7 +165,7 @@ function run(svm::SVMConfig)::Tuple{PerformanceEvaluation, ExecutionInfo, Machin
 
     duration = Dates.now() - start
 
-    info = ExecutionInfo(;duration, measure_test)
+    info = ExecutionInfo(;duration, measure_test, sigma_scaled=svm.scale_sigma ? sigma : NaN, n_train=n)
 
     return result, info, mach
 end
