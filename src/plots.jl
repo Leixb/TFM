@@ -263,6 +263,7 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
                     # linestyle = :dot,
                     # label=string(kernel), visible = true, color=kernel_colors[kernel])
                 # connect!(lines.visible, toggles_dict[kernel].active)
+                continue
             elseif !(kernel in show_kernels || interactive)
                 continue
             end
