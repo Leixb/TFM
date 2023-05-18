@@ -20,8 +20,12 @@ best hyperparameters. This means that there are 100 training processes in total.
 	\label{fig:frenay-cross-test}
 \end{figure}
 
-
 \subsection{Comparing the performance of the kernels with different datasets}
+
+\begin{figure}
+    \includegraphics{../plots/MSE_frenay}
+    \caption{MSE results on datasets from \cite{frenayParameterinsensitiveKernelExtreme2011}}
+\end{figure}
 
 \subsubsection{Resampling}
 
@@ -31,12 +35,42 @@ we opted to use a 5-2 cross-validation resampling method as described by \textci
 The 5-2 cross-validation
 consists of doing a 50-50 split of the dataset into two sets. First, we train on the first set and test on the second set
 and then we train on the second set and test on the first set. The process is repeated 5 times, each time
-with a different random split. We choose this method since it is faster then the double cross-test method
+with a different random split. We choose this method since it is faster than the double cross-test method
 requiring only 10 training processes instead of 100.
 
 % TODO: Add figure of the 5-2 cross-validation
 
+\subsubsection{Normalization}
 
+In order to be able to compare the results between different datasets, an effort
+was made to normalize the data and hyperparameters. To that end, the
+following measures were implemented:
+
+\begin{enumerate}
+    \item Variables (including target) are standardized
+    \item We use normalized root-mean-square error as our performance
+        measure.
+    \item The kernel itself is normalized.
+    \item The hyperparameter $\sigma_w$ is divided by the number of samples in
+        the training data of each dataset.
+\end{enumerate}
+
+
+
+% NOTE: this is without scaling sigma
 \begin{figure}
-    \input{figures/elm-kernel.tikz}
+    \includegraphics{../plots/nRMSE_frenay}
+    \caption{nRMSE results on datasets from \cite{frenayParameterinsensitiveKernelExtreme2011}}
+\end{figure}
+
+% WARN: these don't have all values of epsilon in our grid
+\begin{figure}
+    \includegraphics{../plots/nRMSE_bank}
+    \caption{nRMSE results on Delve Bank dataset}
+\end{figure}
+
+% WARN: these don't have all values of epsilon in our grid
+\begin{figure}
+    \includegraphics{../plots/nRMSE_pumadyn}
+    \caption{nRMSE results on Delve PumaDyn dataset}
 \end{figure}

@@ -13,9 +13,11 @@ For other purposed, we can use GLMakie of WGLMakie to quickly visualize and iter
 """
 module Plots
 
-using CairoMakie, GLMakie, LaTeXStrings, AlgebraOfGraphics, MathTeXEngine
+using Makie, LaTeXStrings, AlgebraOfGraphics, MathTeXEngine
 using DataFrames, DataFramesMeta, MLJ, DrWatson
 using Printf, Dates
+
+is_interactive() = string(Makie.current_backend()) == "GLMakie"
 
 function tex_theme!()
     Makie.update_theme!(fonts = (regular = texfont(), bold = texfont(:bold), italic = texfont(:italic)))
@@ -25,7 +27,7 @@ import ..Utils, ..Experiments, ..DataSets
 import ..DataSets: is_regression
 import ..Measures
 
-function plot_asin(interactive=Makie.current_backend() == GLMakie)
+function plot_asin(interactive=is_interactive())
     fig = Figure(fonts=(;regular="Latin Modern Roman"))
     ax = Axis(fig[1, 1])
     x = range(-2, 2, length=200)
@@ -100,7 +102,7 @@ function plot_kernel_3d_interactive(kernel, args...; kwargs...)
 
 end
 
-plot_kernel_3d(args...; interactive=Makie.current_backend() == GLMakie, kwargs...) =
+plot_kernel_3d(args...; interactive=is_interactive(), kwargs...) =
     if interactive
         plot_kernel_3d_interactive(args...; kwargs...)
     else
@@ -170,7 +172,7 @@ end
 function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
     ;linkyaxis=false, linkxaxis=false, show_rbf = false,
     dims=nothing, show_bands=false,
-    interactive=Makie.current_backend() == GLMakie, kwargs...
+    interactive=is_interactive(), kwargs...
 )
 
     fig = Figure(args...; kwargs...)
