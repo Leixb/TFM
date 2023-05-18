@@ -23,6 +23,7 @@ end
 
 import ..Utils, ..Experiments, ..DataSets
 import ..DataSets: is_regression
+import ..Measures
 
 function plot_asin(interactive=Makie.current_backend() == GLMakie)
     fig = Figure(fonts=(;regular="Latin Modern Roman"))
@@ -168,7 +169,7 @@ end
 
 function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
     ;linkyaxis=false, linkxaxis=false, show_rbf = false,
-    dims=nothing,
+    dims=nothing, show_bands=false,
     interactive=Makie.current_backend() == GLMakie, kwargs...
 )
 
@@ -176,11 +177,18 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
 
     datasets = unique(df.dataset_cat)
     kernels = unique(df.kernel_cat)
-    sort!(kernels, by = x -> (startswith(x, "Acos") ? "B$x" : "A$x"))
 
+    # force order: asin..., acos..., rbf
+    sort!(kernels, by = x -> (startswith(x, "Asin") ? "A$x" : "B$x"))
     wcolors = Makie.wong_colors()
 
     kernel_colors = Dict(k => wcolors[i] for (i, k) in enumerate(kernels))
+
+    # We only add std bands toggle if they are requested
+    # initially since they may not be valid
+    if interactive && show_bands
+        bands_toggle = Toggle(fig, active=true)
+    end
 
     toggles_dict = Dict(k =>
         if interactive
@@ -218,7 +226,7 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
 
             if kernel == "RadialBasis"
                 if show_rbf || interactive
-                    hline = hlines!(ax, [minimum(df_kernel.measure_test)], color=kernel_colors[kernel], linewidth=2, label="RBF (best)")
+                    hline = hlines!(ax, [minimum(df_kernel.measure_test)], color=kernel_colors[kernel], linewidth=2, label="RBF (best)", linestyle=:dash)
                     interactive && connect!(hline.visible, toggles_dict[kernel].active)
                 end
 
@@ -227,6 +235,27 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
                     # label=string(kernel), visible = true, color=kernel_colors[kernel])
                 # connect!(lines.visible, toggles_dict[kernel].active)
             elseif kernel in show_kernels || interactive
+
+                # TODO: make this run before drawing the lines
+                # so that it does not go on top of subsequent
+                # kernels.
+                if show_bands
+                    # WARN: measure_test and std are not really related
+                    # this assumes that we override measure_test to the
+                    # proper column when doing show_bands...
+                    bands = band!(
+                        ax,
+                        df_kernel.sigma,
+                        df_kernel.measure_test .- df_kernel.std,
+                        df_kernel.measure_test .+ df_kernel.std,
+                        label=string(kernel), visible=true,
+                        color=(kernel_colors[kernel], 0.3)
+                    )
+
+                    if interactive
+                        connect!(bands.visible, bands_toggle.active)
+                    end
+                end
 
                 slines = lines!(ax, df_kernel.sigma, df_kernel.measure_test,
                     linestyle = df_kernel.kernel_family[1] == "Acos" ? :dash : :solid,
@@ -245,9 +274,22 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
         ax.xscale = log10
     end
 
-    Label(fig[1, 0], text = "nRMSE", font = :bold, fontsize = 20, tellheight = false,  rotation = pi/2)
+    # Get string representation of measure and resampling for the labels
+    measure = df.measure[1]
+    measure_name = if measure isa Measures.MSE
+        "MSE"
+    elseif measure isa Measures.nRMSE
+        "nRMSE"
+    else
+        # Fallback to io.show with titlecase applied
+        titlecase(string(measure))
+    end
+
+    resampling = string(df.resampling[1])
+
+    Label(fig[1, 0], text = measure_name, font = :bold, fontsize = 20, tellheight = false,  rotation = pi/2)
     Label(fig[2, 1], text = L"\sigma_w", font = :bold, fontsize = 20, tellwidth = false)
-    Label(fig[0, 1:2], text = "Sigma vs nRMSE by Dataset", font = :bold, fontsize = 20, tellwidth = false)
+    Label(fig[0, 1:2], text = "Sigma vs $measure_name by Dataset ($resampling)", font = :bold, fontsize = 20, tellwidth = false)
 
     if linkxaxis && !interactive
         linkxaxes!(axes...)
@@ -296,6 +338,10 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
 
     customize_toggles = [linkyaxes_toggle, linkxaxes_toggle]
     customize_labels = [Label(fig, "Link Y"), Label(fig, "Link X")]
+    if show_bands
+        push!(customize_toggles, bands_toggle)
+        push!(customize_labels, Label(fig, "std"))
+    end
 
     fig[1, 2][length(toggles)+1, 1:2] = grid!(
         hcat(customize_toggles, customize_labels),

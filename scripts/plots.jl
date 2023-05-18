@@ -1,3 +1,5 @@
+#!/usr/bin/env julia
+
 using TFM
 using TFM.Plots
 
@@ -8,24 +10,36 @@ using CairoMakie
 CairoMakie.activate!()
 Plots.tex_theme!()
 
-const df = Plots.experiment_data("svms_2", false)
+const mse = @chain Plots.experiment_data("svms", false) begin
+    @rsubset(:dataset isa DataSets.DataSet)
+    @rename(:measure_test = :measurement)
+    Plots.summarize_best([:kernel_cat, :dataset_cat, :sigma])
+    Plots.regression()
+end
 
-const df_sum = Plots.summarize_best(df, [:kernel_cat, :dataset_cat, :sigma])
-
-const df_reg = Plots.regression(df_sum)
+const nrmse = @chain Plots.experiment_data("svms_2", false) begin
+    Plots.summarize_best([:kernel_cat, :dataset_cat, :sigma])
+    Plots.regression()
+end
 
 const common_opts = (;
     linkxaxis=true,
     linkyaxis=false,
+    show_rbf=true,
 )
 
-@saveplot nRMSE_all     Plots.plot_sigma(df_reg; common_opts..., resolution=(1200, 800))
-@saveplot nRMSE_frenay  Plots.plot_sigma(@rsubset(df_reg, :dataset isa DataSets.Frenay); common_opts...)
-@saveplot nRMSE_bank    Plots.plot_sigma(@rsubset(df_reg, :dataset isa DataSets.Bank); common_opts...)
-@saveplot nRMSE_pumadyn Plots.plot_sigma(@rsubset(df_reg, :dataset isa DataSets.Pumadyn); common_opts...)
+@saveplot MSE_all     Plots.plot_sigma(mse; show_bands=true, common_opts..., resolution=(1200, 800))
+@saveplot MSE_frenay  Plots.plot_sigma(@rsubset(mse, :dataset isa DataSets.Frenay); show_bands=true, common_opts...)
+
+@saveplot nRMSE_all     Plots.plot_sigma(nrmse; common_opts..., resolution=(1200, 800))
+@saveplot nRMSE_frenay  Plots.plot_sigma(@rsubset(nrmse, :dataset isa DataSets.Frenay); common_opts...)
+@saveplot nRMSE_bank    Plots.plot_sigma(@rsubset(nrmse, :dataset isa DataSets.Bank); common_opts...)
+@saveplot nRMSE_pumadyn Plots.plot_sigma(@rsubset(nrmse, :dataset isa DataSets.Pumadyn); common_opts...)
 
 @saveplot kernel_asin Plots.plot_asin()
-@saveplot kernel_asin_3d Plots.plot_kernel_3d(Utils.kernel_asin)
+@saveplot kernel_asin_3d_sig0001 Plots.plot_kernel_3d(Utils.kernel_asin_normalized, 1e-3)
+@saveplot kernel_asin_3d_sig1    Plots.plot_kernel_3d(Utils.kernel_asin_normalized, 1e+0)
+@saveplot kernel_asin_3d_sig1000 Plots.plot_kernel_3d(Utils.kernel_asin_normalized, 1e+3)
 
 @saveplot kernel_acos0_3d Plots.plot_kernel_3d(Utils.kernel_acos, 1, 0)
 @saveplot kernel_acos1_3d Plots.plot_kernel_3d(Utils.kernel_acos, 1, 1)
