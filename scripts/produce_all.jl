@@ -18,9 +18,14 @@ configs = map(parameters_all) do params
     Experiments.SVMConfig(;params...)
 end
 
-files_done = Set(readdir(datadir(folder)))
-configs = filter(configs) do c
-    !(savename(c, "jld2") in files_done)
+data_path = datadir(folder)
+if !isdir(data_path)
+    mkpath(data_path)
+else
+    files_done = Set(readdir(data_path))
+    configs = filter(configs) do c
+        !(savename(c, "jld2") in files_done)
+    end
 end
 
 @info "Skipping $(length(parameters_all) - length(configs)) executions which already exist..."
