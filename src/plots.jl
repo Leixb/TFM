@@ -222,8 +222,35 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
 
     for (ax, df_group) in zip(axes, df_groups)
         dataset = df_group.dataset_cat[1]
+        df_subgroup = groupby(df_group, :kernel_cat)
 
-        foreach(groupby(df_group, :kernel_cat)) do df_kernel
+        # First we plot bands so they are on bottom
+        if show_bands
+            for df_kernel in df_subgroup
+                kernel = df_kernel.kernel_cat[1]
+                if !(kernel in show_kernels)
+                    continue
+                end
+
+                # WARN: measure_test and std are not really related
+                # this assumes that we override measure_test to the
+                # proper column when doing show_bands...
+                bands = band!(
+                    ax,
+                    df_kernel.sigma,
+                    df_kernel.measure_test .- df_kernel.std,
+                    df_kernel.measure_test .+ df_kernel.std,
+                    label=string(kernel), visible=true,
+                    color=(kernel_colors[kernel], 0.3)
+                )
+
+                if interactive
+                    connect!(bands.visible, bands_toggle.active)
+                end
+            end
+        end
+
+        for df_kernel in df_subgroup
             kernel = df_kernel.kernel_cat[1]
 
             if kernel == "RadialBasis"
@@ -236,40 +263,20 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
                     # linestyle = :dot,
                     # label=string(kernel), visible = true, color=kernel_colors[kernel])
                 # connect!(lines.visible, toggles_dict[kernel].active)
-            elseif kernel in show_kernels || interactive
+            elseif !(kernel in show_kernels || interactive)
+                continue
+            end
 
-                # TODO: make this run before drawing the lines
-                # so that it does not go on top of subsequent
-                # kernels.
-                if show_bands
-                    # WARN: measure_test and std are not really related
-                    # this assumes that we override measure_test to the
-                    # proper column when doing show_bands...
-                    bands = band!(
-                        ax,
-                        df_kernel.sigma,
-                        df_kernel.measure_test .- df_kernel.std,
-                        df_kernel.measure_test .+ df_kernel.std,
-                        label=string(kernel), visible=true,
-                        color=(kernel_colors[kernel], 0.3)
-                    )
+            slines = lines!(ax, df_kernel.sigma, df_kernel.measure_test,
+                linestyle = df_kernel.kernel_family[1] == "Acos" ? :dash : :solid,
+                label=string(kernel), visible = true, color=kernel_colors[kernel])
 
-                    if interactive
-                        connect!(bands.visible, bands_toggle.active)
-                    end
-                end
+            spoints = scatter!(ax, df_kernel.sigma, df_kernel.measure_test,
+                label=string(kernel), visible = true, color=kernel_colors[kernel])
 
-                slines = lines!(ax, df_kernel.sigma, df_kernel.measure_test,
-                    linestyle = df_kernel.kernel_family[1] == "Acos" ? :dash : :solid,
-                    label=string(kernel), visible = true, color=kernel_colors[kernel])
-
-                spoints = scatter!(ax, df_kernel.sigma, df_kernel.measure_test,
-                    label=string(kernel), visible = true, color=kernel_colors[kernel])
-
-                if interactive
-                    connect!(slines.visible, toggles_dict[kernel].active)
-                    connect!(spoints.visible, toggles_dict[kernel].active)
-                end
+            if interactive
+                connect!(slines.visible, toggles_dict[kernel].active)
+                connect!(spoints.visible, toggles_dict[kernel].active)
             end
         end
         ax.title = string(dataset)
