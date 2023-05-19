@@ -158,6 +158,7 @@ end
 function plot_delve(df, dataset::Type{<:DataSets.Delve}, size=32,
     show_kernels=["Asin", "AsinNorm"],
     ;linkyaxes=false,
+    show_bands=false, sigma = :sigma, measure = :measure_test, std = :std,
 )
     df = @rsubset(df, :dataset isa dataset, :dataset.size == size)
 
@@ -180,10 +181,27 @@ function plot_delve(df, dataset::Type{<:DataSets.Delve}, size=32,
     do_plot = (name) -> begin
         df_sub = @rsubset(df, :dataset.linearity == name[1], :dataset.noise == name[2])
 
+        if show_bands
+            for kernel in show_kernels
+                df_sub_kern = @rsubset(df_sub, :kernel_cat == kernel)
+
+                val_sigma = getproperty(df_sub_kern, sigma)
+                val_lower = getproperty(df_sub_kern, measure) .- getproperty(df_kernel, std)
+                val_upper = getproperty(df_sub_kern, measure) .+ getproperty(df_kernel, std)
+
+                bands = band!(
+                    ax[name],
+                    val_sigma, val_lower, val_upper,
+                    label=kernel, visible=true,
+                    color=(kernel_colors[kernel], 0.3)
+                )
+            end
+        end
+
         for kernel in show_kernels
             df_sub_kern = @rsubset(df_sub, :kernel_cat == kernel)
 
-            scatterlines!(ax[name], df_sub_kern.sigma, df_sub_kern.measure_test, label=kernel)
+            scatterlines!(ax[name], getproperty(df_sub_kern, sigma), getproperty(df_sub_kern, measure), label=kernel)
         end
 
         # text!(ax[name], 1, 1, text=name)
