@@ -22,6 +22,11 @@ const nrmse = @chain Plots.experiment_data("svms_2", false) begin
     Plots.regression()
 end
 
+const nrmse_s = @chain Plots.experiment_data("svms3", true) begin
+    Plots.summarize_best([:kernel_cat, :dataset_cat, :sigma])
+    Plots.regression()
+end
+
 const common_opts = (;
     linkxaxis=true,
     linkyaxis=false,
@@ -35,6 +40,11 @@ const common_opts = (;
 @saveplot nRMSE_frenay  Plots.plot_sigma(@rsubset(nrmse, :dataset isa DataSets.Frenay); common_opts...)
 @saveplot nRMSE_bank    Plots.plot_sigma(@rsubset(nrmse, :dataset isa DataSets.Bank); common_opts...)
 @saveplot nRMSE_pumadyn Plots.plot_sigma(@rsubset(nrmse, :dataset isa DataSets.Pumadyn); common_opts...)
+
+@saveplot nRMSE_s_all     Plots.plot_sigma(nrmse_s; common_opts..., resolution=(1200, 800))
+@saveplot nRMSE_s_frenay  Plots.plot_sigma(@rsubset(nrmse_s, :dataset isa DataSets.Frenay); common_opts...)
+@saveplot nRMSE_s_pumadyn Plots.plot_sigma(@rsubset(nrmse_s, :dataset isa DataSets.Pumadyn); common_opts...)
+@saveplot nRMSE_s_bank    Plots.plot_sigma(@rsubset(nrmse_s, :dataset isa DataSets.Bank); common_opts...)
 
 @saveplot kernel_asin Plots.plot_asin()
 @saveplot kernel_asin_3d_sig0001 Plots.plot_kernel_3d(Utils.kernel_asin_normalized, 1e-3)
