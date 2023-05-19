@@ -12,13 +12,13 @@ Plots.tex_theme!()
 
 const mse = @chain Plots.experiment_data("svms", false) begin
     @rsubset(:dataset isa DataSets.DataSet)
-    @rename(:measure_test = :measurement)
     Plots.summarize_best([:kernel_cat, :dataset_cat, :sigma])
+    @rename(:measure_test = :measurement)
     Plots.regression()
 end
 
 const nrmse = @chain Plots.experiment_data("svms_2", false) begin
-    Plots.summarize_best([:kernel_cat, :dataset_cat, :sigma])
+    Plots.summarize_best([:kernel_cat, :dataset_cat, :sigma], by=:measurement)
     Plots.regression()
 end
 

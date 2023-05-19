@@ -111,7 +111,7 @@ plot_kernel_3d(args...; interactive=is_interactive(), kwargs...) =
 
 
 function experiment_data(folder="svms", scan=true)
-    if scan 
+    if scan
 	    df = collect_results!(
             datadir(folder);
             black_list=Experiments.default_ignore_results()
@@ -130,10 +130,10 @@ function experiment_data(folder="svms", scan=true)
 	df
 end
 
-function summarize_best(df, grouping::AbstractArray=[:dataset_cat, :kernel_cat], value=:measure_test, maximum=false)
+function summarize_best(df, grouping::AbstractArray=[:dataset_cat, :kernel_cat]; by=:measurement, maximum=false)
     # If maximum, we reverse the order
     @chain df begin
-        sort(value, rev=maximum)
+        sort(by, rev=maximum)
         groupby(grouping)
         combine(first, nrow)
     end
@@ -171,7 +171,7 @@ end
 
 function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
     ;linkyaxis=false, linkxaxis=false, show_rbf = false,
-    dims=nothing, show_bands=false,
+    dims=nothing, show_bands=false, sigma = :sigma, measure = :measure_test, std = :std,
     interactive=is_interactive(), kwargs...
 )
 
@@ -232,14 +232,13 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
                     continue
                 end
 
-                # WARN: measure_test and std are not really related
-                # this assumes that we override measure_test to the
-                # proper column when doing show_bands...
+                val_sigma = getproperty(df_kernel, sigma)
+                val_lower = getproperty(df_kernel, measure) .- getproperty(df_kernel, std)
+                val_upper = getproperty(df_kernel, measure) .+ getproperty(df_kernel, std)
+
                 bands = band!(
                     ax,
-                    df_kernel.sigma,
-                    df_kernel.measure_test .- df_kernel.std,
-                    df_kernel.measure_test .+ df_kernel.std,
+                    val_sigma, val_lower, val_upper,
                     label=string(kernel), visible=true,
                     color=(kernel_colors[kernel], 0.3)
                 )
@@ -253,9 +252,12 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
         for df_kernel in df_subgroup
             kernel = df_kernel.kernel_cat[1]
 
+            val_sigma = getproperty(df_kernel, sigma)
+            val_measure = getproperty(df_kernel, measure)
+
             if kernel == "RadialBasis"
                 if show_rbf || interactive
-                    hline = hlines!(ax, [minimum(df_kernel.measure_test)], color=kernel_colors[kernel], linewidth=2, label="RBF (best)", linestyle=:dash)
+                    hline = hlines!(ax, [minimum(val_measure)], color=kernel_colors[kernel], linewidth=2, label="RBF (best)", linestyle=:dash)
                     interactive && connect!(hline.visible, toggles_dict[kernel].active)
                 end
 
@@ -268,11 +270,11 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
                 continue
             end
 
-            slines = lines!(ax, df_kernel.sigma, df_kernel.measure_test,
+            slines = lines!(ax, val_sigma, val_measure,
                 linestyle = df_kernel.kernel_family[1] == "Acos" ? :dash : :solid,
                 label=string(kernel), visible = true, color=kernel_colors[kernel])
 
-            spoints = scatter!(ax, df_kernel.sigma, df_kernel.measure_test,
+            spoints = scatter!(ax, val_sigma, val_measure,
                 label=string(kernel), visible = true, color=kernel_colors[kernel])
 
             if interactive
