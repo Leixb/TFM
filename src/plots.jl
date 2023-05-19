@@ -160,7 +160,8 @@ function plot_delve(df, dataset::Type{<:DataSets.Delve}, size=32,
     ;linkyaxes=false,
     show_bands=false, sigma = :sigma, measure = :measure_test, std = :std,
 )
-    df = @rsubset(df, :dataset isa dataset, :dataset.size == size)
+    df = @rsubset(df, :dataset isa dataset)
+    @rsubset!(df, :dataset.size == size)
 
     df = sort(df, :sigma)
     fig = Figure()
@@ -236,7 +237,7 @@ function plot_delve(df, dataset::Type{<:DataSets.Delve}, size=32,
     Box(fig[-1,1:2])
     Label(fig[-1,1:2], "Linearity")
 
-    datasetname = split(string(dataset, '.') |> last
+    datasetname = split(string(dataset), '.') |> last
 
     Label(fig[-1:0,-1:0], "$datasetname\n$size", font=:bold, fontsize=20)
 
