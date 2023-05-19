@@ -155,6 +155,90 @@ function plot_best(df)
 	fg = draw(plt, facet = (; linkyaxes = :none), axis=(;xticklabelrotation=pi/4))
 end
 
+function plot_delve(df, dataset::Type{<:DataSets.Delve}, size=32,
+    show_kernels=["Asin", "AsinNorm"],
+    ;linkyaxes=false,
+)
+    df = @rsubset(df, :dataset isa dataset, :dataset.size == size)
+
+    df = sort(df, :sigma)
+    fig = Figure()
+
+    # linearity: fn     fairly / non         X
+    # noise: mh         moderate / hight     Y
+
+    # fm   nm
+    # fh   nh
+
+    ax = Dict()
+
+    ax["fm"] = Axis(fig[1, 1], xscale=log10)
+    ax["nm"] = Axis(fig[1, 2], xscale=log10, yaxisposition = :right)
+    ax["fh"] = Axis(fig[2, 1], xscale=log10)
+    ax["nh"] = Axis(fig[2, 2], xscale=log10, yaxisposition = :right)
+
+    do_plot = (name) -> begin
+        df_sub = @rsubset(df, :dataset.linearity == name[1], :dataset.noise == name[2])
+
+        for kernel in show_kernels
+            df_sub_kern = @rsubset(df_sub, :kernel_cat == kernel)
+
+            scatterlines!(ax[name], df_sub_kern.sigma, df_sub_kern.measure_test, label=kernel)
+        end
+
+        # text!(ax[name], 1, 1, text=name)
+    end
+
+    map(do_plot, collect(keys(ax)))
+
+    hidexdecorations!(ax["fm"], grid=false)
+    hidexdecorations!(ax["nm"], grid=false)
+
+    if linkyaxes
+        linkaxes!(values(ax)...)
+        hideydecorations!(ax["fm"], grid=false)
+        hideydecorations!(ax["fh"], grid=false)
+    else
+        linkxaxes!(values(ax)...)
+    end
+
+    Box(fig[1,0])
+    Label(fig[1,0], "Moderate", rotation=pi/2, tellheight=false)
+    Box(fig[2,0])
+    Label(fig[2,0], "High", rotation=pi/2, tellheight=false)
+
+    Box(fig[1:2,-1])
+    Label(fig[1:2,-1], "Noise Level", rotation=pi/2)
+
+    Box(fig[0,1])
+    Label(fig[0,1], "Fairly", tellwidth=false)
+    Box(fig[0,2])
+    Label(fig[0,2], "Non-linear", tellwidth=false)
+
+    Box(fig[-1,1:2])
+    Label(fig[-1,1:2], "Linearity")
+
+    datasetname = split(string(dataset, '.') |> last
+
+    Label(fig[-1:0,-1:0], "$datasetname\n$size", font=:bold, fontsize=20)
+
+    measure = df.measure[1]
+    measure_name = if measure isa Measures.MSE
+        "MSE"
+    elseif measure isa Measures.nRMSE
+        "nRMSE"
+    else
+        # Fallback to io.show with titlecase applied
+        titlecase(string(measure))
+    end
+
+    Label(fig[1:2, 3], measure_name, rotation=pi/2, font=:bold)
+    Legend(fig[1:2, 4], ax["fm"], "Kernel", framevisible = false)
+    Label(fig[3, 1:2], L"\sigma_w", font=:bold)
+
+    fig
+end
+
 # function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], linkyaxis=false,
 #     show_rbf = true
 # )
