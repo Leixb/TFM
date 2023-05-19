@@ -157,14 +157,15 @@ end
 
 function plot_delve(df, dataset::Type{<:DataSets.Delve}, size=32,
     show_kernels=["Asin", "AsinNorm"],
-    ;linkyaxes=false,
+    ;fig=Figure(), linkyaxes=false, show_rbf=false,
     show_bands=false, sigma = :sigma, measure = :measure_test, std = :std,
+    interactive=is_interactive()
 )
-    df = @rsubset(df, :dataset isa dataset)
-    @rsubset!(df, :dataset.size == size)
-
-    df = sort(df, :sigma)
-    fig = Figure()
+    df = @chain df begin
+        @rsubset(:dataset isa dataset)
+        @rsubset!(:dataset.size == size)
+        sort(:sigma)
+    end
 
     # linearity: fn     fairly / non         X
     # noise: mh         moderate / hight     Y
@@ -172,12 +173,15 @@ function plot_delve(df, dataset::Type{<:DataSets.Delve}, size=32,
     # fm   nm
     # fh   nh
 
-    ax = Dict()
+    ax = Dict{String, Axis}(
+        "fm" => Axis(fig[1, 1], xscale=log10),
+        "nm" => Axis(fig[1, 2], xscale=log10, yaxisposition = :right),
+        "fh" => Axis(fig[2, 1], xscale=log10),
+        "nh" => Axis(fig[2, 2], xscale=log10, yaxisposition = :right),
+    )
 
-    ax["fm"] = Axis(fig[1, 1], xscale=log10)
-    ax["nm"] = Axis(fig[1, 2], xscale=log10, yaxisposition = :right)
-    ax["fh"] = Axis(fig[2, 1], xscale=log10)
-    ax["nh"] = Axis(fig[2, 2], xscale=log10, yaxisposition = :right)
+    wcolors = Makie.wong_colors()
+    kernel_colors = Dict(k => wcolors[i] for (i, k) in enumerate(show_kernels))
 
     do_plot = (name) -> begin
         df_sub = @rsubset(df, :dataset.linearity == name[1], :dataset.noise == name[2])
@@ -187,8 +191,8 @@ function plot_delve(df, dataset::Type{<:DataSets.Delve}, size=32,
                 df_sub_kern = @rsubset(df_sub, :kernel_cat == kernel)
 
                 val_sigma = getproperty(df_sub_kern, sigma)
-                val_lower = getproperty(df_sub_kern, measure) .- getproperty(df_kernel, std)
-                val_upper = getproperty(df_sub_kern, measure) .+ getproperty(df_kernel, std)
+                val_lower = getproperty(df_sub_kern, measure) .- getproperty(df_sub_kern, std)
+                val_upper = getproperty(df_sub_kern, measure) .+ getproperty(df_sub_kern, std)
 
                 bands = band!(
                     ax[name],
@@ -202,7 +206,16 @@ function plot_delve(df, dataset::Type{<:DataSets.Delve}, size=32,
         for kernel in show_kernels
             df_sub_kern = @rsubset(df_sub, :kernel_cat == kernel)
 
-            scatterlines!(ax[name], getproperty(df_sub_kern, sigma), getproperty(df_sub_kern, measure), label=kernel)
+            scatterlines!(ax[name], getproperty(df_sub_kern, sigma), getproperty(df_sub_kern, measure),
+                color=kernel_colors[kernel],
+                label=kernel
+            )
+        end
+
+        if !show_rbf return end
+        df_rbf = @rsubset(df_sub, :kernel_cat == "RadialBasis")
+        if !isempty(df_rbf)
+            hlines!(ax[name], [minimum(getproperty(df_rbf, measure))], color=:red, linewidth=2, label="RBF (best)", linestyle=:dash)
         end
 
         # text!(ax[name], 1, 1, text=name)
@@ -222,15 +235,15 @@ function plot_delve(df, dataset::Type{<:DataSets.Delve}, size=32,
     end
 
     Box(fig[1,0])
-    Label(fig[1,0], "Moderate", rotation=pi/2, tellheight=false)
+    Label(fig[1,0], "Moderate Noise", rotation=pi/2, tellheight=false)
     Box(fig[2,0])
-    Label(fig[2,0], "High", rotation=pi/2, tellheight=false)
+    Label(fig[2,0], "High Noise", rotation=pi/2, tellheight=false)
 
     Box(fig[1:2,-1])
     Label(fig[1:2,-1], "Noise Level", rotation=pi/2)
 
     Box(fig[0,1])
-    Label(fig[0,1], "Fairly", tellwidth=false)
+    Label(fig[0,1], "Fairly linear", tellwidth=false)
     Box(fig[0,2])
     Label(fig[0,2], "Non-linear", tellwidth=false)
 
@@ -252,13 +265,13 @@ function plot_delve(df, dataset::Type{<:DataSets.Delve}, size=32,
     end
 
     Label(fig[1:2, 3], measure_name, rotation=pi/2, font=:bold)
-    Legend(fig[1:2, 4], ax["fm"], "Kernel", framevisible = false)
+    Legend(fig[1:2, 4], ax["fm"], "Kernel", framevisible = false, merge=true)
     Label(fig[3, 1:2], L"\sigma_w", font=:bold)
 
     fig
 end
 
-# function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], linkyaxis=false,
+# function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], linkyaxes=false,
 #     show_rbf = true
 # )
     # cols = mapping(
@@ -273,7 +286,7 @@ end
 # end
 
 function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
-    ;linkyaxis=false, linkxaxis=false, show_rbf = false,
+    ;linkyaxes=false, linkxaxes=false, show_rbf = false,
     dims=nothing, show_bands=false, sigma = :sigma, measure = :measure_test, std = :std,
     interactive=is_interactive(), kwargs...
 )
@@ -406,14 +419,14 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
     Label(fig[2, 1], text = L"\sigma_w", font = :bold, fontsize = 20, tellwidth = false)
     Label(fig[0, 1:2], text = "Sigma vs $measure_name by Dataset ($resampling)", font = :bold, fontsize = 20, tellwidth = false)
 
-    if linkxaxis && !interactive
+    if linkxaxes && !interactive
         linkxaxes!(axes...)
         for ax in axes[1:end-m]
             hidexdecorations!(ax; grid=false, minorgrid=false)
         end
     end
 
-    if linkyaxis && !interactive
+    if linkyaxes && !interactive
         linkyaxes!(axes...)
         for i in (setdiff(Set(1:length(axes)) , Set(1:m:length(axes))))
             hideydecorations!(axes[i]; grid=false, minorgrid=false)
@@ -448,8 +461,8 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
         end
     end
 
-    linkyaxes_toggle = Toggle(fig, active=linkyaxis)
-    linkxaxes_toggle = Toggle(fig, active=linkxaxis)
+    linkyaxes_toggle = Toggle(fig, active=linkyaxes)
+    linkxaxes_toggle = Toggle(fig, active=linkxaxes)
 
     customize_toggles = [linkyaxes_toggle, linkxaxes_toggle]
     customize_labels = [Label(fig, "Link Y"), Label(fig, "Link X")]
