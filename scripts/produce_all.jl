@@ -8,7 +8,7 @@ using DrWatson
 
 folder = get(ARGS, 1, "svms3")
 
-datasets = DataSets.all |> filter(ds -> ds isa DataSets.Small)
+datasets = DataSets.all |> filter(DataSets.is_regression)
 
 const parameters_all = Experiments.svm_parameter_grid(;datasets, acos=false, rbf=false, step=1.0, folder, scale_sigma=true)
 
