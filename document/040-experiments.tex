@@ -55,7 +55,46 @@ following measures were implemented:
         the training data of each dataset.
 \end{enumerate}
 
+In the next paragraphs we clarify how each of these steps are implemented and
+what is their effect.
 
+\paragraph{Variable Standardization} this is implemented by taking the mean and
+standard derivation of each column of the training set and using it to
+normalize the columns ($z_i = (x_i - \mu_i)/\sigma_i$). These values are saved as
+part of the model and used again when running on the test set. This process
+is also applied to the target variable.
+
+This acts as a method of scaling the data to values that are well behaved
+for the SVM.
+
+\paragraph{Normalized Root-Mean-Square Error} We define the
+normalized root mean square error (\emph{nRMSE}) as follows:
+
+\begin{equation}
+    nRMSE = \frac{RMSE}{\sigma_{obs}}
+\end{equation}
+
+\subsubsection{Parameter grid}
+
+For the parameter search, we tried all the combinations of values
+in the bounds show in \cref{tab:paramgrid} in a $\log 10$ scale with
+spacing of factor of $10$ between values. For example, for $\sigma_w$ the values
+were $10^{-3},\,10^{-2},\,\dots,\,10^{3}$
+% TODO: write this part so that it is more clear?
+
+\begin{table}[H]
+    \caption{Bounds of parameter grid}%
+    \label{tab:paramgrid}
+    \begin{tabular}{ccc}
+        \toprule
+        Variable & lower & upper \\
+        \midrule
+        $\sigma_w$ & $10^{-3}$ & $10^3$ \\
+        $\varepsilon$ & $10^{-5}$ & $10^1$ \\
+        $C$ & $10^{-2}$ & $10^4$ \\
+        \bottomrule
+    \end{tabular}
+\end{table}
 
 % NOTE: this is without scaling sigma
 \begin{figure}
