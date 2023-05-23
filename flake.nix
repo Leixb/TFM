@@ -15,7 +15,7 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
     devenv = {
-      url = "github:cachix/devenv";
+      url = "github:cachix/devenv/latest";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
