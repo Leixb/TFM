@@ -18,7 +18,7 @@
 \end{table}
 
 \Textcite{williamsComputationInfiniteNeural1998} introduced the concept of
-infinitely wide neural networks 
+infinitely wide neural networks.
 
 \textcite{nealBayesianLearningNeural1996}
 
@@ -26,21 +26,34 @@ infinitely wide neural networks
 
 \textcite{frenayParameterinsensitiveKernelExtreme2011,williamsComputationInfiniteNeural1998}:
 
+\newcommand{\x}{\mathbf{x}}
+\newcommand{\z}{\mathbf{z}}
+\newcommand{\y}{\mathbf{y}}
+\newcommand{\bu}{\mathbf{u}}
+
 \begin{equation}\label{eq:erf}
-    \text{erf}(x) = \frac{2}{\sqrt{\pi}} \int_0^x e^{-t^2} \,dt
+    \erf(x) = \frac{2}{\sqrt{\pi}} \int_0^x e^{-t^2} \,dt
 \end{equation}
 
 % TODO: Put integral from William
 % \begin{equation}\label{eq:asin_integral}
 % \begin{equation}
 
-Appropriately scaled, the graph of this function is very similar to the \texttt{tanh} function,
-which is more commonly used in the neural networks literature
-\cite{williamsComputationInfiniteNeural1998}.
+\begin{equation}
+    V_{\erf}\left(\x,\,\x'\right) =
+    \frac{1}{(2\pi)^{\frac{d+1}{2}} |\boldsymbol \Sigma|^{\frac{1}{2}}}
+    \int
+        \erf \left(\bu ^T \tilde \x \right)
+        \erf \left(\bu ^T \tilde \x '\right)
+        \exp \left(
+            -\frac{1}{2} \bu ^T \boldsymbol \Sigma^{-1} \bu
+        \right)
+    \,d\boldsymbol u
+\end{equation}
 
-\newcommand{\x}{\mathbf{x}}
-\newcommand{\z}{\mathbf{z}}
-\newcommand{\y}{\mathbf{y}}
+Appropriately scaled, the graph of this function is very similar to the \texttt{tanh} function,
+which is more commonly used in the neural networks' literature
+\cite{williamsComputationInfiniteNeural1998}.
 
 \begin{equation}\label{eq:kernel_asin}
 	k(\x,\,\z \mid p \to + \infty)  = \frac{2}{\pi}
