@@ -289,7 +289,7 @@ function svm_parameter_grid(;step::Float64=1.0, datasets=nothing, acos=false, rb
     )
 
     if rbf
-        return [dict_list(parameters_asin) ; dict_list(parameters_rbf)]
+        return [dict_list(parameters_rbf); dict_list(parameters_asin)]
     end
 
     dict_list(parameters_asin)
