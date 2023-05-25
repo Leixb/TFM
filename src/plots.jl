@@ -160,7 +160,7 @@ end
 
 function plot_delve(df, dataset::Type{<:DataSets.Delve}, size=32,
     show_kernels=["Asin", "AsinNorm"],
-    ;fig=Figure(), linkyaxes=false, show_rbf=false,
+    ;fig=Figure(), linkxaxes=true, linkyaxes=false, show_rbf=false,
     sigma = :sigma, measure = :measure_test, std = :std, show_bands=(measure == :measure_cv),
     interactive=is_interactive()
 )
@@ -226,14 +226,15 @@ function plot_delve(df, dataset::Type{<:DataSets.Delve}, size=32,
 
     map(do_plot, collect(keys(ax)))
 
-    hidexdecorations!(ax["fm"], grid=false)
-    hidexdecorations!(ax["nm"], grid=false)
-
     if linkyaxes
-        linkaxes!(values(ax)...)
+        linkyaxes!(values(ax)...)
         hideydecorations!(ax["fm"], grid=false)
         hideydecorations!(ax["fh"], grid=false)
-    else
+    end
+
+    if linkxaxes
+        hidexdecorations!(ax["fm"], grid=false)
+        hidexdecorations!(ax["nm"], grid=false)
         linkxaxes!(values(ax)...)
     end
 
