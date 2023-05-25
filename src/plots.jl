@@ -29,6 +29,8 @@ import ..Utils, ..Experiments, ..DataSets
 import ..DataSets: is_regression
 import ..Measures
 
+using DrWatson: projectdir
+
 "Plot the kernel function around the origin with different values of σ"
 function plot_kernel(kernel=Utils.kernel_asin_normalized, args...; interactive=is_interactive(), x = range(-2, 2, length=200), kwargs...)
     fig = Figure(fonts=(;regular="Latin Modern Roman"))
@@ -546,6 +548,8 @@ WARNING: This modified the file in-place, use with caution.
 """
 __strip_metadata(filename::String, timestamp="00000000000000+00'00") = run(`sed -i "s/CreationDate.*$/CreationDate (D:$timestamp)/" $filename`)
 
+plotsdocdir(args...) = projectdir("document", "figures", "plots", args...)
+
 macro saveplot(name, args...)
     if name isa Expr
         args = [name.args[2] ; args...]
@@ -558,8 +562,8 @@ macro saveplot(name, args...)
 
     saving = esc(quote
         @info("Saving " * $str_name)
-        save(plotsdir($str_name), $name)
-        $__strip_metadata(plotsdir($str_name))
+        save($plotsdocdir($str_name), $name)
+        $__strip_metadata($plotsdocdir($str_name))
     end)
 
     if isempty(args)
