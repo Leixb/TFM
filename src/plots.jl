@@ -17,8 +17,10 @@ using Makie, LaTeXStrings, AlgebraOfGraphics, MathTeXEngine
 using DataFrames, DataFramesMeta, MLJ, DrWatson
 using Printf, Dates
 
+# NOTE: We convert the backend to a string to avoid loading GLMakie just to check the backend
 is_interactive() = string(Makie.current_backend()) == "GLMakie"
 
+"Makie theme with LaTeX fonts"
 function tex_theme!()
     Makie.update_theme!(fonts = (regular = texfont(), bold = texfont(:bold), italic = texfont(:italic)))
 end
@@ -27,10 +29,10 @@ import ..Utils, ..Experiments, ..DataSets
 import ..DataSets: is_regression
 import ..Measures
 
-function plot_asin(interactive=is_interactive())
+"Plot the kernel function around the origin with different values of σ"
+function plot_kernel(kernel=Utils.kernel_asin_normalized, args...; interactive=is_interactive(), x = range(-2, 2, length=200), kwargs...)
     fig = Figure(fonts=(;regular="Latin Modern Roman"))
     ax = Axis(fig[1, 1])
-    x = range(-2, 2, length=200)
 
     if interactive
         sg = SliderGrid(fig[2, 1],
@@ -39,7 +41,7 @@ function plot_asin(interactive=is_interactive())
 
         sliderobservables = [s.value for s in sg.sliders]
         values = lift(sliderobservables...) do slvalues...
-            Utils.kernel_asin_normalized.(x, 0, 10.0^slvalues[1])
+            kernel.(x, 0, 10.0^slvalues[1], args...; kwargs...)
         end
 
         lines!(ax, x, values)
@@ -47,7 +49,7 @@ function plot_asin(interactive=is_interactive())
         sigma_values = range(-3, 3, step=3)
 
         for sigma in sigma_values
-            values = Utils.kernel_asin_normalized.(x, 0, 10.0^sigma)
+            values = kernel.(x, 0, 10.0^sigma, args...; kwargs...)
             lines!(ax, x, values, label=latexstring("10^{$sigma}"))
         end
         axislegend(L"\sigma_w")
@@ -92,7 +94,7 @@ function plot_kernel_3d_interactive(kernel, args...; kwargs...)
         [kernel(x, y, 10.0^slvalues[1], args...; kwargs...) for x in xs, y in xs]
     end
 
-    on(sg.sliders[1].value) do value
+    on(sg.sliders[1].value) do _
         autolimits!(ax)
     end
 
@@ -125,6 +127,7 @@ function experiment_data(folder="svms", scan=true)
 	df.kernel_family = map(x -> string(x)[1:4], df.kernel_cat)
 	df.cost = round.(df.cost, sigdigits=2)
 	df.cost_cat = map(df.cost) do cost @sprintf("%.0E", cost) end
+    df.measure_cv = df.measurement
 	df.ms = @. Dates.value(df.duration)
 	df.ms_per_iter = @. df.ms / df.n_iter / 5
 	df
@@ -158,7 +161,7 @@ end
 function plot_delve(df, dataset::Type{<:DataSets.Delve}, size=32,
     show_kernels=["Asin", "AsinNorm"],
     ;fig=Figure(), linkyaxes=false, show_rbf=false,
-    show_bands=false, sigma = :sigma, measure = :measure_test, std = :std,
+    sigma = :sigma, measure = :measure_test, std = :std, show_bands=(measure == :measure_cv),
     interactive=is_interactive()
 )
     df = @chain df begin
@@ -316,7 +319,7 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
         end
         for k in kernels)
 
-    if interactive
+    if interactive && haskey(toggles_dict, "RadialBasis")
         toggles_dict["RadialBasis"].active = show_rbf
     end
 
