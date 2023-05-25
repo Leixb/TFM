@@ -535,6 +535,17 @@ end
 unlinkxaxes!(a::Axis, others...) = unlinkaxes!(Val(:x), a, others...)
 unlinkyaxes!(a::Axis, others...) = unlinkaxes!(Val(:y), a, others...)
 
+"""
+Sets the CreationDate of the pdf metadata to zero, so that the file
+does not change when the plot is saved again.
+
+WARNING: It is important that timestamp is a string of length 20, otherwise
+the pdf metadata will be corrupted.
+
+WARNING: This modified the file in-place, use with caution.
+"""
+__strip_metadata(filename::String, timestamp="00000000000000+00'00") = run(`sed -i "s/CreationDate.*$/CreationDate (D:$timestamp)/" $filename`)
+
 macro saveplot(name, args...)
     if name isa Expr
         args = [name.args[2] ; args...]
@@ -542,11 +553,23 @@ macro saveplot(name, args...)
     end
 
     str_name = string(name) * ".pdf"
-    esc(quote
-        @info("Plotting " * $str_name)
-        $name = $(args...)
+
+    declaration = esc(quote $name = $(args...) end)
+
+    saving = esc(quote
+        @info("Saving " * $str_name)
         save(plotsdir($str_name), $name)
+        $__strip_metadata(plotsdir($str_name))
     end)
+
+    if isempty(args)
+        return esc(quote $saving end)
+    end
+
+    quote
+        $declaration
+        $saving
+    end
 end
 
 export @saveplot
