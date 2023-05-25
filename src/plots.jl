@@ -130,7 +130,7 @@ function experiment_data(folder="svms", scan=true)
     df.measure_cv = df.measurement
 	df.ms = @. Dates.value(df.duration)
 	df.ms_per_iter = @. df.ms / df.n_iter / 5
-	df
+    @rsubset(df, !(:dataset isa DataSets.Servo))
 end
 
 function summarize_best(df, grouping::AbstractArray=[:dataset_cat, :kernel_cat]; by=:measurement, maximum=false)
