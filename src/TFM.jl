@@ -51,6 +51,7 @@ export mse
     # see: https://discourse.julialang.org/t/lsp-missing-reference-woes/98231/11
     module LspLink
         include("../scripts/produce_all.jl")
+        include("../scripts/plots.jl")
     end
 end
 
