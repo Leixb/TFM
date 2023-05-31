@@ -280,7 +280,7 @@ function svm_parameter_grid(;step::Float64=1.0, datasets=nothing, acos=false, rb
             :gamma => 10 .^ (-3:step:0), parameters_common...
         )
 
-    sigma_asin = 10 .^ (-3:step:3)
+    sigma_asin = 10 .^ (-3:step:6)
 
     parameters_asin = Dict(
         :kernel => [[LIBSVM.Kernel.Asin, LIBSVM.Kernel.AsinNorm]; @onlyif(acos, [LIBSVM.Kernel.Acos0, LIBSVM.Kernel.Acos1, LIBSVM.Kernel.Acos2])],
