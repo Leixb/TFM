@@ -20,6 +20,19 @@ best hyperparameters. This means that there are 100 training processes in total.
 	\label{fig:frenay-cross-test}
 \end{figure}
 
+\subsection{Hypothesis}
+
+% TODO: formalize all the hypothesis
+Our main hypothesis are:
+
+\begin{description}
+    \item[Shared behaviour] All kernels originating from limits towards infinity,
+        have exhibit the same behaviour described by \textcite{frenayParameterinsensitiveKernelExtreme2011}.
+        Where increasing the $\sigma$ hyperparameter past a certain point
+        does not affect the kernel prediction capability.
+\end{description}
+
+
 \subsection{Comparing the performance of the kernels with different datasets}
 \subsectionmark{Comparing the performance of the kernels}
 
@@ -31,15 +44,15 @@ best hyperparameters. This means that there are 100 training processes in total.
 \subsubsection{Resampling}
 
 Instead of using the double cross-test resampling used in \cref{sec:reproducing-frenay},
-we opted to use a 5-2 cross-validation resampling method as described by \textcite{dietterichApproximateStatisticalTests1998}.
+we opted to use a 5\texttimes2 cross-validation resampling method as described by \textcite{dietterichApproximateStatisticalTests1998}.
 
-The 5-2 cross-validation
-consists of doing a 50-50 split of the dataset into two sets. First, we train on the first set and test on the second set
+The 5\texttimes2 cross-validation
+consists of doing a 50\textendash50 split of the dataset into two sets. First, we train on the first set and test on the second set
 and then we train on the second set and test on the first set. The process is repeated 5 times, each time
 with a different random split. We choose this method since it is faster than the double cross-test method
 requiring only 10 training processes instead of 100.
 
-% TODO: Add figure of the 5-2 cross-validation
+% TODO: Add figure of the 5-2 cross-validation ?
 
 \subsubsection{Normalization}
 
