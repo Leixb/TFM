@@ -105,6 +105,8 @@ default_measure(::DelveRegressionDataSet) = NormalizedRootMeanSquaredError()
 
     scale_sigma::Bool = false
 
+    subsample::Union{Float64,Nothing} = nothing
+
     # Regression specific
     epsilon::Union{Float64,Nothing} = 0.1
 
@@ -121,7 +123,7 @@ function model_parameters(svm::SVMConfig)
 end
 
 # savename configuration
-allaccess(svm::SVMConfig) = [ :dataset, :resampling, :measure, model_parameters(svm)...]
+allaccess(svm::SVMConfig) = [ :dataset, :resampling, :subsample, :measure, model_parameters(svm)...]
 
 default_prefix(svm::SVMConfig) = is_regression(svm) ? "SVR" : "SVC"
 
@@ -145,7 +147,14 @@ end
 function run(svm::SVMConfig)::Tuple{PerformanceEvaluation, ExecutionInfo, Machine}
     start = Dates.now()
 
-    (Xtrain, Xtest), (ytrain, ytest) = partition(svm.dataset)
+    (Xtrain, Xtest), (ytrain, ytest) = if isnothing(svm.subsample)
+        partition(svm.dataset)
+    else
+        # If we are sub-sampling, we discard a fraction of the training data
+        (X, _), (y, _) = partition(unpack(svm.dataset), svm.subsample; shuffle=true, rng=45671, multi=true)
+        partition((X, y), 0.8, shuffle=true, rng=1234, multi=true)
+    end
+
     n = length(ytrain)
     if svm.scale_sigma && svm.kernel != LIBSVM.Kernel.RadialBasis
         sigma = Utils.gamma2sigma(svm.gamma) / n
