@@ -277,19 +277,21 @@ function plot_delve(df, dataset::Type{<:DataSets.Delve}, size=32,
     fig
 end
 
-# function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], linkyaxes=false,
-#     show_rbf = true
-# )
-    # cols = mapping(
-    #     :sigma,
-    #     :measure_test=>"nRMSE",
-    #     color=:kernel_cat=>"Kernel"
-    # )
-    # grp = mapping(layout = :dataset_cat)
-    # geom = visual(ScatterLines)
-	# plt = data(df) * cols * grp * geom
-	# fg = draw(plt, facet = (; linkyaxes = :none), axis=(;xscale=log10, xticklabelrotation=pi/4))
-# end
+function plot_sigma_subsample(df, show_kernels=["Asin", "AsinNorm"]; linkyaxes=false,
+    show_rbf = true, measure = :measure_test,
+)
+    cols = mapping(
+        :sigma_scaled,
+        measure=>"nRMSE",
+        color=:subsample=>nonnumeric=>"Subsample",
+    )
+    grp = mapping(layout = :kernel_cat => "Kernel")
+    geom = visual(Scatter)
+	plt = data(df) * cols * grp * geom
+	fg = draw(plt, facet = (; linkyaxes = :none), axis=(;xscale=log10, xticklabelrotation=pi/4))
+
+    fg
+end
 
 function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
     ;linkyaxes=false, linkxaxes=false, show_rbf = false,

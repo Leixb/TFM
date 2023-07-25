@@ -25,11 +25,11 @@ export Resampling
 include("./measures.jl")
 export Measures
 
-include("./meta-features.jl")
-export MetaFeatures
-
 include("./datasets.jl")
 export DataSets
+
+include("./meta-features.jl")
+export MetaFeatures
 
 include("./models.jl")
 export Models

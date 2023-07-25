@@ -1,5 +1,8 @@
 module MetaFeatures
 
+import ..DataSets: DataSet, unpack
+
+using PyCall
 using MLJBase
 
 using DataFrames
@@ -8,6 +11,34 @@ using StatsBase
 
 using MLJModelInterface
 const MMI = MLJModelInterface
+
+"Return a DataFrame with the meta-features extracted from the dataset using the pymfe library."
+function extract_features(X, y)
+    X = Matrix(X)
+    MFE = pyimport("pymfe.mfe").MFE
+    mfe = MFE()
+    mfe.fit(X, y)
+    ft = mfe.extract()
+
+    zip(ft...) |> Dict |> DataFrame
+end
+
+function extract_features(ds::DataSet)
+    X, y = unpack(ds)
+    extract_features(X, y)
+end
+
+function extract_features(datasets::Vector{<:DataSet})
+    features = map(datasets) do ds
+        @info name(ds)
+        ft = extract_features(ds)
+        ft.dataset = [name(ds)]
+        ft
+    end
+
+    reduce(vcat, features)
+end
+
 
 @mlj_model struct GeneralMetaFeatureExtractor <: Static
     attr_to_inst::Bool = true # ratio between the number of attributes.

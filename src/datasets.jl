@@ -67,7 +67,7 @@ url(ds::DataSet) = error("url not implemented for $(typeof(ds))")
 doi(ds::DataSet) = error("doi not implemented for $(typeof(ds))")
 
 "List of all datasets defined in the module"
-all = []
+all = Vector{DataSet}()
 
 """
 # Helper macro to declare datasets
