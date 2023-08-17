@@ -7,6 +7,9 @@ const gamma2sigma = gamma -> sqrt.(1 ./ (2 .* gamma))
 
 export sigma2gamma, gamma2sigma
 
+"""
+normalize a kernel function K(x, y, ...)
+"""
 normalized(K::Function) = (x, y, args...; kwargs...) -> K(x, y, args...; kwargs...) / sqrt(K(x, x, args...; kwargs...) * K(y, y, args...; kwargs...))
 
 """
@@ -14,7 +17,7 @@ Asymptotic ELM kernel as described by Frenay and Verleysen (2010) (10.1016/j.neu
 """
 kernel_asin(x, y, σ=1.0) = 2/π * asin((1 + x⋅y)/sqrt((1/(2σ^2) + 1 + x⋅x) * (1/(2σ^2) + 1 + y⋅y)))
 
-"Normalized asin kernel"
+"Normalized version of the asin kernel"
 const kernel_asin_normalized = normalized(kernel_asin)
 
 "arccosine kernel as described by Cho and Saul (2009) (10.1162/NECO_a_00018)"
@@ -32,6 +35,9 @@ kernel_acos(x, y, σ=1.0, n::Integer=1) = let
 end
 const kernel_acos_normalized = normalized(kernel_acos)
 
+"""
+Safe arccosine function that returns 0 if x > 1 and π if x < -1 to prevent NaNs
+"""
 safe_acos(x) =
 if x > 1
     0
