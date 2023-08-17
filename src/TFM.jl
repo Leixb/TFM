@@ -18,6 +18,7 @@ export Utils
 
 include("./transformers.jl")
 export Transformers
+@reexport import .Transformers: TopCatTransformer, TopCatResult
 
 include("./resampling.jl")
 export Resampling
