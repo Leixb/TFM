@@ -1,5 +1,6 @@
 { lib
 , fetchurl
+, fetchzip
 , linkFarm
 }:
 let
@@ -8,7 +9,8 @@ let
     (name: data:
       {
         inherit name;
-        path = (if lib.hasSuffix "gz" data.url then fetchTarball else fetchurl) data;
+        path = (if lib.hasSuffix "gz" data.url then fetchTarball else
+        (if lib.hasSuffix "zip" data.url then fetchzip else fetchurl)) data;
       }
     )
     datasets

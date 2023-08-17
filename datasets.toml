@@ -109,3 +109,8 @@ sha256 = "sha256:0bi605qa2jywm96p5c5missc0npq63qkzw06x26jjvagns8rllgb"
 [bank-32nh]
 url = "https://ftp.cs.toronto.edu/pub/neuron/delve/data/tarfiles/bank-family/bank-32nh.tar.gz"
 sha256 = "sha256:1567ivhcnij02p2fb8vyzximp6ws3mk2hwxna0fcvw64py9hnrhz"
+
+[ionosphere]
+url = "https://archive.ics.uci.edu/static/public/52/ionosphere.zip"
+sha256 = "sha256:1a8vbn4jpwcnm3virwkan8x6wzjqhn5y6f1q6srln99zghfysaiq"
+stripRoot = false

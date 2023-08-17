@@ -388,6 +388,10 @@ end
 @delve_dataset Bank DelveRegressionDataSet
 @delve_dataset Pumadyn DelveRegressionDataSet
 
+@dataset CategoricalDataSet Ionosphere datasetdir("ionosphere", "ionosphere.data") false :Column35
+url(::Ionosphere) = "https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data"
+doi(::Ionosphere) = "10.24432/C5W01B"
+
 ################################################################################
 # Synthetic Datasets
 ################################################################################
