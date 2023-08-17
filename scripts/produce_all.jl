@@ -31,6 +31,11 @@ end
 @info "Skipping $(length(parameters_all) - length(configs)) executions which already exist..."
 @info "Running remaining $(length(configs)) ..."
 
+if length(configs) == 0
+    @info "Nothing to do."
+    exit(0)
+end
+
 addprocs(11)
 
 @everywhere begin
