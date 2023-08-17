@@ -1,5 +1,14 @@
 { pkgs, lib, inputs, ... }:
 
+let
+  pyenv = inputs.poetry2nix.legacyPackages.${pkgs.system}.mkPoetryEnv {
+    projectDir = "";
+    preferWheels = true;
+    pyproject = ./pyproject.toml;
+    poetrylock = ./poetry.lock;
+    python = pkgs.python3;
+  };
+in
 {
   # https://devenv.sh/basics/
   env = {
@@ -13,7 +22,9 @@
     DATASETS = pkgs.callPackage ./datasets.nix { };
 
     # Needed for OpenGL
-    LD_LIBRARY_PATH = "/run/opengl-driver/lib:/run/opengl-driver-32/lib";
+    LD_LIBRARY_PATH = "/run/opengl-driver/lib:/run/opengl-driver-32/lib:${pkgs.stdenv.cc.cc.lib}/lib";
+
+    PYTHON = "${pyenv}/bin/python";
 
     FREETYPE_ABSTRACTION_FONT_PATH = "${pkgs.lmodern}/share/fonts/opentype/public/lm";
   };
@@ -55,13 +66,7 @@
     imagemagick
     inputs.poetry2nix.packages.${system}.poetry
     inputs.libsvm.packages.${system}.libsvm
-    (inputs.poetry2nix.legacyPackages.${system}.mkPoetryEnv {
-      projectDir = "";
-      preferWheels = true;
-      pyproject = ./pyproject.toml;
-      poetrylock = ./poetry.lock;
-      python = python3;
-    })
+    pyenv
     python3.pkgs.pygments
     nixpkgs-fmt
     gdb
