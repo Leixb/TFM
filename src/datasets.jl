@@ -13,6 +13,7 @@ import DataFrames.DataFrame
 using LIBSVM: Kernel
 using CategoricalArrays: CategoricalArray
 using Random
+using Memoization
 
 import ..TFMType
 
@@ -48,7 +49,7 @@ target(ds::DataSet) = error("target not implemented for $(typeof(ds))")
 path(ds::DataSet) = error("path not implemented for $(typeof(ds))")
 
 # Split dataset into features and target (X, y)
-unpack(ds::DataSet; args...) = unpack(data(ds), !=(target(ds)); args...)
+@memoize unpack(ds::DataSet; args...) = unpack(data(ds), !=(target(ds)); args...)
 
 # The following methods are optional, but highly recommended
 header(ds::DataSet) = false
@@ -308,7 +309,7 @@ preprocess(::MNIST) = function(data)
     return table(Xflat), categorical(y)
 end
 
-unpack(ds::MNIST) = data(ds)
+@memoize unpack(ds::MNIST) = data(ds)
 
 url(::MNIST) = "http://yann.lecun.com/exdb/mnist/"
 
@@ -411,7 +412,7 @@ is_synthetic(::Union{CatSynthetic,RegSynthetic}) = true
 end
 
 raw_data(ds::Blobs) = MLJ.make_blobs(ds.N, ds.p; ds.centers, ds.cluster_std, ds.rng)
-unpack(ds::Blobs) = data(ds)
+@memoize unpack(ds::Blobs) = data(ds)
 preprocess(::Blobs) = identity
 Base.show(io::IO, ds::Blobs) = print(io, typeof(ds), "(", ds.N, ",", ds.p, ",", ds.centers, ",", ds.cluster_std, ",", ds.rng, ")")
 
