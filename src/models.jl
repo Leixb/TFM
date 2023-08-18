@@ -4,6 +4,7 @@ using MLJ
 using MLJBase
 using MLJLIBSVMInterface
 using LIBSVM: Kernel
+using Memoization
 
 import MLJ: partition
 
@@ -23,7 +24,7 @@ ds = TFM.DataSets.CPU()
 (Xtrain, Xtest), (Ytrain, Ytest) = partition(ds)
 ```
 """
-partition(ds::DataSet; ratio=0.8, shuffle=true, rng=1234, args...) =
+@memoize partition(ds::DataSet; ratio=0.8, shuffle=true, rng=1234, args...) =
     partition(unpack(ds), ratio; shuffle, rng, multi=true, args...)
 
 
