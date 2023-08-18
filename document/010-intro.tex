@@ -1,6 +1,125 @@
 \section{Introduction}%
 \label{sec:introduction}
 
+\subsection{Bayesian neural networks}%
+\label{sub:bayesian_neural_networks}
+
+From a statistical point of view, the standard approach to training
+backpropagation neural networks using gradient descent to minimize the
+loss function can be interpreted as
+\emph{maximum likelihood estimation} (MLE) of the parameters of the model.
+The training process is thus an optimization problem from which we obtain
+the \emph{optimal} set of parameters given the data.
+
+On the other hand, using Bayesian inference, the prediction obtained is based
+on \emph{all} the possible values of the parameters, weighted by the corresponding
+probability of each set of parameters (the posterior distribution). This means
+that the prediction is not a single value, but a distribution of values. We are therefore
+dealing with an \emph{integration problem}.
+
+The main benefits of using the Bayesian approach is that it provides an
+indication of the uncertainty of the prediction and that it reduces ``overfitting''.
+However, the main drawback is that the integration is intractable for
+complex models, such as neural networks and requires Markov Chain Monte Carlo
+methods or other techniques to approximate the posterior distribution \cite{nealBayesianTrainingBackpropagation1992}.
+
+\subsubsection{Bayesian neural network training problem}%
+\label{ssub:bayesian_neural_network_training_problem}
+
+Below is a summary of the formulation for the Bayesian neural network from \textcite{nealBayesianTrainingBackpropagation1992}.
+The formulation if for the regression case, but it can be easily extended to the classification case.
+
+Assuming we have a set of $n$ independent training samples,
+$\left(\textbf{x}_1,  \textbf{y}_1 \right),\,\dots,\,\left(\textbf{x}_n,  \textbf{y}_n \right)$
+each of which consists of an ``input'' vector $\textbf{x}_i$ associated to an ``output'' vector $\textbf{y}_i$.
+And given an additional item $\textbf{x}_{n+1}$, we want to predict the corresponding $\textbf{y}_{n+1}$.
+
+We define a neural network of an arbitrary architecture with a $\textbf{w}$ vector of parameters as a function
+$f$ which maps an input vector $\textbf{x}$ to an output vector $\widehat{\textbf{y}}$. Formally: $\widehat{\textbf{y}} = f(\textbf{x},\,\textbf{w})$.
+
+If we assume a Gaussian noise model, the conditional probability distribution for the output given the output is given by:
+\begin{equation}
+    P(\textbf{y} \mid \textbf{x},\,\textbf{w}) = \mathcal{N}(\textbf{y} \mid f(\textbf{x},\,\textbf{w}),\,\sigma^2)
+    = \left(2\pi\sigma^2\right)^{-\frac{D}{2}} \exp \left( -\frac{1}{2\sigma^2} \left\lVert \textbf{y} - f(\textbf{x},\,\textbf{w}) \right\rVert^2 \right)
+\end{equation}
+where $D$ is the dimensionality of the output vector $\textbf{y}$ and $\sigma^2$ is the variance of the noise\footnote{
+    This assumes a constant noise level, but extending it to a noise model with a different variance for each sample is straightforward.
+}
+
+The maximum likelihood approach consists of finding the parameters $\textbf{w}$ that maximize the likelihood of the training data
+through a gradient descent algorithm. This can be formalized as the maximization of the log-likelihood $L(\textbf{w})$:
+\begin{equation}%
+    \label{eq:log_likelihood}
+    L(\textbf{w}) = \sum_{i=1}^{n} \log P(\textbf{y}_i \mid \textbf{x}_i,\,\textbf{w})
+\end{equation}
+
+From the maximization of the log-likelihood, we obtain the optimal set of parameters $\widehat{\textbf{w}}$ and then use it
+to predict the output $\widehat{\textbf{y}}_{n+1} = f(\textbf{x}_{n+1},\,\widehat{\textbf{w}})$.
+
+In the Bayesian approach, instead of using a \emph{single} ``best'' set of weights, we integrate the predictions from all possible
+weight vectors over the posterior weight distribution. This is equivalent to averaging the predictions of all possible neural networks
+with different weights. The best single-value prediction for our new sample $\textbf{x}_{n+1}$ is then given by:
+\begin{equation}\label{eq:bnn_single_prediction}
+    \widehat{\textbf{y}}_{n+1} = \int_{\mathds{R}^N}
+        f(\textbf{x}_{n+1},\,\textbf{w})
+        P(\textbf{w} \mid \left(\textbf{x}_1,  \textbf{y}_1 \right),\,\dots,\,\left(\textbf{x}_n,  \textbf{y}_n \right))
+        \,d\textbf{w}
+\end{equation}
+where $N$ is the dimensionality of the weight vector $\textbf{w}$.
+
+The single value from \cref{eq:bnn_single_prediction} is the \emph{expected value} of the posterior distribution of the output given the input.
+However, we are interested in the \emph{full} posterior distribution of the output given the input, which is given by:
+\begin{multline}\label{eq:bnn_posterior}
+    P(\textbf{y}_{n+1} \mid \textbf{x}_{n+1},\,\left(\textbf{x}_1,  \textbf{y}_1 \right),\,\dots,\,\left(\textbf{x}_n,  \textbf{y}_n \right)) \\
+        = \int_{\mathds{R}^N}
+            P(\textbf{y}_{n+1} \mid \textbf{x}_{n+1},\,\textbf{w})
+            P(\textbf{w} \mid \left(\textbf{x}_1,  \textbf{y}_1 \right),\,\dots,\,\left(\textbf{x}_n,  \textbf{y}_n \right))
+            \,d\textbf{w}
+\end{multline}
+
+Applying Bayes' theorem, we obtain the posterior probabilities for the weight vectors:
+\begin{equation}
+    P(\textbf{w} \mid \left(\textbf{x}_1,  \textbf{y}_1 \right),\,\dots,\,\left(\textbf{x}_n,  \textbf{y}_n \right))
+    = \frac{
+        P(\textbf{w}) \prod_{i=1}^{n} P(\textbf{y}_i \mid \textbf{x}_i,\,\textbf{w})
+    }{
+        P(\textbf{y}_1,\,\dots,\,\textbf{y}_n \mid \textbf{x}_1,\,\dots,\,\textbf{x}_n)
+    }
+\end{equation}
+
+Finally, the prior distribution for the weights $P(\textbf{w})$ has to be defined. A common choice is to use a Gaussian distribution,
+which is analogous to the regularization term $\left(-\frac{\left\lVert \textbf{w} \right\rVert^2}{2\omega^2}\right)$ which is often added to the
+maximum likelihood formulation to avoid overfitting. The prior distribution is then given by:
+\begin{equation}
+    P(\textbf{w}) = (2\pi\omega^2)^{-\frac{N}{2}} \exp \left( -\frac{1}{2\omega^2} \left\lVert \textbf{w} \right\rVert^2 \right)
+\end{equation}
+
+% TODO: Differentiate Neal 92 vs neal 96.
+
+The high-dimensional integrals defined in \cref{eq:bnn_single_prediction,eq:bnn_posterior} are analytically intractable and
+difficult to compute numerically. \Textcite{mackayBayesianMethodsAdaptive1999} works around this problem through various assumptions.
+These are that the posterior weight distribution in \cref{eq:bnn_posterior} can be approximated by a multivariate Gaussian distribution around its mode
+and that the network function $f$ is linear in respect to the weights $\textbf{w}$ around the mode. Applying these assumptions, the integrals
+can be computed. \Textcite{nealBayesianTrainingBackpropagation1992} uses Markov Chain Monte Carlo methods to approximate the posterior distribution without
+need for those assumptions.
+
+\subsection{Infinitely wide neural networks}%
+\label{sub:infinitely_wide_neural_networks}
+
+An infinitely wide neural network is a neural network with an infinite number of hidden units (neurons) in its hidden layer.
+
+\Textcite{nealBayesianLearningNeural1996} shows that for fixed hyperparameters, a Gaussian prior over the weights
+results in a Gaussian Process prior for functions at the limit of infinite width.
+\Textcite{williamsComputationInfiniteNeural1998} further develops the idea and shows that for
+certain transfer functions (activation functions) and weight priors, the
+\emph{covariance function that describes the behavior of the
+corresponding gaussian process can be calculated analytically.} In practice,
+this means that the covariance function can be calculated in $\mathcal{O}(n^3)$ where
+$n$ is the number of samples. This can be a significant improvement over Markov Chain Monte
+Carlo methods, which can take a lot of time to converge.
+
+\Textcite{bishopChapterSinglelayerNetworks1995}
+
 \subsection{Kernels}
 \label{sub:kernels}
 
