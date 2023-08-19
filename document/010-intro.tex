@@ -1,7 +1,71 @@
 \section{Introduction}%
 \label{sec:introduction}
 
-\subsection{Bayesian neural networks}%
+The aim of this thesis is to explore and hopefully gain some insight into the
+nature of infinite neural networks kernels. These are a family of kernels
+which are obtained analytically from the limit of infinite width of a neural network.
+This section provides a brief introduction to the concepts and techniques from which
+the kernels are derived.
+
+\subsection{Neural networks}%
+\label{sub:neural_networks}
+
+In its most basic form, a neural network is a function which maps an input vector
+$\textbf{x}$ to an output vector $\textbf{y}$. This function is defined by a set of
+parameters $\textbf{w}$ which are learned from the training samples.
+
+There are many architectures for neural networks, but we are going to focus
+on the most basic one, a single hidden layer feedforward neural network. This is a
+neural network with a single hidden layer of neurons (units) between the input and
+the output layers. We can define the function $f$ of a single hidden layer feedforward
+neural network as follows:
+
+\begin{equation}
+    f(\textbf{x},\,\textbf{w}) = \textbf{W}_2 \sigma \left( \textbf{W}_1 \textbf{x} + \textbf{b}_1 \right) + \textbf{b}_2
+\end{equation}
+where $\textbf{W}_1$ and $\textbf{W}_2$ are the weight matrices of the first and second layers respectively,
+$\textbf{b}_1$ and $\textbf{b}_2$ are the bias vectors of the first and second layers respectively and
+$\sigma$ is the activation function.
+
+A diagram of such a neural network is shown in \cref{fig:neural_network}.
+
+\begin{figure}[H]
+    \begin{tikzpicture}
+        % Input layer
+        \node[draw, circle] (x1) at (0, 0) {$x_1$};
+        \node[draw, circle] (x2) at (0, -1) {$x_2$};
+        \node (x3) at (0, -2) {$\vdots$};
+        \node[draw, circle] (x4) at (0, -3) {$x_n$};
+
+        % Hidden layer
+        \node[draw, circle] (h1) at (3, 0) {$h_1$};
+        \node[draw, circle] (h2) at (3, -1) {$h_2$};
+        \node (h3) at (3, -2) {$\vdots$};
+        \node[draw, circle] (h4) at (3, -3) {$h_m$};
+
+        % Output layer
+        \node[draw, circle] (y1) at (6, 0) {$y_1$};
+        \node[draw, circle] (y2) at (6, -1) {$y_2$};
+        \node (y3) at (6, -2) {$\vdots$};
+        \node[draw, circle] (y4) at (6, -3) {$y_k$};
+
+        % Connections
+        \foreach \i in {1,2,4} {
+            \foreach \j in {1,2,4} {
+                \draw[->] (x\i) -- (h\j);
+                \draw[->] (h\i) -- (y\j);
+            }
+        }
+    \end{tikzpicture}
+    \caption{Diagram of a single hidden layer feedforward neural network.}%
+    \label{fig:neural_network}
+\end{figure}
+
+Computation in \emph{infinite} neural networks was first explored by
+\textcite{nealBayesianLearningNeural1996} in the context of Gaussian
+processes by applying Bayesian inference to neural networks.
+
+\subsection{Bayesian Neural Networks}%
 \label{sub:bayesian_neural_networks}
 
 From a statistical point of view, the standard approach to training
