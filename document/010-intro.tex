@@ -1,191 +1,415 @@
 \section{Introduction}%
 \label{sec:introduction}
 
-The aim of this thesis is to explore and hopefully gain some insight into the
-nature of infinite neural networks kernels. These are a family of kernels
-which are obtained analytically from the limit of infinite width of a neural network.
-This section provides a brief introduction to the concepts and techniques from which
-the kernels are derived.
+% 1.1 Background and Context
+% ================================================================================
+% Begin by providing an overview of the field of neural networks and their
+% importance in various domains such as machine learning, computer vision, natural
+% language processing, and more. Briefly mention the rapid advancements in neural
+% network architectures and techniques that have led to significant breakthroughs.
 
-\subsection{Neural networks}%
-\label{sub:neural_networks}
+\Textcite{frenayParameterinsensitiveKernelExtreme2011} presented a
+parameter-insensitive kernel inspired from extreme learning machines (ELMs
+\cite{huangExtremeLearningMachine2006}).
+According to the authors, the meta-parameter associated with the kernel does
+not affect the performance of the results obtained. In the paper they demonstrate
+the effectiveness of the kernel in a Support Vector Regression (SVR) task. The results
+obtained with this kernel are not significantly different from the results obtained
+in the \emph{state-of-the-art} of each dataset using Gaussian kernels.
 
-In its most basic form, a neural network is a function which maps an input vector
-$\textbf{x}$ to an output vector $\textbf{y}$. This function is defined by a set of
-parameters $\textbf{w}$ which are learned from the training samples.
+If the kernel is indeed parameter-insensitive, then it is possible that other
+infinite neural network kernels also have this property.
+The aim of this project is to study the effects of these infinite neural network
+kernels in extreme learning machines; understanding their behaviour in practical
+learning problems, with a special focus on the dependence (or lack of) of
+performance on the kernel hyperparameters.
 
-There are many architectures for neural networks, but we are going to focus
-on the most basic one, a single hidden layer feedforward neural network. This is a
-neural network with a single hidden layer of neurons (units) between the input and
-the output layers. We can define the function $f$ of a single hidden layer feedforward
-neural network as follows:
+Having a parameter-insensitive kernel has the potential to cut down on the
+time spent on hyperparameter tuning, which is one of the most time-consuming
+tasks in machine learning.
 
-\begin{equation}
-    f(\textbf{x},\,\textbf{w}) = \textbf{W}_2 \sigma \left( \textbf{W}_1 \textbf{x} + \textbf{b}_1 \right) + \textbf{b}_2
+\subsection{Scope and Limitations}%
+\label{sub:scope_and_limitations}
+
+Due to the time and computational constraints, the scope of this project is limited
+to the study on a few datasets. The datasets chosen try to cover a wide range of
+characteristics, but are in no way exhaustive. But should be enough to provide
+a good understanding of the behaviour of the kernels and gain some insights
+on their limitations.
+
+% 1.2 Problem Statement
+% ================================================================================
+% Introduce the specific problem you're addressing in your thesis – the effects
+% of infinite neural network kernels. Explain why this topic is relevant and how
+% it fits within the broader landscape of neural network research. Highlight any
+% existing challenges, limitations, or gaps in the current understanding of this
+% concept.
+
+% 1.3 Objectives and Research Questions
+% ================================================================================
+% Clearly state the objectives of your thesis. What do you aim to achieve
+% through your research? Identify the central research questions that will guide
+% your investigation into the effects of infinite neural network kernels.
+
+
+% 1.4 Significance of the Study
+% ================================================================================
+% Discuss the potential implications and applications of understanding infinite
+% neural network kernels. How might this knowledge contribute to improving
+% neural network design, performance, or interpretability? Highlight the
+% importance of addressing this topic to advance the field of neural networks.
+
+% 1.5 Scope and Limitations
+% ================================================================================
+% Define the scope of your research. Specify the boundaries of your
+% investigation, such as the specific types of neural networks, data, and
+% mathematical principles you will focus on. Also, acknowledge any limitations
+% that might affect the generalizability of your findings.
+
+\section{Theoretical Background}%
+\label{sec:theoretical_background}
+% 2. Theoretical Background
+% ================================================================================
+
+In order to understand the rest of the thesis, it is important to give a brief
+overview of the fundamentals on which the kernels used are based on. This
+section will cover the basics of neural networks and kernel methods.
+
+\subsection{Extreme Learning Machines}%
+\label{sub:neural_networks_fundamentals}
+% 2.1 Extreme Learning Machines
+% ================================================================================
+% Provide a brief overview of neural network architecture, including layers,
+% nodes (neurons), activation functions, and the basic working principles.
+% Explain how neural networks learn from data through processes like forward
+% propagation and backpropagation.
+
+Given $N$ distinct samples $\left( \textbf x_i,\, \textbf t_i \right)$,
+where $\textbf x_i \in \mathbb{R}^n$ is the input vector and $\textbf t_i \in \mathbb{R}^m$
+is the target vector. Consider now a single layer feedforward network (SLFN)
+with $\tilde{N}$ hidden nodes. Let $\textbf w_i = \left[ w_{i1},\,w_{i2},\,\dots,\,w_{in} \right]^T$
+be the weight vector connecting the $i$-th hidden node to the input layer.
+Let $\boldsymbol\beta_i = \left[ \beta_{i1},\,\beta_{i2},\,\dots,\,\beta_{im} \right]^T$ be
+the weight vector connecting the $i$-th hidden node to the output layer. Finally, let
+$b_i$ be the bias of the $i$-th hidden node and $g(\cdot)$ be the activation function.
+
+We can model the model mathematically as follows:
+\begin{equation}%
+    \label{eq:slfn}
+    \sum_{i=1}^{\tilde{N}} \boldsymbol\beta_{i} g\left( \textbf w_i \cdot \textbf x_j + b_i \right) = \textbf t_j, \quad j = 1,\,2,\,\dots,\,N
 \end{equation}
-where $\textbf{W}_1$ and $\textbf{W}_2$ are the weight matrices of the first and second layers respectively,
-$\textbf{b}_1$ and $\textbf{b}_2$ are the bias vectors of the first and second layers respectively and
-$\sigma$ is the activation function.
 
-A diagram of such a neural network is shown in \cref{fig:neural_network}.
+\Cref{eq:slfn} can be rewritten in matrix form as:
+\begin{equation}
+    \textbf{H}\boldsymbol\beta = \textbf{T}
+\end{equation}
+where:
+\begin{align}
+    \textbf H &= \begin{bmatrix}
+        g(\textbf w_1 \cdot \textbf x_1 + b_1) & g(\textbf w_2 \cdot \textbf x_1 + b_2) & \dots & g(\textbf w_{\tilde{N}} \cdot \textbf x_1 + b_{\tilde{N}}) \\
+        g(\textbf w_1 \cdot \textbf x_2 + b_1) & g(\textbf w_2 \cdot \textbf x_2 + b_2) & \dots & g(\textbf w_{\tilde{N}} \cdot \textbf x_2 + b_{\tilde{N}}) \\
+        \vdots                                 & \vdots                                 & \ddots & \vdots                                 \\
+        g(\textbf w_1 \cdot \textbf x_N + b_1) & g(\textbf w_2 \cdot \textbf x_N + b_2) & \dots & g(\textbf w_{\tilde{N}} \cdot \textbf x_N + b_{\tilde{N}})
+    \end{bmatrix}_{N \times \tilde{N}}, \\
+    \boldsymbol\beta &= \begin{bmatrix}
+        \boldsymbol\beta_1 \\
+        \boldsymbol\beta_2 \\
+        \vdots             \\
+        \boldsymbol\beta_{\tilde{N}}
+    \end{bmatrix}_{\tilde{N} \times m}, \quad
+    \textbf T = \begin{bmatrix}
+        \textbf t_1 \\
+        \textbf t_2 \\
+        \vdots      \\
+        \textbf t_N
+    \end{bmatrix}_{N \times m}
+\end{align}
 
-\begin{figure}[H]
+The conventional way to train a SLFN is to use the backpropagation algorithm, which is gradient
+based algorithm that aims to minimize the error $\left\lVert \textbf{T} - \textbf{H}\boldsymbol\beta \right\rVert$
+by iteratively updating the weights and biases of the network. This algorithm is computationally
+expensive and can take a long time to converge.
+
+\begin{figure}[htpb]
+    % Single layer feedforward network
     \begin{tikzpicture}
-        % Input layer
-        \node[draw, circle] (x1) at (0, 0) {$x_1$};
-        \node[draw, circle] (x2) at (0, -1) {$x_2$};
+        % input layer
+        \node[draw, circle] (x1) at (0, 0) {$\textbf x_1$};
+        \node[draw, circle] (x2) at (0, -1) {$\textbf x_2$};
         \node (x3) at (0, -2) {$\vdots$};
-        \node[draw, circle] (x4) at (0, -3) {$x_n$};
+        \node[draw, circle] (x4) at (0, -3) {$\textbf x_n$};
 
-        % Hidden layer
-        \node[draw, circle] (h1) at (3, 0) {$h_1$};
-        \node[draw, circle] (h2) at (3, -1) {$h_2$};
-        \node (h3) at (3, -2) {$\vdots$};
-        \node[draw, circle] (h4) at (3, -3) {$h_m$};
+        % hidden layer
+        \node[draw, circle] (h1) at (5, 0) {$\textbf h_1$};
+        \node[draw, circle] (h2) at (5, -1) {$\textbf h_2$};
+        \node (h3) at (5, -2) {$\vdots$};
+        \node[draw, circle] (h4) at (5, -3) {$\textbf h_{\tilde{N}}$};
 
-        % Output layer
-        \node[draw, circle] (y1) at (6, 0) {$y_1$};
-        \node[draw, circle] (y2) at (6, -1) {$y_2$};
-        \node (y3) at (6, -2) {$\vdots$};
-        \node[draw, circle] (y4) at (6, -3) {$y_k$};
+        % output layer
+        \node[draw, circle] (y1) at (10, 0) {$\textbf t_1$};
+        \node[draw, circle] (y2) at (10, -1) {$\textbf t_2$};
+        \node (y3) at (10, -2) {$\vdots$};
+        \node[draw, circle] (y4) at (10, -3) {$\textbf t_m$};
 
-        % Connections
-        \foreach \i in {1,2,4} {
+        \node (xtitle) at (0, 1.5) {\textbf{Input layer}};
+        \node (htitle) at (5, 1.5) {\textbf{Hidden layer}};
+        \node (ytitle) at (10, 1.5) {\textbf{Output layer}};
+
+        \node (hformula) at (5, -4) {$h_{ij} = g \left( \textbf{w}_i \textbf{x}_j + b_i \right)$};
+        \node (yformula) at (10, -4) {$\textbf{t}_{j} = \sum_{i=1}^{\tilde{N}} \boldsymbol\beta_{i} h_{ij}$};
+
+        % connections
+        \foreach \i in {1,2,4}
             \foreach \j in {1,2,4} {
                 \draw[->] (x\i) -- (h\j);
                 \draw[->] (h\i) -- (y\j);
             }
-        }
     \end{tikzpicture}
-    \caption{Diagram of a single hidden layer feedforward neural network.}%
-    \label{fig:neural_network}
+    \caption{Single layer feedforward network}%
 \end{figure}
 
-Computation in \emph{infinite} neural networks was first explored by
-\textcite{nealBayesianLearningNeural1996} in the context of Gaussian
-processes by applying Bayesian inference to neural networks.
+Extreme Learning Machines (ELMs) are an alternative training method for Single
+Layer Feedforward Network (SLFN) in which the input weights $\textbf{w}_i$ and
+hidden layer biases $b_i$ are randomly assigned. From that, the hidden layer matrix $\textbf{H}$
+can be computed, then the output weight $\boldsymbol\beta$ can be computed as $\boldsymbol\beta =
+\textbf{H}^{\dagger} \textbf{T}$, where $\textbf{H}^{\dagger}$ is the Moore-Penrose pseudoinverse
+of $\textbf{H}$.
+\Textcite{huangExtremeLearningMachine2006} showed that
+this method works for activation functions that are infinitely differentiable.
 
-\subsection{Bayesian Neural Networks}%
-\label{sub:bayesian_neural_networks}
+ELM does is much faster to train than backpropagation, does not get stuck in local minima
+and has better generalization performance. However the issue of overfitting and underfitting
+is still present, and the performance of the network is still dependent on the number of
+hidden nodes $\tilde{N}$. \Textcite{huangExtremeLearningMachine2012} propose to incrementally
+add hidden nodes and use cross-validation to determine the optimal number of hidden nodes.
 
-From a statistical point of view, the standard approach to training
-backpropagation neural networks using gradient descent to minimize the
-loss function can be interpreted as
-\emph{maximum likelihood estimation} (MLE) of the parameters of the model.
-The training process is thus an optimization problem from which we obtain
-the \emph{optimal} set of parameters given the data.
+\subsection{ELM Kernel (Arc-sine kernel)}%
 
-On the other hand, using Bayesian inference, the prediction obtained is based
-on \emph{all} the possible values of the parameters, weighted by the corresponding
-probability of each set of parameters (the posterior distribution). This means
-that the prediction is not a single value, but a distribution of values. We are therefore
-dealing with an \emph{integration problem}.
-
-The main benefits of using the Bayesian approach is that it provides an
-indication of the uncertainty of the prediction and that it reduces ``overfitting''.
-However, the main drawback is that the integration is intractable for
-complex models, such as neural networks and requires Markov Chain Monte Carlo
-methods or other techniques to approximate the posterior distribution \cite{nealBayesianTrainingBackpropagation1992}.
-
-\subsubsection{Bayesian neural network training problem}%
-\label{ssub:bayesian_neural_network_training_problem}
-
-Below is a summary of the formulation for the Bayesian neural network from \textcite{nealBayesianTrainingBackpropagation1992}.
-The formulation if for the regression case, but it can be easily extended to the classification case.
-
-Assuming we have a set of $n$ independent training samples,
-$\left(\textbf{x}_1,  \textbf{y}_1 \right),\,\dots,\,\left(\textbf{x}_n,  \textbf{y}_n \right)$
-each of which consists of an ``input'' vector $\textbf{x}_i$ associated to an ``output'' vector $\textbf{y}_i$.
-And given an additional item $\textbf{x}_{n+1}$, we want to predict the corresponding $\textbf{y}_{n+1}$.
-
-We define a neural network of an arbitrary architecture with a $\textbf{w}$ vector of parameters as a function
-$f$ which maps an input vector $\textbf{x}$ to an output vector $\widehat{\textbf{y}}$. Formally: $\widehat{\textbf{y}} = f(\textbf{x},\,\textbf{w})$.
-
-If we assume a Gaussian noise model, the conditional probability distribution for the output given the output is given by:
+\Textcite{frenayParameterinsensitiveKernelExtreme2011} expand on the idea of ELMs \cite{huangExtremeLearningMachine2006,huangExtremeLearningMachine2012}
+by changing the perspective and building a kernel from the ELM:
 \begin{equation}
-    P(\textbf{y} \mid \textbf{x},\,\textbf{w}) = \mathcal{N}(\textbf{y} \mid f(\textbf{x},\,\textbf{w}),\,\sigma^2)
-    = \left(2\pi\sigma^2\right)^{-\frac{D}{2}} \exp \left( -\frac{1}{2\sigma^2} \left\lVert \textbf{y} - f(\textbf{x},\,\textbf{w}) \right\rVert^2 \right)
+    k(x, z \mid p) = \frac{1}{p}\left\langle \phi(x),\,\phi(z) \right\rangle
 \end{equation}
-where $D$ is the dimensionality of the output vector $\textbf{y}$ and $\sigma^2$ is the variance of the noise\footnote{
-    This assumes a constant noise level, but extending it to a noise model with a different variance for each sample is straightforward.
-}
-
-The maximum likelihood approach consists of finding the parameters $\textbf{w}$ that maximize the likelihood of the training data
-through a gradient descent algorithm. This can be formalized as the maximization of the log-likelihood $L(\textbf{w})$:
-\begin{equation}%
-    \label{eq:log_likelihood}
-    L(\textbf{w}) = \sum_{i=1}^{n} \log P(\textbf{y}_i \mid \textbf{x}_i,\,\textbf{w})
+where $\phi(x)$ is the feature map of the ELM and $p$ is the number of hidden nodes. Note
+that since ELM assigns the input weights $\textbf{w}_i$ and hidden layer biases $b_i$ randomly,
+the feature space $\phi$ is also built randomly. The authors show that in the limit of $p \to +\infty$,
+when the weights and biases are drawn from a Gaussian distribution with variance $\sigma_w^2$, and
+the activation function $g$ is the sigmoid \emph{erf} function defined in \cref{eq:erf}:
+\begin{equation}\label{eq:erf}
+    \erf(x) = \frac{2}{\sqrt{\pi}} \int_0^x e^{-t^2} \,dt
+\end{equation}
+Then, the
+asymptotic kernel $k$ can be analytically computed as shown in \cref{eq:kernel_asin}:
+\begin{equation}\label{eq:kernel_asin}
+	k(\x,\,\z \mid p \to + \infty)  = \frac{2}{\pi}
+	\arcsin \frac{1 + \left\langle \x,\,\z \right\rangle}{\sqrt{
+			\left(
+			\frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
+			\right)
+			\left(
+			\frac{1}{2\sigma_w^2} + 1 + \left\langle \z,\,\z \right\rangle
+			\right)
+		}}
 \end{equation}
 
-From the maximization of the log-likelihood, we obtain the optimal set of parameters $\widehat{\textbf{w}}$ and then use it
-to predict the output $\widehat{\textbf{y}}_{n+1} = f(\textbf{x}_{n+1},\,\widehat{\textbf{w}})$.
+This kernel is the same as the one proposed by \textcite{williamsComputationInfiniteNeural1998}\footnote{
+    In fact, \textcite{frenayParameterinsensitiveKernelExtreme2011} reference \textcite{williamsComputationInfiniteNeural1998} as the source of the analytical
+expression.}, which is derived from a different perspective.
+In this older paper by \citeauthor{williamsComputationInfiniteNeural1998}, the kernel formulation comes from
+applying the principles of Bayesian Learning to neural networks\cite{nealBayesianLearningNeural1996,bishopBayesianNeuralNetworks1997}.
 
-In the Bayesian approach, instead of using a \emph{single} ``best'' set of weights, we integrate the predictions from all possible
-weight vectors over the posterior weight distribution. This is equivalent to averaging the predictions of all possible neural networks
-with different weights. The best single-value prediction for our new sample $\textbf{x}_{n+1}$ is then given by:
-\begin{equation}\label{eq:bnn_single_prediction}
-    \widehat{\textbf{y}}_{n+1} = \int_{\mathds{R}^N}
-        f(\textbf{x}_{n+1},\,\textbf{w})
-        P(\textbf{w} \mid \left(\textbf{x}_1,  \textbf{y}_1 \right),\,\dots,\,\left(\textbf{x}_n,  \textbf{y}_n \right))
-        \,d\textbf{w}
-\end{equation}
-where $N$ is the dimensionality of the weight vector $\textbf{w}$.
+Bayesian Neural Networks (BNN) are neural networks that make use of the Bayesian Machinery to learn
+from data. The main difference is that these networks use distributions instead of point estimates\cite{nealBayesianLearningNeural1996}.
+This allows the network to have a better understanding of the uncertainty of the data, which reduces
+overfitting and allows having uncertainty estimates for the predictions. The main drawback of BNNs
+is that they require computation of the posterior distribution, which is an analytically intractable
+integral. Therefore, they are trained using approximate methods such as Markov Chain Monte Carlo (MCMC) which
+are computationally expensive and slow to converge \cite{nealBayesianTrainingBackpropagation1992}. \Textcite{williamsComputationInfiniteNeural1998}
+shows that in the limit of infinitely wide neural networks, when the weights and biases are drawn from
+a Gaussian distribution, and the activation function is the sigmoid \emph{erf}, an analytical expression
+for the covariance matrix can be derived.
 
-The single value from \cref{eq:bnn_single_prediction} is the \emph{expected value} of the posterior distribution of the output given the input.
-However, we are interested in the \emph{full} posterior distribution of the output given the input, which is given by:
-\begin{multline}\label{eq:bnn_posterior}
-    P(\textbf{y}_{n+1} \mid \textbf{x}_{n+1},\,\left(\textbf{x}_1,  \textbf{y}_1 \right),\,\dots,\,\left(\textbf{x}_n,  \textbf{y}_n \right)) \\
-        = \int_{\mathds{R}^N}
-            P(\textbf{y}_{n+1} \mid \textbf{x}_{n+1},\,\textbf{w})
-            P(\textbf{w} \mid \left(\textbf{x}_1,  \textbf{y}_1 \right),\,\dots,\,\left(\textbf{x}_n,  \textbf{y}_n \right))
-            \,d\textbf{w}
-\end{multline}
+\subsubsection{Analytical expression for the ELM kernel}
 
-Applying Bayes' theorem, we obtain the posterior probabilities for the weight vectors:
+In this section I summarize the main results from \textcite{williamsComputationInfiniteNeural1998} for the
+analytical expression of a single layer bayesian network with a sigmoid \emph{erf} activation function and
+Gaussian priors on the weights and biases. Such construction is equivalent to the ELM kernel proposed by
+\textcite{frenayParameterinsensitiveKernelExtreme2011}.
+
+The basis of the derivation follows from the results of \textcite{mackayBayesianMethodsAdaptive1999} which
+using Bayesian machinery, $k(x, x′) = E_{\textbf u} \left[h(x; u)h(x′; u) \right]$, where $h(x; u)$ is the
+transfer function of the network with weights $u$ and input $x$. 
+
+\subsection{Arc-cosine kernels}
+
+\Textcite{choLargemarginClassificationInfinite2010} generalize the work of \textcite{williamsComputationInfiniteNeural1998}
+by expanding the family of infinite neural network kernels to include other activation functions. Their
+formulation starts from the following integral:
+
 \begin{equation}
-    P(\textbf{w} \mid \left(\textbf{x}_1,  \textbf{y}_1 \right),\,\dots,\,\left(\textbf{x}_n,  \textbf{y}_n \right))
-    = \frac{
-        P(\textbf{w}) \prod_{i=1}^{n} P(\textbf{y}_i \mid \textbf{x}_i,\,\textbf{w})
-    }{
-        P(\textbf{y}_1,\,\dots,\,\textbf{y}_n \mid \textbf{x}_1,\,\dots,\,\textbf{x}_n)
-    }
+    k_n(\x, \y) = 2 \bigintss \frac{\exp\left(-\frac{\lVert \textbf w \rVert^2}{2}\right)}{(2\pi)^{d/2}}
+        \Theta(\textbf w \cdot \x) \Theta(\textbf w \cdot \y) (\textbf w \cdot \x)^n (\textbf w \cdot \y)^n \,d\textbf w
+\end{equation}
+where $\Theta(z) = \frac{1}{2} \bigl(1 + \text{sign}(z)\bigr)$ is the Heaviside step function.
+And $n$ is a hyperparameter corresponding to the order of the kernel.
+
+The authors show that the integral can be only computed for $n > -\frac{1}{2}$.
+However, for $n < 0$, the behaviour is unintuitive, as the kernel map the origin
+in the input space to infinity in the feature space (and there is no analytical
+expression for the kernel).
+
+More interestingly, they show that an analytical expression for the
+kernel can be derived for $n \in \left\{ 0,\,1,\,2,\,\dots \right\}$
+and provide such expressions for $n = 0,\,1,\,2$.
+
+\begin{figure}[H]
+	% \includegraphics{kernel_examples}
+	\begin{tikzpicture}
+		\begin{groupplot}[group style={
+						group size=3 by 1,
+						xlabels at=edge bottom,
+						ylabels at=edge left,
+                        vertical sep=4em,
+					},
+				width = .3\textwidth,
+				ymin=-0.1, ymax=1.1,
+                every axis plot/.append style={smooth, mark=none, line width=2pt},
+                samples=25,
+                domain=-1:1,
+                xmin=-1.1, xmax=1.1,
+                grid=both,
+                grid style={dotted, draw=gray!40, line width=1.0pt}
+			]
+			\nextgroupplot[title={\bfseries Step $(n = 0)$}]
+            \draw[line width=2pt, color=blue] (-1,0) -- (0,0);
+            \draw[line width=2pt, color=blue, dashed] (0,0) -- (0,1);
+            \draw[line width=2pt, color=blue] (0,1) -- (1,1);
+
+			\nextgroupplot[title={\bfseries Ramp $(n=1)$}]
+            \draw[line width=2pt, color=red] (-1,0) -- (0,0) -- (1,1);
+
+            \nextgroupplot[title={\bfseries Quarter-pipe $(n=2)$}]
+            \draw[line width=2pt, color=green!70!black] (-1,0) -- (0,0);
+            \addplot[domain=0:1, line width=2pt, color=green!70!black] {x^2};
+		\end{groupplot}
+	\end{tikzpicture}
+	\caption{Activation functions $\Theta(z)z^n$ for $n = 0,\,1,\,2$}
+\end{figure}
+The authors show that in the limit of $n \to +\infty$,
+when the weights and biases are drawn from a Gaussian distribution with variance $\sigma_w^2$, and
+
+\begin{equation}\label{eq:kernel_cho}
+	k_n(\x,\,\y) = \frac{1}{\pi} \left\lVert \x \right\rVert^n \left\lVert \y \right\rVert^n J_n(\theta)
 \end{equation}
 
-Finally, the prior distribution for the weights $P(\textbf{w})$ has to be defined. A common choice is to use a Gaussian distribution,
-which is analogous to the regularization term $\left(-\frac{\left\lVert \textbf{w} \right\rVert^2}{2\omega^2}\right)$ which is often added to the
-maximum likelihood formulation to avoid overfitting. The prior distribution is then given by:
 \begin{equation}
-    P(\textbf{w}) = (2\pi\omega^2)^{-\frac{N}{2}} \exp \left( -\frac{1}{2\omega^2} \left\lVert \textbf{w} \right\rVert^2 \right)
+	J_n(\theta) = (-1)^n \left( \sin \theta \right)^{(2n+1)}
+	\left( \frac{1}{\sin \theta} \frac{\partial}{\partial \theta} \right)^2
+	\left( \frac{\pi - \theta}{\sin \theta} \right)
+	\quad \text{for} \quad \forall n \in \left\{ 0,\,1,\,2,\,\dots \right\}
 \end{equation}
 
-% TODO: Differentiate Neal 92 vs neal 96.
+\begin{align}
+	J_0(\theta) & = \pi - \theta                                                                    \\
+	J_1(\theta) & = \sin\theta + \left(\pi - \theta\right)\cos\theta                                \\
+	J_2(\theta) & = 3\sin\theta\cos\theta + \left(\pi - \theta\right)\left(1 + 2\cos^2\theta\right)
+\end{align}
 
-The high-dimensional integrals defined in \cref{eq:bnn_single_prediction,eq:bnn_posterior} are analytically intractable and
-difficult to compute numerically. \Textcite{mackayBayesianMethodsAdaptive1999} works around this problem through various assumptions.
-These are that the posterior weight distribution in \cref{eq:bnn_posterior} can be approximated by a multivariate Gaussian distribution around its mode
-and that the network function $f$ is linear in respect to the weights $\textbf{w}$ around the mode. Applying these assumptions, the integrals
-can be computed. \Textcite{nealBayesianTrainingBackpropagation1992} uses Markov Chain Monte Carlo methods to approximate the posterior distribution without
-need for those assumptions.
+\begin{equation}
+	\theta = \arccos\frac{\x \cdot \y}{\left\lVert \x \right\rVert \left\lVert \y \right\rVert}
+\end{equation}
 
-\subsection{Infinitely wide neural networks}%
-\label{sub:infinitely_wide_neural_networks}
 
-An infinitely wide neural network is a neural network with an infinite number of hidden units (neurons) in its hidden layer.
+\begin{align}
+	k_0(\x,\,\y) & = 1 - \frac{1}{\pi} \arccos\frac{\x \cdot \y}{\left\lVert \x \right\rVert \left\lVert \y \right\rVert} \\
+	k_1(\x,\,\y) & = \frac{1}{\pi} \left\lVert \x \right\rVert \left\lVert \y \right\rVert
+	\bigl( \sin\theta + \left(\pi - \theta\right)\cos\theta \bigr)                                                        \\
+	k_2(\x,\,\y) & = \frac{1}{\pi} \left\lVert \x \right\rVert^2 \left\lVert \y \right\rVert^2
+	\Bigl( 3\sin\theta\cos\theta + \left(\pi - \theta\right)\left(1 + 2\cos^2\theta\right) \Bigr)
+\end{align}
 
-\Textcite{nealBayesianLearningNeural1996} shows that for fixed hyperparameters, a Gaussian prior over the weights
-results in a Gaussian Process prior for functions at the limit of infinite width.
-\Textcite{williamsComputationInfiniteNeural1998} further develops the idea and shows that for
-certain transfer functions (activation functions) and weight priors, the
-\emph{covariance function that describes the behavior of the
-corresponding gaussian process can be calculated analytically.} In practice,
-this means that the covariance function can be calculated in $\mathcal{O}(n^3)$ where
-$n$ is the number of samples. This can be a significant improvement over Markov Chain Monte
-Carlo methods, which can take a lot of time to converge.
+\subsubsection{Covariance arc cosine kernel}
 
-\Textcite{bishopChapterSinglelayerNetworks1995}
+The formulation from \textcite{choLargemarginClassificationInfinite2010} is derived from a standard normal
+distribution. \Textcite{pandeyGoDeepWide2014} show that if instead the samples are drawn from a gaussian
+distribution with mean 0 and covariance $\Sigma$, then the kernel $K_{\Sigma,\,n}$ is related to the
+original kernel $K_{n}$ as follows:
 
-\subsection{Kernels}
-\label{sub:kernels}
+\begin{equation}\label{eq:kernel_pandey}
+K_{\Sigma,\,n}(\x,\,\y) = K_{n}\left(\Sigma^{\frac{1}{2}}\x,\,\Sigma^{\frac{1}{2}}\y\right)
+\end{equation}
+
+\subsection{Kernel methods}%
+\label{sub:kernel_methods}
+% 2.2 Kernel Methods in Machine Learning
+% ================================================================================
+% Introduce the concept of kernel methods in machine learning, emphasizing their
+% use in support vector machines (SVMs) and other algorithms. Explain how
+% kernels allow algorithms to operate in a higher-dimensional feature space
+% without explicitly calculating the coordinates.
+
+\subsection{Infinite Neural Network Kernels}%
+% 2.3 Infinite Kernels and Their Implications
+% ================================================================================
+% Define what is meant by "infinite neural network kernels." Explore how
+% infinite kernels can potentially offer novel insights into neural network
+% behavior, representation learning, and generalization. Touch upon any related
+% mathematical concepts that will be relevant to your analysis.
+
+\section{Related Work}%
+\label{sec:related_work}
+
+% 3. Related Work
+% ================================================================================
+
+% 3.1 Studies on Neural Network Kernels
+% ================================================================================
+% Discuss existing research or studies that have explored neural network
+% kernels, both finite and infinite. Highlight any findings, methodologies, or
+% gaps in the literature that your thesis aims to address.
+
+% 3.2 Applications and Impact
+% ================================================================================
+% Provide examples of how understanding neural network kernels, particularly
+% infinite ones, has impacted real-world applications or theoretical
+% advancements in machine learning and related fields.
+
+% 4. Methodology
+% ================================================================================
+
+% 4.1 Data Collection and Preparation
+% ================================================================================
+% Explain how you plan to gather or generate the data necessary for your
+% analysis. If applicable, clarify the characteristics of the datasets you will
+% use and how they relate to neural network kernels.
+
+% 4.2 Experimental Design
+% ================================================================================
+% Outline the experimental procedures you will follow to investigate the effects
+% of infinite neural network kernels. Detail the neural network architectures,
+% training strategies, and evaluation metrics you intend to use.
+
+% 5. Structure of the Thesis
+% ================================================================================
+
+% Provide a brief overview of how your thesis is organized, highlighting the
+% main sections and the flow of your argument.
+
+% 6. Conclusion
+% ================================================================================
+% Summarize the key points you've discussed in the introduction and provide a
+% smooth transition to the subsequent chapters. Emphasize the importance of your
+% research in advancing the understanding of infinite neural network kernels and
+% its potential implications.
+
+% Remember, the introduction should capture the reader's attention, provide
+% context, and set the stage for the rest of your thesis. Make sure your writing
+% is clear, concise, and well-organized, and consider revisiting and refining
+% the introduction after you've completed the other sections of your thesis to
+% ensure it accurately reflects your research's scope and findings.
+
+\section{Kernels}
+\label{sec:kernels}
 
 \begin{table}[H]
     \begin{tabular}{ccc}
@@ -209,10 +433,6 @@ infinitely wide neural networks.
 
 \textcite{frenayParameterinsensitiveKernelExtreme2011,williamsComputationInfiniteNeural1998}:
 
-\newcommand{\x}{\mathbf{x}}
-\newcommand{\z}{\mathbf{z}}
-\newcommand{\y}{\mathbf{y}}
-\newcommand{\bu}{\mathbf{u}}
 
 \begin{equation}\label{eq:erf}
     \erf(x) = \frac{2}{\sqrt{\pi}} \int_0^x e^{-t^2} \,dt
@@ -306,48 +526,3 @@ which is more commonly used in the neural networks' literature
 	}
 \end{equation}
 
-\subsubsection{Arc cosine kernel}
-
-\Textcite{choLargemarginClassificationInfinite2010} derive a kernel for the case of a standard normal
-distribution with Heavyside step function as activation function.
-
-\begin{equation}\label{eq:kernel_cho}
-	k_n(\x,\,\y) = \frac{1}{\pi} \left\lVert \x \right\rVert^n \left\lVert \y \right\rVert^n J_n(\theta)
-\end{equation}
-
-\begin{equation}
-	J_n(\theta) = (-1)^n \left( \sin \theta \right)^{(2n+1)}
-	\left( \frac{1}{\sin \theta} \frac{\partial}{\partial \theta} \right)^2
-	\left( \frac{\pi - \theta}{\sin \theta} \right)
-	\quad \text{for} \quad \forall n \in \left\{ 0,\,1,\,2,\,\dots \right\}
-\end{equation}
-
-\begin{align}
-	J_0(\theta) & = \pi - \theta                                                                    \\
-	J_1(\theta) & = \sin\theta + \left(\pi - \theta\right)\cos\theta                                \\
-	J_2(\theta) & = 3\sin\theta\cos\theta + \left(\pi - \theta\right)\left(1 + 2\cos^2\theta\right)
-\end{align}
-
-\begin{equation}
-	\theta = \arccos\frac{\x \cdot \y}{\left\lVert \x \right\rVert \left\lVert \y \right\rVert}
-\end{equation}
-
-
-\begin{align}
-	k_0(\x,\,\y) & = 1 - \frac{1}{\pi} \arccos\frac{\x \cdot \y}{\left\lVert \x \right\rVert \left\lVert \y \right\rVert} \\
-	k_1(\x,\,\y) & = \frac{1}{\pi} \left\lVert \x \right\rVert \left\lVert \y \right\rVert
-	\bigl( \sin\theta + \left(\pi - \theta\right)\cos\theta \bigr)                                                        \\
-	k_2(\x,\,\y) & = \frac{1}{\pi} \left\lVert \x \right\rVert^2 \left\lVert \y \right\rVert^2
-	\Bigl( 3\sin\theta\cos\theta + \left(\pi - \theta\right)\left(1 + 2\cos^2\theta\right) \Bigr)
-\end{align}
-
-\subsubsection{Covariance arc cosine kernel}
-
-The formulation from \textcite{choLargemarginClassificationInfinite2010} is derived from a standard normal
-distribution. \Textcite{pandeyGoDeepWide2014} show that if instead the samples are drawn from a gaussian
-distribution with mean 0 and covariance $\Sigma$, then the kernel $K_{\Sigma,\,n}$ is related to the
-original kernel $K_{n}$ as follows:
-
-\begin{equation}\label{eq:kernel_pandey}
-K_{\Sigma,\,n}(\x,\,\y) = K_{n}\left(\Sigma^{\frac{1}{2}}\x,\,\Sigma^{\frac{1}{2}}\y\right)
-\end{equation}
