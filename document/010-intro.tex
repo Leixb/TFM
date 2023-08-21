@@ -194,7 +194,9 @@ where $\phi(x)$ is the feature map of the ELM and $p$ is the number of hidden no
 that since ELM assigns the input weights $\textbf{w}_i$ and hidden layer biases $b_i$ randomly,
 the feature space $\phi$ is also built randomly. The authors show that in the limit of $p \to +\infty$,
 when the weights and biases are drawn from a Gaussian distribution with variance $\sigma_w^2$, and
-the activation function $g$ is the sigmoid \emph{erf} function defined in \cref{eq:erf}:
+the activation function $g$ is the sigmoid \emph{erf} function defined in \cref{eq:erf} and shown in
+\cref{fig:erf}, where it is compared to the \emph{tanh} function, a very similar function also
+used in neural networks.
 \begin{equation}\label{eq:erf}
     \erf(x) = \frac{2}{\sqrt{\pi}} \int_0^x e^{-t^2} \,dt
 \end{equation}
@@ -211,6 +213,27 @@ asymptotic kernel $k$ can be analytically computed as shown in \cref{eq:kernel_a
 			\right)
 		}}
 \end{equation}
+
+\begin{figure}[htpb]
+\begin{tikzpicture}
+\begin{axis}[
+    every axis plot/.append style={smooth, mark=none, line width=1.5pt, domain=-3:3, samples=50, no markers},
+    enlarge x limits=false,
+    legend pos=north west,
+    height=5cm,
+    width=0.7\textwidth,
+    grid=both,
+    grid style={dotted, draw=gray!40, line width=1.0pt}
+    ]
+    \addplot+ gnuplot[id=erf]{erf(x)};
+    \addlegendentry{$\erf(x)$};
+    \addplot+ gnuplot[id=tanh]{tanh(x)};
+    \addlegendentry{$\tanh(x)$};
+\end{axis}
+\end{tikzpicture}
+\caption{Comparison between the \emph{erf} and \emph{tanh} functions}
+\label{fig:erf}
+\end{figure}
 
 This kernel is the same as the one proposed by \textcite{williamsComputationInfiniteNeural1998}\footnote{
     In fact, \textcite{frenayParameterinsensitiveKernelExtreme2011} reference \textcite{williamsComputationInfiniteNeural1998} as the source of the analytical
@@ -236,34 +259,53 @@ analytical expression of a single layer bayesian network with a sigmoid \emph{er
 Gaussian priors on the weights and biases. Such construction is equivalent to the ELM kernel proposed by
 \textcite{frenayParameterinsensitiveKernelExtreme2011}.
 
-The basis of the derivation follows from the results of \textcite{mackayBayesianMethodsAdaptive1999} which
-using Bayesian machinery, $k(x, x′) = E_{\textbf u} \left[h(x; u)h(x′; u) \right]$, where $h(x; u)$ is the
-transfer function of the network with weights $u$ and input $x$. 
+The basis of the derivation follows from the results of \textcite{mackayBayesianMethodsAdaptive1999,nealBayesianTrainingBackpropagation1992} which
+using Bayesian machinery. From there and using \emph{erf} (\cref{eq:erf}) as the activation function and assuming
+that the input to hidden weights $\textbf u$ are drawn from a zero-mean Gaussian distribution with covariance matrix $\boldsymbol\Sigma$,
+\citeauthor{williamsComputationInfiniteNeural1998}
+obtains the following expression for the covariance matrix:
+\begin{equation}\label{eq:integral_williams}
+    V_{\erf}\left(\x,\,\x'\right) = \frac{1}{(2\pi)^{\frac{d+1}{2}}|\boldsymbol\Sigma|^{\frac{1}{2}}}
+        \int
+            \erf \left(\textbf u^T \tilde \x\right)
+            \erf \left(\textbf u^T \tilde \x'\right) \times \exp \left(
+                -\frac{1}{2} \textbf u^T \boldsymbol\Sigma^{-1} \textbf u
+            \right) \,d\textbf u
+\end{equation}
+then, in the appendix, \citeauthor{williamsComputationInfiniteNeural1998} shows that the integral can evaluated
+to the expression shown in \cref{eq:kernel_asin}.
+
+% TODO: Maybe some more details on how he gets to the expression
 
 \subsection{Arc-cosine kernels}
 
 \Textcite{choLargemarginClassificationInfinite2010} generalize the work of \textcite{williamsComputationInfiniteNeural1998}
 by expanding the family of infinite neural network kernels to include other activation functions. Their
 formulation starts from the following integral:
-
-\begin{equation}
+\begin{equation}\label{eq:integral_cho}
     k_n(\x, \y) = 2 \bigintss \frac{\exp\left(-\frac{\lVert \textbf w \rVert^2}{2}\right)}{(2\pi)^{d/2}}
         \Theta(\textbf w \cdot \x) \Theta(\textbf w \cdot \y) (\textbf w \cdot \x)^n (\textbf w \cdot \y)^n \,d\textbf w
 \end{equation}
 where $\Theta(z) = \frac{1}{2} \bigl(1 + \text{sign}(z)\bigr)$ is the Heaviside step function.
 And $n$ is a hyperparameter corresponding to the order of the kernel.
+In this kernel, $\Theta(z)z^n$ is the activation function of the neural network, which
+varies depending on the value of $n$ as shown in \cref{fig:activation_functions}.
 
-The authors show that the integral can be only computed for $n > -\frac{1}{2}$.
+Notice the similarities between this integral (\cref{eq:integral_cho}) and the previous
+one from \citeauthor{williamsComputationInfiniteNeural1998} (\cref{eq:integral_williams}).
+The main difference between the two is the activation function and the fact that \citeauthor{williamsComputationInfiniteNeural1998}
+uses a general covariance matrix $\boldsymbol\Sigma$ while \citeauthor{choLargemarginClassificationInfinite2010}
+uses a diagonal covariance matrix $\boldsymbol\Sigma = \sigma_w^2 \textbf I$. \Citeauthor{choLargemarginClassificationInfinite2010}
+show that their formulation when $n=0$ can be derived from a specialization of the formulation
+from \textcite{williamsComputationInfiniteNeural1998}.
+
+The integral in \cref{eq:integral_cho}
+can be only computed for $n > -\frac{1}{2}$.
 However, for $n < 0$, the behaviour is unintuitive, as the kernel map the origin
 in the input space to infinity in the feature space (and there is no analytical
 expression for the kernel).
 
-More interestingly, they show that an analytical expression for the
-kernel can be derived for $n \in \left\{ 0,\,1,\,2,\,\dots \right\}$
-and provide such expressions for $n = 0,\,1,\,2$.
-
 \begin{figure}[H]
-	% \includegraphics{kernel_examples}
 	\begin{tikzpicture}
 		\begin{groupplot}[group style={
 						group size=3 by 1,
@@ -274,9 +316,10 @@ and provide such expressions for $n = 0,\,1,\,2$.
 				width = .3\textwidth,
 				ymin=-0.1, ymax=1.1,
                 every axis plot/.append style={smooth, mark=none, line width=2pt},
+                enlarge x limits=false,
                 samples=25,
                 domain=-1:1,
-                xmin=-1.1, xmax=1.1,
+                xmin=-1, xmax=1,
                 grid=both,
                 grid style={dotted, draw=gray!40, line width=1.0pt}
 			]
@@ -294,36 +337,41 @@ and provide such expressions for $n = 0,\,1,\,2$.
 		\end{groupplot}
 	\end{tikzpicture}
 	\caption{Activation functions $\Theta(z)z^n$ for $n = 0,\,1,\,2$}
+    \label{fig:activation_functions}
 \end{figure}
-The authors show that in the limit of $n \to +\infty$,
-when the weights and biases are drawn from a Gaussian distribution with variance $\sigma_w^2$, and
 
+More interestingly, they show that an analytical expression for the
+kernel can be derived for $n \in \left\{ 0,\,1,\,2,\,\dots \right\}$
+and provide such expressions for $n = 0,\,1,\,2$. This expression has a simple
+relationship with the magnitude of the input vectors $\x$ and $\y$ and a more
+complex one with the angle between them:
 \begin{equation}\label{eq:kernel_cho}
 	k_n(\x,\,\y) = \frac{1}{\pi} \left\lVert \x \right\rVert^n \left\lVert \y \right\rVert^n J_n(\theta)
 \end{equation}
-
+where $\theta$ is the angle between $\x$ and $\y$ and $J_n(\theta)$ is the more complex
+part of the expression:
 \begin{equation}
 	J_n(\theta) = (-1)^n \left( \sin \theta \right)^{(2n+1)}
 	\left( \frac{1}{\sin \theta} \frac{\partial}{\partial \theta} \right)^2
 	\left( \frac{\pi - \theta}{\sin \theta} \right)
 	\quad \text{for} \quad \forall n \in \left\{ 0,\,1,\,2,\,\dots \right\}
 \end{equation}
-
+For $n = 0,\,1,\,2$, the expression for $J_n(\theta)$ is:
 \begin{align}
 	J_0(\theta) & = \pi - \theta                                                                    \\
 	J_1(\theta) & = \sin\theta + \left(\pi - \theta\right)\cos\theta                                \\
 	J_2(\theta) & = 3\sin\theta\cos\theta + \left(\pi - \theta\right)\left(1 + 2\cos^2\theta\right)
 \end{align}
 
-\begin{equation}
-	\theta = \arccos\frac{\x \cdot \y}{\left\lVert \x \right\rVert \left\lVert \y \right\rVert}
-\end{equation}
-
-
+From these, and using $\theta = \arccos\frac{\x \cdot \y}{\left\lVert \x \right\rVert \left\lVert \y \right\rVert}$
+we get the expression for the first three kernels:
 \begin{align}
+    \label{eq:kernel_cho_n0}
 	k_0(\x,\,\y) & = 1 - \frac{1}{\pi} \arccos\frac{\x \cdot \y}{\left\lVert \x \right\rVert \left\lVert \y \right\rVert} \\
+    \label{eq:kernel_cho_n1}
 	k_1(\x,\,\y) & = \frac{1}{\pi} \left\lVert \x \right\rVert \left\lVert \y \right\rVert
 	\bigl( \sin\theta + \left(\pi - \theta\right)\cos\theta \bigr)                                                        \\
+    \label{eq:kernel_cho_n2}
 	k_2(\x,\,\y) & = \frac{1}{\pi} \left\lVert \x \right\rVert^2 \left\lVert \y \right\rVert^2
 	\Bigl( 3\sin\theta\cos\theta + \left(\pi - \theta\right)\left(1 + 2\cos^2\theta\right) \Bigr)
 \end{align}
@@ -331,16 +379,26 @@ when the weights and biases are drawn from a Gaussian distribution with variance
 \subsubsection{Covariance arc cosine kernel}
 
 The formulation from \textcite{choLargemarginClassificationInfinite2010} is derived from a standard normal
-distribution. \Textcite{pandeyGoDeepWide2014} show that if instead the samples are drawn from a gaussian
+distribution (i.e. mean 0 and variance 1).
+\Textcite{pandeyGoDeepWide2014} show that if instead the samples are drawn from a gaussian
 distribution with mean 0 and covariance $\Sigma$, then the kernel $K_{\Sigma,\,n}$ is related to the
 original kernel $K_{n}$ as follows:
-
 \begin{equation}\label{eq:kernel_pandey}
 K_{\Sigma,\,n}(\x,\,\y) = K_{n}\left(\Sigma^{\frac{1}{2}}\x,\,\Sigma^{\frac{1}{2}}\y\right)
 \end{equation}
 
-\subsection{Kernel methods}%
-\label{sub:kernel_methods}
+\subsection{Kernel normalization}%
+
+\Textcite{frenayParameterinsensitiveKernelExtreme2011} do not use the expression
+of the arc-sine kernel from \cref{eq:kernel_asin} directly. Instead, they use
+the normalized version. The normalization of a kernel is defined as follows:
+\begin{equation}\label{eq:kernel_normalization}
+    K'(\x,\,\y) = \frac{K(\x,\,\y)}{\sqrt{K(\x,\,\x)K(\y,\,\y)}}
+\end{equation}
+
+% TODO: why is this usefull? the original kernel seems to work fine in practice
+% and a priori seems already normalized?
+
 % 2.2 Kernel Methods in Machine Learning
 % ================================================================================
 % Introduce the concept of kernel methods in machine learning, emphasizing their
@@ -348,7 +406,7 @@ K_{\Sigma,\,n}(\x,\,\y) = K_{n}\left(\Sigma^{\frac{1}{2}}\x,\,\Sigma^{\frac{1}{2
 % kernels allow algorithms to operate in a higher-dimensional feature space
 % without explicitly calculating the coordinates.
 
-\subsection{Infinite Neural Network Kernels}%
+% \subsection{Infinite Neural Network Kernels}%
 % 2.3 Infinite Kernels and Their Implications
 % ================================================================================
 % Define what is meant by "infinite neural network kernels." Explore how
@@ -356,8 +414,8 @@ K_{\Sigma,\,n}(\x,\,\y) = K_{n}\left(\Sigma^{\frac{1}{2}}\x,\,\Sigma^{\frac{1}{2
 % behavior, representation learning, and generalization. Touch upon any related
 % mathematical concepts that will be relevant to your analysis.
 
-\section{Related Work}%
-\label{sec:related_work}
+% \section{Related Work}%
+% \label{sec:related_work}
 
 % 3. Related Work
 % ================================================================================
@@ -411,118 +469,22 @@ K_{\Sigma,\,n}(\x,\,\y) = K_{n}\left(\Sigma^{\frac{1}{2}}\x,\,\Sigma^{\frac{1}{2
 \section{Kernels}
 \label{sec:kernels}
 
+\Cref{tab:kernels_summary} gives an overview of the infinite neural network
+kernels with known analytical expressions in the literature.
+
 \begin{table}[H]
-    \begin{tabular}{ccc}
+    \caption{Summary of kernels used in this thesis}
+    \label{tab:kernels_summary}
+    \begin{tabular}{lcccc}
         \toprule
-        \textbf{Kernel} & \textbf{Distribution} & \textbf{Activation function} \\
+        \textbf{Kernel} & \textbf{Distribution} & \textbf{Activation function} & \textbf{Reference} & \textbf{Equation} \\
         \midrule
-        Arc sine & \textit{Gaussian} & \textit{erf} \\
-        Arc cosine $n=0$ & \textit{Gaussian} & \textit{heavyside} \\
-        Arc cosine $n=1$ & \textit{Gaussian} & \textit{ReLu} \\
-        Arc cosine $n=2$ & \textit{Gaussian} & \textit{RePu} \\
+        Arc-sine         & \textit{Gaussian} & \textit{erf}       & \cite{williamsComputationInfiniteNeural1998,frenayParameterinsensitiveKernelExtreme2011} & \ref{eq:kernel_asin} \\
+        \addlinespace
+        Arc-cosine $n=0$ & \textit{Gaussian} & \textit{heavyside} & \cite{choLargemarginClassificationInfinite2010,pandeyGoDeepWide2014}                     & \ref{eq:kernel_cho_n0}  \\
+        Arc-cosine $n=1$ & \textit{Gaussian} & \textit{ReLu}      & \cite{choLargemarginClassificationInfinite2010,pandeyGoDeepWide2014}                     & \ref{eq:kernel_cho_n1}  \\
+        Arc-cosine $n=2$ & \textit{Gaussian} & \textit{RePu}      & \cite{choLargemarginClassificationInfinite2010,pandeyGoDeepWide2014}                     & \ref{eq:kernel_cho_n2}  \\
         \bottomrule
     \end{tabular}
 \end{table}
-
-\Textcite{williamsComputationInfiniteNeural1998} introduced the concept of
-infinitely wide neural networks.
-
-\textcite{nealBayesianLearningNeural1996}
-
-\subsubsection{Arc sine kernel}
-
-\textcite{frenayParameterinsensitiveKernelExtreme2011,williamsComputationInfiniteNeural1998}:
-
-
-\begin{equation}\label{eq:erf}
-    \erf(x) = \frac{2}{\sqrt{\pi}} \int_0^x e^{-t^2} \,dt
-\end{equation}
-
-% TODO: Put integral from William
-% \begin{equation}\label{eq:asin_integral}
-% \begin{equation}
-
-\begin{equation}
-    V_{\erf}\left(\x,\,\x'\right) =
-    \frac{1}{(2\pi)^{\frac{d+1}{2}} |\boldsymbol \Sigma|^{\frac{1}{2}}}
-    \int
-        \erf \left(\bu ^T \tilde \x \right)
-        \erf \left(\bu ^T \tilde \x '\right)
-        \exp \left(
-            -\frac{1}{2} \bu ^T \boldsymbol \Sigma^{-1} \bu
-        \right)
-    \,d\boldsymbol u
-\end{equation}
-
-Appropriately scaled, the graph of this function is very similar to the \texttt{tanh} function,
-which is more commonly used in the neural networks' literature
-\cite{williamsComputationInfiniteNeural1998}.
-
-\begin{equation}\label{eq:kernel_asin}
-	k(\x,\,\z \mid p \to + \infty)  = \frac{2}{\pi}
-	\arcsin \frac{1 + \left\langle \x,\,\z \right\rangle}{\sqrt{
-			\left(
-			\frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
-			\right)
-			\left(
-			\frac{1}{2\sigma_w^2} + 1 + \left\langle \z,\,\z \right\rangle
-			\right)
-		}}
-\end{equation}
-
-\begin{equation}
-	\gamma = \frac{1}{2\sigma_w^2}
-\end{equation}
-
-\paragraph{Normalization}
-
-\begin{equation}\label{eq:normalized}
-	\tilde{k}(\x,\,\z \mid p \to + \infty) = \frac{
-		k(\x,\,\z \mid p \to + \infty) }{
-		\sqrt{
-			k(\x,\,\x \mid p \to + \infty)
-			k(\z,\,\z \mid p \to + \infty)
-		}
-	}
-\end{equation}
-
-\begin{align*}\label{eq:kernel_asin_xx}
-	k(\x,\,\x \mid p \to + \infty)
-	 & = \frac{2}{\pi}
-	\arcsin \frac{1 + \left\langle \x,\,\x \right\rangle}{\sqrt{
-			\left(
-			\frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
-			\right)
-			\left(
-			\frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
-			\right)
-	}}                 \\
-	 & = \frac{2}{\pi}
-	\arcsin \frac{1 + \left\langle \x,\,\x \right\rangle}{
-		\frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
-	}                  \\
-\end{align*}
-
-\begin{equation}
-	\tilde{k}(\x,\,\z \mid p \to + \infty) =
-	\frac{
-		\arcsin \frac{1 + \left\langle \x,\,\z \right\rangle}{\sqrt{
-				\left(
-				\frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
-				\right)
-				\left(
-				\frac{1}{2\sigma_w^2} + 1 + \left\langle \z,\,\z \right\rangle
-				\right)
-			}}
-	}{
-		\sqrt{
-			\arcsin \frac{1 + \left\langle \x,\,\x \right\rangle}{
-				\frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
-			}
-			\arcsin \frac{1 + \left\langle \z,\,\z \right\rangle}{
-				\frac{1}{2\sigma_w^2} + 1 + \left\langle \z,\,\z \right\rangle
-			}
-		}
-	}
-\end{equation}
 

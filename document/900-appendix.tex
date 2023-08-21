@@ -1,0 +1,100 @@
+%! TEX root = **/000-main.tex
+% vim: spell spelllang=en:
+\section{Appendix}
+% TODO: remove
+\subsubsection{Arc sine kernel}
+
+\textcite{frenayParameterinsensitiveKernelExtreme2011,williamsComputationInfiniteNeural1998}:
+
+
+\begin{equation}
+    \erf(x) = \frac{2}{\sqrt{\pi}} \int_0^x e^{-t^2} \,dt
+\end{equation}
+
+% TODO: Put integral from William
+% \begin{equation}\label{eq:asin_integral}
+% \begin{equation}
+
+\begin{equation}
+    V_{\erf}\left(\x,\,\x'\right) =
+    \frac{1}{(2\pi)^{\frac{d+1}{2}} |\boldsymbol \Sigma|^{\frac{1}{2}}}
+    \int
+        \erf \left(\bu ^T \tilde \x \right)
+        \erf \left(\bu ^T \tilde \x '\right)
+        \exp \left(
+            -\frac{1}{2} \bu ^T \boldsymbol \Sigma^{-1} \bu
+        \right)
+    \,d\boldsymbol u
+\end{equation}
+
+Appropriately scaled, the graph of this function is very similar to the \texttt{tanh} function,
+which is more commonly used in the neural networks' literature
+\cite{williamsComputationInfiniteNeural1998}.
+
+\begin{equation}
+	k(\x,\,\z \mid p \to + \infty)  = \frac{2}{\pi}
+	\arcsin \frac{1 + \left\langle \x,\,\z \right\rangle}{\sqrt{
+			\left(
+			\frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
+			\right)
+			\left(
+			\frac{1}{2\sigma_w^2} + 1 + \left\langle \z,\,\z \right\rangle
+			\right)
+		}}
+\end{equation}
+
+\begin{equation}
+	\gamma = \frac{1}{2\sigma_w^2}
+\end{equation}
+
+\paragraph{Normalization}
+
+\begin{equation}
+	\tilde{k}(\x,\,\z \mid p \to + \infty) = \frac{
+		k(\x,\,\z \mid p \to + \infty) }{
+		\sqrt{
+			k(\x,\,\x \mid p \to + \infty)
+			k(\z,\,\z \mid p \to + \infty)
+		}
+	}
+\end{equation}
+
+\begin{align*}
+	k(\x,\,\x \mid p \to + \infty)
+	 & = \frac{2}{\pi}
+	\arcsin \frac{1 + \left\langle \x,\,\x \right\rangle}{\sqrt{
+			\left(
+			\frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
+			\right)
+			\left(
+			\frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
+			\right)
+	}}                 \\
+	 & = \frac{2}{\pi}
+	\arcsin \frac{1 + \left\langle \x,\,\x \right\rangle}{
+		\frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
+	}                  \\
+\end{align*}
+
+\begin{equation}
+	\tilde{k}(\x,\,\z \mid p \to + \infty) =
+	\frac{
+		\arcsin \frac{1 + \left\langle \x,\,\z \right\rangle}{\sqrt{
+				\left(
+				\frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
+				\right)
+				\left(
+				\frac{1}{2\sigma_w^2} + 1 + \left\langle \z,\,\z \right\rangle
+				\right)
+			}}
+	}{
+		\sqrt{
+			\arcsin \frac{1 + \left\langle \x,\,\x \right\rangle}{
+				\frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
+			}
+			\arcsin \frac{1 + \left\langle \z,\,\z \right\rangle}{
+				\frac{1}{2\sigma_w^2} + 1 + \left\langle \z,\,\z \right\rangle
+			}
+		}
+	}
+\end{equation}

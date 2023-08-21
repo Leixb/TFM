@@ -58,6 +58,7 @@ in
   '';
 
   packages = with pkgs; [
+    gnuplot
     texlab
     texlive.combined.scheme-full
     pdf2svg
