@@ -234,3 +234,6 @@
 }
 
 \directlua{require("lua/hyphenate_all")}
+
+% Make build reproducible by removing ID from PDF metadata
+\pdfvariable suppressoptionalinfo 512\relax

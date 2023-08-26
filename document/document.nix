@@ -3,9 +3,11 @@
 , python3
 , which
 , outils
+, gnuplot
+, filename ? "document.pdf"
 }:
 
-runCommand "document.pdf"
+runCommand filename
 {
   SOURCE_DATE_EPOCH = 1685620800; # 2023-06-01
   src = ./.;
@@ -14,6 +16,7 @@ runCommand "document.pdf"
     python3.pkgs.pygments
     which
     outils
+    gnuplot
   ];
 }
   ''
