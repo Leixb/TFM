@@ -1,6 +1,7 @@
-\section{Implementation}
+\chapter{Implementation}
+\label{sec:implementation}
 
-\subsection{libsvm}
+\section{Extending \texttt{libsvm}}
 
 \emph{libsvm} is a C library developed by \textcite{CC01a} under BSD-3 license which implements the
 Support Vector Machine (SVM) algorithm. The library is the de facto standard for SVM implementations in
@@ -12,7 +13,7 @@ radial basis function (RBF) and sigmoid. Additionally, it can use precomputed ke
 by setting the kernel type to \texttt{PRECOMPUTED} and passing the kernel matrix as the
 training data.
 
-\subsubsection{Adding the kernels}
+\subsection{Adding the kernels}
 
 For our purposes, we want to extend the library by adding our own kernels. To do so, we
 need to modify the library source by adding the corresponding kernel functions. The kernel
@@ -20,7 +21,7 @@ type is specified through an \texttt{enum}, so we can add our own kernels to it 
 switch statements in the code to handle them. The modification is thus quite straightforward.
 % \cite{arquemartinezDissenyImplementacioEstudi2021}
 
-\subsubsection{Controlling the number of iterations}
+\subsection{Controlling the number of iterations}
 
 One metric which we wanted to measure was the number of iterations the SVM algorithm took
 and have the possibility to stop it early. To do so, \emph{libsvm} only provides a
@@ -30,7 +31,7 @@ and also report the number of iterations the algorithm took. This is accomplishe
 using a modified version of \emph{libsvm}. Since we are modifying the library as well,
 we added the same functionality.
 
-\subsection{Julia}
+\section{Julia}
 
 \emph{Julia} \cite{bezanson2017julia} is a high-level, high-performance dynamic programming language
 which is designed from the ground up to be fast, expressive, and easy to write. Its aim is to provide

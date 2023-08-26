@@ -1,6 +1,7 @@
-\section{Experiments}
+\chapter{Experiments}
+\label{sec:experiments}
 
-\subsection{Reproducing the results of \textcite{frenayParameterinsensitiveKernelExtreme2011}}
+\section{Reproducing the results of \texorpdfstring{\citeauthor{frenayParameterinsensitiveKernelExtreme2011}}{Frénay and Verleysen}}
 \label{sec:reproducing-frenay}
 
 % \begin{figure}[H]
@@ -20,7 +21,7 @@ best hyperparameters. This means that there are 100 training processes in total.
 	\label{fig:frenay-cross-test}
 \end{figure}
 
-\subsection{Hypothesis}
+\section{Hypothesis}
 
 % TODO: formalize all the hypothesis
 Our main hypothesis are:
@@ -33,15 +34,15 @@ Our main hypothesis are:
 \end{description}
 
 
-\subsection{Comparing the performance of the kernels with different datasets}
-\subsectionmark{Comparing the performance of the kernels}
+\section{Comparing the performance of the kernels with different datasets}%
+\sectionmark{Comparing performance}
 
 \begin{figure}
     \includegraphics{plots/MSE_frenay}
     \caption{MSE results on datasets from \cite{frenayParameterinsensitiveKernelExtreme2011}}
 \end{figure}
 
-\subsubsection{Resampling}
+\subsection{Resampling}
 
 Instead of using the double cross-test resampling used in \cref{sec:reproducing-frenay},
 we opted to use a 5\texttimes2 cross-validation resampling method as described by \textcite{dietterichApproximateStatisticalTests1998}.
@@ -54,7 +55,7 @@ requiring only 10 training processes instead of 100.
 
 % TODO: Add figure of the 5-2 cross-validation ?
 
-\subsubsection{Normalization}
+\subsection{Normalization}
 
 In order to be able to compare the results between different datasets, an effort
 was made to normalize the data and hyperparameters. To that end, the
@@ -88,7 +89,7 @@ normalized root mean square error (\emph{nRMSE}) as follows:
     nRMSE = \frac{RMSE}{\sigma_{obs}}
 \end{equation}
 
-\subsubsection{Parameter grid}
+\subsection{Parameter grid}
 
 For the parameter search, we tried all the combinations of values
 in the bounds show in \cref{tab:paramgrid} in a $\log 10$ scale with
