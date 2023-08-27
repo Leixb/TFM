@@ -21,18 +21,18 @@ experimental setup as reproducible as possible.
 \subsection{Dependency management}%
 \label{sub:dependency_management}
 
+\begin{wrapfigure}{r}{.40\textwidth}
+    \includegraphics[width=.95\linewidth]{dependency_tree_libsvm}
+    \caption{\emph{libsvm} runtime dependencies.}
+    \label{fig:dependency_tree_libsvm}
+\end{wrapfigure}
+
 To manage the dependencies of the project, we use \emph{nix} \cite{NixNixOSReproducible}, a purely
 functional package manager. \emph{Nix} allows us to keep a consistent environment across different
 machines and operating systems. It keeps track of \emph{all} the system dependencies of the project
 including all the libraries and tools (such as compilers, interpreters, etc.). For instance, with
 \emph{nix} we can visualize the runtime dependency tree of the \emph{libsvm} library as shown in
 \cref{fig:dependency_tree_libsvm}.
-
-\begin{wrapfigure}{r}{.40\textwidth}
-    \includegraphics[width=.95\linewidth]{dependency_tree_libsvm}
-    \caption{\emph{libsvm} dependencies.}
-    \label{fig:dependency_tree_libsvm}
-\end{wrapfigure}
 
 On the \emph{Julia} side, the dependencies are managed through \emph{Pkg} \cite{PkgJuliaLanguage}.
 All this complexity is hidden from the user through \emph{direnv} \cite{DirenvUnclutterYoura}, which
@@ -46,9 +46,9 @@ is a file \texttt{datasets.toml} which contains the URLs of the datasets and the
 this guarantees that other users will know if the dataset has been modified.
 
 \begin{listing}[htpb]
-    \inputminted[firstline=29,lastline=35]{toml}{../datasets.toml}
     \caption{Fragment of the \texttt{datasets.toml} file.}
     \label{lst:datasets_toml}
+    \inputminted[firstline=29,lastline=35]{toml}{../datasets.toml}
 \end{listing}
 
 \subsection{Build system}
@@ -174,6 +174,93 @@ $\exp\bigl(-\gamma(\|x_i\|^2 - 2x_i^Tx_j + \|x_j\|^2)\bigr)$, and by precomputin
 $\|x_i\|^2$ for all $x_i$ in the beginning, the number of operations is reduced from
 $3n$ to $2n$. This same optimization can be applied to our kernels.
 
+The first step, is to add the new kernel types to the \texttt{enum} in \texttt{svm.h} as
+shown in \cref{lst:svm_h_enum}.
+\begin{listing}[H]
+    \caption{Modified Enum definition from \texttt{svm.h}}
+    \label{lst:svm_h_enum}
+\begin{minted}{C}
+enum { LINEAR, POLY, RBF, SIGMOID, PRECOMPUTED, ASIN, ASIN_NORM, ACOS_0, ACOS_1, ACOS_2}; /* kernel_type */
+\end{minted}
+\end{listing}
+Then, we add the corresponding cases to the switch statements in \texttt{svm.cpp} for both
+\texttt{k\_function} and \texttt{kernel\_function} as shown in \cref{lst:kernel_function}.
+The prediction case (\texttt{k\_function}) is not shown for brevity, but it is similar
+to the training case. The only difference is the use of the precomputed dot
+product of $x_i$ with itself (\texttt{x\_square}),
+which is passed as a parameter to the kernel function (See \cref{lst:svm_cpp_k_function} in the appendix)
+
+In order to avoid code duplication and make the code more readable, we added the helper functions for
+the \texttt{asin} kernel shown in \cref{lst:svm_cpp_helper}.
+
+Another minor optimization for the \texttt{asin} kernel, instead of computing $\frac{1}{2\sigma_w^2}$ every time as
+shown in the original \cref{eq:kernel_asin}, we define
+$\gamma = \frac{1}{2\sigma_w^2}$ and pass it as a parameter to the kernel function.
+
+\begin{listing}
+    \caption{Helper functions for the asin kernel (\texttt{svm.cpp})}
+    \label{lst:svm_cpp_helper}
+\begin{minted}{C}
+// Passing x_square and y_square as parameters, we can avoid computing them again
+// every time we call the kernel function
+static inline double asin_elm(const svm_node *x, const svm_node *y, const double x_square, const double y_square, const double gamma) {
+    return asin((1.0 + dot(x, y))/sqrt( (gamma + 1.0 + x_square)* (gamma + 1.0 + y_square)) );
+};
+
+// Fallback method used in prediction
+static inline double asin_elm(const svm_node *x, const svm_node *y, const double gamma) {
+    return asin_elm(x, y, dot(x), dot(y), gamma);
+}
+
+// AsinELM with x=y, for faster computation, we don't need to compute the sqrt
+static inline double asin_elm_equal(const double x_square, const double gamma) {
+    const double x_square_plus_one = 1.0 + x_square;
+    return asin(x_square_plus_one/(gamma + x_square_plus_one));
+}
+\end{minted}
+\end{listing}
+
+\begin{listing}
+    \caption{Implementation of the kernels in \texttt{svm.cpp} for the training phase. Notice the use of
+        \texttt{x\_square} to avoid computing the dot product of $x$ with itself every time it is needed.
+    }
+    \label{lst:kernel_function}
+\begin{minted}{C}
+double kernel_asin(int i, int j) const
+{
+    return M_2_PI*asin_elm(x[i], x[j], x_square[i], x_square[j], gamma);
+}
+double kernel_asin_norm(int i, int j) const
+{
+    return asin_elm(x[i], x[j], x_square[i], x_square[j], gamma)/sqrt(
+        asin_elm_equal(x_square[i], gamma)*asin_elm_equal(x_square[j], gamma)
+    );
+}
+double kernel_acos_0(int i, int j) const
+{
+    return 1.0 - M_1_PI*acos(dot(x[i], x[j])/sqrt(x_square[i]*x_square[j]));
+}
+double kernel_acos_1(int i, int j) const
+{
+    const double x2y2 = x_square[i]*x_square[j];
+    const double xy = sqrt(x2y2);
+    const double cos_theta = dot(x[i], x[j])/xy;
+    const double theta = acos(cos_theta);
+    return M_1_PI*xy*(sin(theta) + (M_PI - theta)*cos_theta);
+}
+double kernel_acos_2(int i, int j) const
+{
+    const double x2y2 = x_square[i]*x_square[j];
+    const double sqrt_x2y2 = sqrt(x2y2);
+    const double dot_xy = dot(x[i], x[j]);
+    const double cos_theta = dot_xy/sqrt_x2y2;
+    const double cos2_theta = dot_xy*dot_xy/x2y2;
+    const double theta = acos(cos_theta);
+    return M_1_PI*x2y2*(3*sin(theta)*cos_theta + (M_PI - theta)*(1 + 2*cos2_theta));
+}
+\end{minted}
+\end{listing}
+
 \subsection{Controlling the number of iterations}
 
 One metric which we wanted to measure was the number of iterations the SVM algorithm took
@@ -223,22 +310,32 @@ package and provides the translation between Julia types and the C types used by
 
 The kernels can be added by extending the \texttt{Kernel} \texttt{enum} in Julia to reflect the
 \texttt{enum} in the C library.
+\begin{listing}[H]
 \begin{minted}{julia}
 module kernel
 @enum KERNEL Linear Polynomial RadialBasis Sigmoid Precomputed Asin AsinNorm Acos0 Acos1 Acos2
 end
 \end{minted}
+\caption{Julia \texttt{enum} definition for the kernels, equivalent to the C definition in \cref{lst:svm_h_enum}.}
+\label{lst:kernel_enum_julia}
+\end{listing}
+
+Technically, this is the only change needed to add the kernels to the library, since the
+\emph{C} library has the kernel functions implemented and selects them based on the kernel type enum.
 
 \subsubsection{Adding the number of iterations}
 
 The modification of the number of iterations is a little more involved and requires modifying the
 \texttt{SVMModel} and \texttt{SVMParameter} types to store the number of iterations as well
-as properly copying the values from the C pointer into Julia object.
+as properly copying the values from the C pointer into Julia object. In order to test that
+this was properly implemented, we added a test set to \emph{LIBSVM.jl}. The tests
+validate that the number of iterations copied from the C pointer is the same as the one
+returned by the \emph{libsvm} library and that \texttt{max\_iter} is respected.
 
 \subsubsection{libsvm 3.31}
 
 The version of \emph{libsvm} used by \emph{LIBSVM.jl} is 3.25. It has not been updated to the
-newest version 3.31 probably because it breaks the API by adding the option of
+newest version 3.31, since it breaks the API by adding the option of
 probability density estimation. Again, we worked around this by modifying the library to properly
 handle the new API (this change will be upstreamed to \emph{LIBSVM.jl}). % TODO: link to PR
 
@@ -289,6 +386,8 @@ The forked versions of the libraries discussed in this section can be found in t
 repositories:
 \begin{itemize}
     \item \url{https://github.com/LeixB/libsvm}
+    \item \url{https://github.com/Leixb/build\_tarballs\_libsvm\_jll}
+    \item \url{https://github.com/Leixb/libsvm\_jll.jl}
     \item \url{https://github.com/LeixB/LIBSVM.jl}
     \item \url{https://github.com/LeixB/MLJLIBSVMInterface.jl}
 \end{itemize}

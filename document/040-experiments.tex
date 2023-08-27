@@ -11,12 +11,6 @@ we describe the datasets used in the experiments.
 
 \subsection{Resampling}
 
-\subsection{Normalization}
-
-\subsection{Metrics}
-
-\subsection{Resampling}
-
 Instead of using the double cross-test resampling used in \cref{sec:reproducing-frenay},
 we opted to use a 5\texttimes2 cross-validation resampling method as described by \textcite{dietterichApproximateStatisticalTests1998}.
 
@@ -27,6 +21,14 @@ with a different random split. We choose this method since it is faster than the
 requiring only 10 training processes instead of 100.
 
 % TODO: Add figure of the 5-2 cross-validation ?
+
+\subsection{Metrics}
+
+For the metrics, we use the normalized root-mean-square error (\emph{nRMSE}), which is
+a normalized version of the root-mean-square error (\emph{RMSE}) defined as follows:
+\begin{equation}
+    RMSE = \sqrt{\frac{1}{n}\sum_{i=1}^n (y_i - \hat{y}_i)^2}
+\end{equation}
 
 \subsection{Normalization}
 

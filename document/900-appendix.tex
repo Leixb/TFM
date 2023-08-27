@@ -99,3 +99,88 @@ which is more commonly used in the neural networks' literature
 		}
 	}
 \end{equation}
+
+\section{Implementation details}
+
+The \texttt{dot} function is the dot product between two vectors. For
+the case of \mintinline{C}{dot(x,x)} we add a helper function \mintinline{C}{dot(x)} which computes
+the dot product of \texttt{x} with itself advancing the pointer only once\footnote{See \cref{lst:dot} in the appendix}.
+
+\begin{listing}
+    \caption{Relevant fragment of the kernel modifications for the prediction case (\texttt{svm.cpp})}
+    \label{lst:svm_cpp_k_function}
+    \begin{minted}{C}
+    double Kernel::k_function(const svm_node *x, const svm_node *y, const svm_parameter& param) {
+      switch(param.kernel_type) {
+        // ...
+        case PRECOMPUTED:  //x: test (validation), y: SV
+          return x[(int)(y->value)].value;
+        case ASIN:
+          return M_2_PI*asin_elm(x, y, param.gamma);
+        case ASIN_NORM:
+          return asin_elm(x, y, param.gamma)/sqrt(asin_elm_equal(dot(x), param.gamma)*asin_elm_equal(dot(y), param.gamma));
+        case ACOS_0:
+          return 1 - M_1_PI*acos(dot(x, y)/sqrt(dot(x)*dot(y)));
+        case ACOS_1:
+          {
+            const double x2y2 = dot(x)*dot(y);
+            const double xy = sqrt(x2y2);
+            const double cos_theta = dot(x, y)/xy;
+            const double theta = acos(cos_theta);
+            return M_1_PI*xy*(sin(theta) + (M_PI - theta)*cos_theta);
+          }
+        case ACOS_2:
+          {
+            const double x2y2 = dot(x)*dot(y);
+            const double sqrt_x2y2 = sqrt(x2y2);
+            const double dot_xy = dot(x, y);
+            const double cos_theta = dot_xy/sqrt_x2y2;
+            const double cos2_theta = dot_xy*dot_xy/x2y2;
+            const double theta = acos(cos_theta);
+            return M_1_PI*x2y2*(3*sin(theta)*cos_theta + (M_PI - theta)*(1 + 2*cos2_theta));
+          }
+        default:
+            return 0;  // Unreachable
+      }
+    }
+    \end{minted}
+\end{listing}
+
+\begin{listing}
+    \caption{Comparison of the \texttt{dot} implementation for the case of $x = y$ and $x \neq y$}
+    \label{lst:dot}
+\begin{minted}{C}
+double Kernel::dot(const svm_node *px, const svm_node *py)
+{
+	double sum = 0;
+	while(px->index != -1 && py->index != -1)
+	{
+		if(px->index == py->index)
+		{
+			sum += px->value * py->value;
+			++px;
+			++py;
+		}
+		else
+		{
+			if(px->index > py->index)
+				++py;
+			else
+				++px;
+		}
+	}
+	return sum;
+}
+
+double Kernel::dot(const svm_node *px)
+{
+	double sum = 0;
+	while(px->index != -1)
+	{
+		sum += px->value * px->value;
+		++px;
+	}
+	return sum;
+}
+\end{minted}
+\end{listing}
