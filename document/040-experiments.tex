@@ -2,14 +2,12 @@
 \label{sec:experiments}
 
 Once the kernels are implemented, we can proceed to design and run the experiments using them.
-We will follow the objectives and hypotheses stated in \cref{sec:objectives_and_hypotheses}. First
-we outline the resampling strategy used in \cref{sec:resampling}, in \cref{sec:metrics} we
-describe the metrics used to evaluate the performance of the kernels and in \cref{sec:datasets}
-we describe the datasets used in the experiments.
+We will follow the objectives and hypotheses stated in \cref{sec:objectives_and_hypotheses}.
 
 \section{Common experimental setup}
 
 \subsection{Resampling}
+\label{sec:resampling}
 
 Instead of using the double cross-test resampling used in \cref{sec:reproducing-frenay},
 we opted to use a 5\texttimes2 cross-validation resampling method as described by \textcite{dietterichApproximateStatisticalTests1998}.
@@ -23,6 +21,7 @@ requiring only 10 training processes instead of 100.
 % TODO: Add figure of the 5-2 cross-validation ?
 
 \subsection{Metrics}
+\label{sec:metrics}
 
 For the metrics, we use the normalized root-mean-square error (\emph{nRMSE}), which is
 a normalized version of the root-mean-square error (\emph{RMSE}) defined as follows:

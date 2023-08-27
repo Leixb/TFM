@@ -197,7 +197,7 @@ Another minor optimization for the \texttt{asin} kernel, instead of computing $\
 shown in the original \cref{eq:kernel_asin}, we define
 $\gamma = \frac{1}{2\sigma_w^2}$ and pass it as a parameter to the kernel function.
 
-\begin{listing}
+\begin{listing}[H]
     \caption{Helper functions for the asin kernel (\texttt{svm.cpp})}
     \label{lst:svm_cpp_helper}
 \begin{minted}{C}
@@ -221,8 +221,8 @@ static inline double asin_elm_equal(const double x_square, const double gamma) {
 \end{listing}
 
 \begin{listing}
-    \caption{Implementation of the kernels in \texttt{svm.cpp} for the training phase. Notice the use of
-        \texttt{x\_square} to avoid computing the dot product of $x$ with itself every time it is needed.
+    \caption{Implementation of the kernels in \texttt{svm.cpp} for the training phase. \\[0.5em]
+        (Notice the use of \texttt{x\_square} to avoid computing the dot product of $x$ with itself every time)
     }
     \label{lst:kernel_function}
 \begin{minted}{C}
@@ -277,6 +277,13 @@ we added the same functionality to our modified version
 \section{Julia}%
 \label{sub:impl_julia}
 
+\begin{wrapfigure}{r}{.40\textwidth}
+    \includegraphics[width=.95\linewidth]{julia-logo-color}
+    \caption{Julia logo.\protect\footnotemark}
+    \label{fig:julia_logo}
+\end{wrapfigure}
+\footnotetext{Official Julia logo by Stefan Karpinski, licensed under \href{https://creativecommons.org/licenses/by-sa/4.0/}{CC BY-SA 4.0}.}
+
 \emph{Julia} \cite{bezanson2017julia} is a high-level, high-performance dynamic programming language
 which is designed from the ground up to be fast, expressive, and easy to write. Its aim is to provide
 the ease of use of a scripting language such as Python while being as fast as a compiled language
@@ -287,7 +294,12 @@ for example, \emph{libsvm} is provided by the \emph{libsvm\_jll} package \cite{L
 This makes it very easy to change the \emph{libsvm} library used by a package by simply changing
 the dependency to our modified \emph{libsvm\_jll} package.
 
-For this reasons, and the fact that there is a large and growing number of machine learning
+The latest stable version at the time of writing (1.9.x) introduced a major improvement on the
+time to first execution, which historically has been one of the main drawbacks of the language.
+In previous versions, every new session had to pre-compile all the libraries as they were loaded,
+which often could take minutes. Now, this is cached between sessions\cite{JuliaV1Release}.
+
+For the above reasons, along with the fact that there is a large and growing number of machine learning
 packages in Julia, we decided to interface our modified \emph{libsvm} library with Julia.
 
 \subsection{libsvm\_jll}
