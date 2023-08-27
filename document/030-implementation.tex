@@ -1,7 +1,98 @@
 \chapter{Implementation}
 \label{sec:implementation}
 
-\section{Extending \texttt{libsvm}}
+This chapter describes the implementation of the kernels in \emph{C} (\cref{sub:impl_c}) and the wrappers
+used to interface with them from \emph{Julia} (\cref{sub:impl_julia}). Additionally, \cref{sec:reproducibility}
+describes how the code and experiments are managed and how to reproduce the results.
+
+\section{Reproducibility}
+\label{sec:reproducibility}
+
+Before tackling the implementation of the kernels, it is important to discuss how the
+code and its dependencies are managed to ensure reproducibility. This is addressed in
+this section, where we describe the decisions taken to maximize reproducibility.
+
+One of the main problems in machine learning research (and research in general) is the lack of
+reproducibility of the results. There are a lot of factors that contribute to this, such as
+the lack of documentation, the lack of code availability, the lack of standardization of
+the experimental setup, etc. In this work, one of the main objectives is to make the
+experimental setup as reproducible as possible.
+
+\subsection{Dependency management}%
+\label{sub:dependency_management}
+
+To manage the dependencies of the project, we use \emph{nix} \cite{NixNixOSReproducible}, a purely
+functional package manager. \emph{Nix} allows us to keep a consistent environment across different
+machines and operating systems. It keeps track of \emph{all} the system dependencies of the project
+including all the libraries and tools (such as compilers, interpreters, etc.).
+On the \emph{Julia} side, the dependencies are managed through \emph{Pkg} \cite{PkgJuliaLanguage}.
+All this complexity is hidden from the user through \emph{direnv} \cite{DirenvUnclutterYoura}, which
+automatically loads the environment when entering the project directory.
+
+In summary, to reproduce the exact environment in which the experiments were run, the user only
+needs to install \emph{nix} and \emph{direnv} and run \texttt{direnv allow} in the project directory.
+
+All the datasets used are publicly available and are downloaded automatically by \emph{nix}. There
+is a file \texttt{datasets.toml} which contains the URLs of the datasets and their checksums, this
+guarantees that other users will know if the dataset has been modified.
+
+\subsection{Build system}
+
+To build the project, we use \emph{Nix} as well. The \emph{Nix} build system is a declarative
+build system which allows us to specify the exact build steps and dependencies of the project. Since
+the build steps are sandboxed with no access to the system or the network, the build is guaranteed
+to be reproducible as long as the process is deterministic (see \cref{sub:deterministic}).
+
+\subsubsection{Determinism}
+\label{sub:deterministic}
+
+A deterministic build is a build that produces the same result given the same inputs. There are
+many factors that can affect the result of a build, such as the time of the build, the use of random
+numbers, race conditions, network access, etc.
+
+To mitigate these factors, where possible, we use a fixed seed for the random number generator in
+\emph{Julia} and set the \texttt{SOURCE\_DATE\_EPOCH} environment variable to a fixed date. The only
+factor that we do not control is the execution order of different processes when running in parallel.
+However, the multiple processes do not interact with each other in our case, so this should not
+affect the result.
+
+\subsection{Version control}
+
+All versions of the code are stored in a \emph{git} repository hosted on GitHub. % TODO: link to repo
+Additionally, all executions of experiments that generate data, store the commit hash of the
+repository in which the code was run. This allows us to trace back the exact version of the code
+used to generate the data. This is handled through the \texttt{DrWatson.jl} package \cite{datserisDrWatsonPerfectSidekick2020a}.
+
+\subsection{Storing the results}
+
+The \emph{DrWatson.jl} package also provides a mechanism to store the results of the experiments, in
+which the results are serialized and stored in a \emph{JLD2} file (a julia-specific version of the \emph{HDF5} format).
+Additionally, it stores several metadata fields such as the commit hash, the parameters used and other
+information such as the computed performance metric or any other relevant information we may need.
+The filename for each result saved is generated from the relevant parameters, which
+allows checking whether a certain parameter configuration has already been computed and load it instead of recomputing it.
+
+These \emph{JLD2} files contain the whole state of the trained machine models, which is useful to be able
+to load the models and inspect them later. However, this also means that the files are quite large (several
+hundred megabytes). For most analysis we are only interested in the performance metric of the model, so
+along with the \emph{JLD2} files, we also store a \emph{CSV} file with the relevant information for each
+model. This allows us to quickly load the results and perform analysis on them and if needed, we can load
+the full model from the \emph{JLD2} file.
+
+\subsection{Running the experiments}
+
+All the relevant code to the experiments is contained in the \texttt{src} directory and scripts
+that run the experiments are in the \texttt{scripts} directory and named after their corresponding
+experiment. To run an experiment, we can simply call the corresponding \emph{Julia} script:
+\mintinline{bash}{julia scripts/experiment_1.jl}. The dependencies can be installed automatically
+using \emph{Nix} and \emph{direnv} as described in \cref{sub:dependency_management}, with
+\mintinline{bash}{direnv allow} or \mintinline{bash}{nix develop}.
+
+Additionally, the \mintinline{bash}{nix build} command can be used to build the document
+and a tarball with the datasets.
+
+\section{Extending \texttt{libsvm}}%
+\label{sub:impl_c}
 
 \emph{libsvm} is a C library developed by \textcite{CC01a} under BSD-3 license which implements the
 Support Vector Machine (SVM) algorithm. The library is the de facto standard for SVM implementations in
@@ -31,7 +122,8 @@ and also report the number of iterations the algorithm took. This is accomplishe
 using a modified version of \emph{libsvm}. Since we are modifying the library as well,
 we added the same functionality.
 
-\section{Julia}
+\section{Julia}%
+\label{sub:impl_julia}
 
 \emph{Julia} \cite{bezanson2017julia} is a high-level, high-performance dynamic programming language
 which is designed from the ground up to be fast, expressive, and easy to write. Its aim is to provide
@@ -127,6 +219,14 @@ libraries interface with each other.
 \caption{Dependency graph of Julia packages exposing the libsvm library API.}
 \label{fig:julia_libsvm_deps}
 \end{figure}
+
+The forked versions of the libraries discussed in this section can be found in the following
+repositories:
+\begin{itemize}
+    \item \url{https://github.com/LeixB/libsvm}
+    \item \url{https://github.com/LeixB/LIBSVM.jl}
+    \item \url{https://github.com/LeixB/MLJLIBSVMInterface.jl}
+\end{itemize}
 
 % \subsection{Memoization}
 % TODO: Check if memoization if worth it or if we can do it manually in a more

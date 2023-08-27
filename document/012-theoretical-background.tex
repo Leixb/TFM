@@ -321,6 +321,8 @@ K_{\Sigma,\,n}(\x,\,\y) = K_{n}\left(\Sigma^{\frac{1}{2}}\x,\,\Sigma^{\frac{1}{2
 \end{equation}
 
 \section{Kernel normalization}%
+% TODO: why is this usefull? the original kernel seems to work fine in practice
+% and a priori seems already normalized?
 
 \Textcite{frenayParameterinsensitiveKernelExtreme2011} do not use the expression
 of the arc-sine kernel from \cref{eq:kernel_asin} directly. Instead, they use
@@ -328,30 +330,4 @@ the normalized version. The normalization of a kernel is defined as follows:
 \begin{equation}\label{eq:kernel_normalization}
     K'(\x,\,\y) = \frac{K(\x,\,\y)}{\sqrt{K(\x,\,\x)K(\y,\,\y)}}
 \end{equation}
-
-\section{Kernel summary}
-\label{sec:kernels}
-
-\Cref{tab:kernels_summary} gives an overview of the infinite neural network
-kernels with known analytical expressions in the literature which will be
-used in this thesis.
-
-\begin{table}[H]
-    \caption{Summary of kernels used in this thesis}
-    \label{tab:kernels_summary}
-    \begin{tabular}{lcccc}
-        \toprule
-        \textbf{Kernel} & \textbf{Distribution} & \textbf{Activation function} & \textbf{Reference} & \textbf{Equation} \\
-        \midrule
-        Arc-sine         & \textit{Gaussian} & \textit{erf}       & \cite{williamsComputationInfiniteNeural1998,frenayParameterinsensitiveKernelExtreme2011} & \ref{eq:kernel_asin} \\
-        \addlinespace
-        Arc-cosine $n=0$ & \textit{Gaussian} & \textit{heavyside} & \cite{choLargemarginClassificationInfinite2010,pandeyGoDeepWide2014}                     & \ref{eq:kernel_cho_n0}  \\
-        Arc-cosine $n=1$ & \textit{Gaussian} & \textit{ReLu}      & \cite{choLargemarginClassificationInfinite2010,pandeyGoDeepWide2014}                     & \ref{eq:kernel_cho_n1}  \\
-        Arc-cosine $n=2$ & \textit{Gaussian} & \textit{RePu}      & \cite{choLargemarginClassificationInfinite2010,pandeyGoDeepWide2014}                     & \ref{eq:kernel_cho_n2}  \\
-        \bottomrule
-    \end{tabular}
-\end{table}
-
-% TODO: why is this usefull? the original kernel seems to work fine in practice
-% and a priori seems already normalized?
 

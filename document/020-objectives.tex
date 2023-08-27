@@ -1,0 +1,81 @@
+\chapter{Objectives and Hypotheses}
+\label{sec:objectives_and_hypotheses}
+
+% \section{Kernel summary}
+% \label{sec:kernels}
+
+\begin{table}[H]
+    \caption{Summary of infinite neural network kernels with analytical expressions found in the literature.}
+    \label{tab:kernels_summary}
+    \begin{tabular}{lcccc}
+        \toprule
+        \textbf{Kernel} & \textbf{Distribution} & \textbf{Activation function} & \textbf{Reference} & \textbf{Equation} \\
+        \midrule
+        Arc-sine         & \textit{Gaussian} & \textit{erf}       & \cite{williamsComputationInfiniteNeural1998,frenayParameterinsensitiveKernelExtreme2011} & \ref{eq:kernel_asin} \\
+        \addlinespace
+        Arc-cosine $n=0$ & \textit{Gaussian} & \textit{heavyside} & \cite{choLargemarginClassificationInfinite2010,pandeyGoDeepWide2014}                     & \ref{eq:kernel_cho_n0}  \\
+        Arc-cosine $n=1$ & \textit{Gaussian} & \textit{ReLu}      & \cite{choLargemarginClassificationInfinite2010,pandeyGoDeepWide2014}                     & \ref{eq:kernel_cho_n1}  \\
+        Arc-cosine $n=2$ & \textit{Gaussian} & \textit{RePu}      & \cite{choLargemarginClassificationInfinite2010,pandeyGoDeepWide2014}                     & \ref{eq:kernel_cho_n2}  \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+
+\Cref{tab:kernels_summary} gives an overview of the infinite neural network
+kernels with known analytical expressions in the literature which will be
+used in this thesis.
+We have 4 kernels in total, all of them derived from infinite neural networks
+with Gaussian priors but with different activation functions. All of them have a
+single hyperparameter, $\sigma_w$, which is the standard deviation of the
+Gaussian prior. Additionally, we can compare the \emph{normalized} and
+\emph{non-normalized} versions of the kernels. This gives a potential total of
+8 kernels to compare.
+
+\section{Objectives}
+We can state the following objectives for the thesis:
+\begin{description}
+    \item[O1] Reproduce the results obtained by \textcite{frenayParameterinsensitiveKernelExtreme2011}.
+    \item[O2] Compare the performance of the kernels with different datasets and hyperparameters.
+    \item[O3] Apply meta-learning to find the best kernel and hyperparameters for a given dataset.
+    \item[O4] Keep the computational cost of the experiments low in order to be able to run them in a reasonable amount of time.
+        \begin{itemize}
+            \item The experiments should be able to run on a laptop.
+            \item The experiments should be able to run in a reasonable amount of time (less than a day).
+        \end{itemize}
+    \item[O5] Make the experiments reproducible and the code available to the public. % TODO: add link to code, and Zenodo
+        \begin{itemize}
+            \item The code should be well documented.
+            \item The code should be easy to use.
+            \item All dependencies should be documented.
+        \end{itemize}
+\end{description}
+
+The first are related to the results of our experiments and the last two are
+constraints on how the experiments should be performed in order to ensure that
+they are both reproducible and computationally feasible.
+
+\section{Hypotheses}
+
+% TODO: formalize all the hypothesis
+We formulate the following hypotheses regrading the behaviour of the kernels
+and their hyperparameters.
+These hypotheses are based on the results obtained by \textcite{frenayParameterinsensitiveKernelExtreme2011}:
+
+\begin{hypothesis}\label{hyp:threshold}
+    Kernels originating from infinite neural networks will
+    exhibit the same behaviour described by \textcite{frenayParameterinsensitiveKernelExtreme2011};
+    where there is a threshold value of their hyperparameter past which
+    the kernel prediction capability does not improve.
+\end{hypothesis}
+
+\begin{hypothesis}
+    The value of the hyper-parameter at the threshold described in \ref{hyp:threshold}, will
+    be the optimal (or close to optimal) value for the kernel.
+\end{hypothesis}
+
+\begin{hypothesis}
+    Infinite neural network kernels are able to generalize to other datasets and obtain
+    results comparable to the \emph{state-of-the-art}.
+\end{hypothesis}
+
+The aim is to design experiments that will allow us to test these hypotheses.

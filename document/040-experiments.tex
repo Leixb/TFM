@@ -1,16 +1,19 @@
 \chapter{Experiments}
 \label{sec:experiments}
 
+Once the kernels are implemented, we can proceed to design and run the experiments using them.
+Recall \cref{sec:objectives_and_hypotheses} where we stated the objectives and hypotheses from
+which we will derive the experiments.
+
 \section{Reproducing the results of \texorpdfstring{\citeauthor{frenayParameterinsensitiveKernelExtreme2011}}{Frénay and Verleysen}}
 \label{sec:reproducing-frenay}
 
-% \begin{figure}[H]
-% 	\includegraphics{frenay-cross-test}
-% 	\caption{Illustration of the cross-test method from \cite{frenayParameterinsensitiveKernelExtreme2011}}
-% 	\label{fig:frenay-cross-test}
-% \end{figure}
+The first objective is to reproduce the results obtained by \textcite{frenayParameterinsensitiveKernelExtreme2011},
+which will help validate our implementation of the arc sine kernel, ensure that our experimental setup is
+correct and to have a baseline to compare our results with. This also serves as a peer review
+of their results.
 
-In the paper, \textcite{frenayParameterinsensitiveKernelExtreme2011} use a double cross-test resampling
+In the paper, \citeauthor{frenayParameterinsensitiveKernelExtreme2011} use a double cross-test resampling
 method which is illustrated in \cref{fig:frenay-cross-test}. First, they perform a 10-fold cross validation,
 where the 9 folds of the training set are then used on a second 10-fold cross validation to determine the
 best hyperparameters. This means that there are 100 training processes in total.
@@ -20,19 +23,6 @@ best hyperparameters. This means that there are 100 training processes in total.
 	\caption{Illustration of the cross-test method from \cite{frenayParameterinsensitiveKernelExtreme2011}}
 	\label{fig:frenay-cross-test}
 \end{figure}
-
-\section{Hypothesis}
-
-% TODO: formalize all the hypothesis
-Our main hypothesis are:
-
-\begin{description}
-    \item[Shared behaviour] All kernels originating from limits towards infinity,
-        have exhibit the same behaviour described by \textcite{frenayParameterinsensitiveKernelExtreme2011}.
-        Where increasing the $\sigma$ hyperparameter past a certain point
-        does not affect the kernel prediction capability.
-\end{description}
-
 
 \section{Comparing the performance of the kernels with different datasets}%
 \sectionmark{Comparing performance}

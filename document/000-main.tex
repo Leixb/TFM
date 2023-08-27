@@ -36,6 +36,18 @@
 % \numberwithin{figure}{section}
 % \numberwithin{table}{section}
 
+
+\newcounter{hypocounter}
+\renewcommand\thehypocounter{(H\arabic{hypocounter})} % this produces '(H1)'
+                                                      % when referencing
+\setcounter{hypocounter}{0}
+
+\newenvironment{hypothesis}{
+\refstepcounter{hypocounter}
+\begin{center}
+\begin{tabular}{m{0.75\linewidth}c} % adjust '0.75' to preferred width
+}{&\thehypocounter\end{tabular}\end{center}}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % METADATA
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -106,6 +118,7 @@
 
 \include{010-intro}
 \include{012-theoretical-background}
+\include{020-objectives}
 \include{030-implementation}
 \include{040-experiments}
 \include{050-analysis}
