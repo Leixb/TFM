@@ -24,6 +24,8 @@ runCommand filename
 
     export HOME=$(mktemp -d)
     lndir -silent "$src" build
+    ln -s ${../datasets.toml} datasets.toml
+
     cd build
 
     latexmk
