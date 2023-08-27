@@ -15,7 +15,7 @@ this section, where we describe the decisions taken to maximize reproducibility.
 One of the main problems in machine learning research (and research in general) is the lack of
 reproducibility of the results. There are a lot of factors that contribute to this, such as
 the lack of documentation, the lack of code availability, the lack of standardization of
-the experimental setup, etc. In this work, one of the main objectives is to make the
+the experimental setup, etc. \cite{alstonBeginnerGuideConducting2021}. In this work, one of the main objectives is to make the
 experimental setup as reproducible as possible.
 
 \subsection{Dependency management}%
@@ -24,7 +24,16 @@ experimental setup as reproducible as possible.
 To manage the dependencies of the project, we use \emph{nix} \cite{NixNixOSReproducible}, a purely
 functional package manager. \emph{Nix} allows us to keep a consistent environment across different
 machines and operating systems. It keeps track of \emph{all} the system dependencies of the project
-including all the libraries and tools (such as compilers, interpreters, etc.).
+including all the libraries and tools (such as compilers, interpreters, etc.). For instance, with
+\emph{nix} we can visualize the runtime dependency tree of the \emph{libsvm} library as shown in
+\cref{fig:dependency_tree_libsvm}.
+
+\begin{wrapfigure}{r}{.40\textwidth}
+    \includegraphics[width=.95\linewidth]{dependency_tree_libsvm}
+    \caption{\emph{libsvm} dependencies.}
+    \label{fig:dependency_tree_libsvm}
+\end{wrapfigure}
+
 On the \emph{Julia} side, the dependencies are managed through \emph{Pkg} \cite{PkgJuliaLanguage}.
 All this complexity is hidden from the user through \emph{direnv} \cite{DirenvUnclutterYoura}, which
 automatically loads the environment when entering the project directory.
@@ -33,8 +42,14 @@ In summary, to reproduce the exact environment in which the experiments were run
 needs to install \emph{nix} and \emph{direnv} and run \texttt{direnv allow} in the project directory.
 
 All the datasets used are publicly available and are downloaded automatically by \emph{nix}. There
-is a file \texttt{datasets.toml} which contains the URLs of the datasets and their checksums, this
-guarantees that other users will know if the dataset has been modified.
+is a file \texttt{datasets.toml} which contains the URLs of the datasets and their checksums\footnote{The checksum uses \url{https://www.mankier.com/1/nix-hash}},
+this guarantees that other users will know if the dataset has been modified.
+
+\begin{listing}[htpb]
+    \inputminted[firstline=29,lastline=35]{toml}{../datasets.toml}
+    \caption{Fragment of the \texttt{datasets.toml} file.}
+    \label{lst:datasets_toml}
+\end{listing}
 
 \subsection{Build system}
 
@@ -76,8 +91,44 @@ These \emph{JLD2} files contain the whole state of the trained machine models, w
 to load the models and inspect them later. However, this also means that the files are quite large (several
 hundred megabytes). For most analysis we are only interested in the performance metric of the model, so
 along with the \emph{JLD2} files, we also store a \emph{CSV} file with the relevant information for each
-model. This allows us to quickly load the results and perform analysis on them and if needed, we can load
+model. This allows us to quickly load the results and perform analysis on them and, if necessary, we can load
 the full model from the \emph{JLD2} file.
+This workflow is illustrated in \cref{fig:experiment_flowchart}.
+
+\begin{figure}[H]
+    \begin{tikzpicture}
+        % card with bullet points
+        \node[draw, rectangle, minimum width=5cm, minimum height=3cm] (card) at (0,0) {};
+        \node[anchor=north west] at (card.north west) {\textbf{Experiment\_1}};
+        \node[anchor=north west] at ($(card.north west)+(0.2,-0.5)$) {- \texttt{sigma} = 0.1};
+        \node[anchor=north west] at ($(card.north west)+(0.2,-1)$) {- \texttt{epsilon} = 0.5};
+        \node[anchor=north west] at ($(card.north west)+(0.2,-1.5)$) {- \texttt{kernel} = \texttt{ArcSin}};
+        \node[anchor=north west] at ($(card.north west)+(0.2,-2)$) {- \texttt{dataset} = \texttt{Triazines}};
+        \node[anchor=north west] at ($(card.north west)+(0.4,-2.5)$) {\dots};
+
+        \node (name) [below=of card] {\texttt{ex1\_sigma=0.1\_epsilon=0.5}\dots\texttt{.jld2}};
+        \draw[-] (card) -- (name) node[midway, anchor=west] { filename};
+
+        % if file exists, else
+
+        \node[draw, diamond] (if) [below=of name] {Exists?};
+        \draw[->] (name) -- (if);
+        \node[draw, rectangle, rounded corners] (load) [left =of if] {Load};
+        \node[draw, rectangle, rounded corners] (run) [right=of if] {Run};
+        \draw[->] (if) -- (load) node[midway, anchor=south] {yes};
+        \draw[->] (if) -- (run) node[midway, anchor=south ] {no};
+
+        \coordinate [right=of name] (nameright) {};
+        \node (csv) [right=of nameright] {\texttt{ex1\_results.csv}};
+
+        \draw[-] (run.east) -| (nameright) node[midway, anchor=south west] {save};
+        \draw[->] (nameright) |- (name);
+
+        \draw[->] (run.east) -| (csv.south) node[midway, anchor=south west] {append};
+    \end{tikzpicture}
+    \caption{Flowchart of the experiment execution and results storage.}
+    \label{fig:experiment_flowchart}
+\end{figure}
 
 \subsection{Running the experiments}
 
@@ -110,17 +161,31 @@ For our purposes, we want to extend the library by adding our own kernels. To do
 need to modify the library source by adding the corresponding kernel functions. The kernel
 type is specified through an \texttt{enum}, so we can add our own kernels to it and extend the
 switch statements in the code to handle them. The modification is thus quite straightforward.
-% \cite{arquemartinezDissenyImplementacioEstudi2021}
+\cite{arquemartinezDissenyImplementacioEstudi2021}
+
+From there, we have to implement the kernel functions themselves. Surprisingly at first,
+the kernel functions are duplicated in the code for each kernel type:
+\texttt{k\_function} and \texttt{kernel\_function}. The former is used for the training
+phase and the latter for the prediction phase. This is explained in the \emph{libsvm}'s
+FAQ \cite{LIBSVMFAQ}:
+
+For the RBF kernel, Instead of doing $\exp\left(-\gamma\|x_i - x_j\|^2\right)$, it computes
+$\exp\bigl(-\gamma(\|x_i\|^2 - 2x_i^Tx_j + \|x_j\|^2)\bigr)$, and by precomputing
+$\|x_i\|^2$ for all $x_i$ in the beginning, the number of operations is reduced from
+$3n$ to $2n$. This same optimization can be applied to our kernels.
 
 \subsection{Controlling the number of iterations}
 
 One metric which we wanted to measure was the number of iterations the SVM algorithm took
 and have the possibility to stop it early. To do so, \emph{libsvm} only provides a
 \texttt{tolerance} parameter for the stopping criterion. However, in \emph{sklearn}
-they provide a \texttt{max\_iter} parameter which is the maximum number of iterations
-and also report the number of iterations the algorithm took. This is accomplished by 
+they provide a \texttt{max\_iter} parameter\footnote{\url{https://github.com/scikit-learn/scikit-learn/pull/1184}}
+which is the maximum number of iterations
+and also report the number of iterations the algorithm took
+\footnote{\url{https://github.com/scikit-learn/scikit-learn/pull/21408}}.
+This is accomplished by
 using a modified version of \emph{libsvm}. Since we are modifying the library as well,
-we added the same functionality.
+we added the same functionality to our modified version
 
 \section{Julia}%
 \label{sub:impl_julia}

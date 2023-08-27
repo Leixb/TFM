@@ -2,35 +2,18 @@
 \label{sec:experiments}
 
 Once the kernels are implemented, we can proceed to design and run the experiments using them.
-Recall \cref{sec:objectives_and_hypotheses} where we stated the objectives and hypotheses from
-which we will derive the experiments.
+We will follow the objectives and hypotheses stated in \cref{sec:objectives_and_hypotheses}. First
+we outline the resampling strategy used in \cref{sec:resampling}, in \cref{sec:metrics} we
+describe the metrics used to evaluate the performance of the kernels and in \cref{sec:datasets}
+we describe the datasets used in the experiments.
 
-\section{Reproducing the results of \texorpdfstring{\citeauthor{frenayParameterinsensitiveKernelExtreme2011}}{Frénay and Verleysen}}
-\label{sec:reproducing-frenay}
+\section{Common experimental setup}
 
-The first objective is to reproduce the results obtained by \textcite{frenayParameterinsensitiveKernelExtreme2011},
-which will help validate our implementation of the arc sine kernel, ensure that our experimental setup is
-correct and to have a baseline to compare our results with. This also serves as a peer review
-of their results.
+\subsection{Resampling}
 
-In the paper, \citeauthor{frenayParameterinsensitiveKernelExtreme2011} use a double cross-test resampling
-method which is illustrated in \cref{fig:frenay-cross-test}. First, they perform a 10-fold cross validation,
-where the 9 folds of the training set are then used on a second 10-fold cross validation to determine the
-best hyperparameters. This means that there are 100 training processes in total.
+\subsection{Normalization}
 
-\begin{figure}[H]
-    \input{figures/frenay-cross-test.tikz}
-	\caption{Illustration of the cross-test method from \cite{frenayParameterinsensitiveKernelExtreme2011}}
-	\label{fig:frenay-cross-test}
-\end{figure}
-
-\section{Comparing the performance of the kernels with different datasets}%
-\sectionmark{Comparing performance}
-
-\begin{figure}
-    \includegraphics{plots/MSE_frenay}
-    \caption{MSE results on datasets from \cite{frenayParameterinsensitiveKernelExtreme2011}}
-\end{figure}
+\subsection{Metrics}
 
 \subsection{Resampling}
 
@@ -100,6 +83,34 @@ were $10^{-3},\,10^{-2},\,\dots,\,10^{3}$
         \bottomrule
     \end{tabular}
 \end{table}
+
+\section{Reproducing the results of \texorpdfstring{\citeauthor{frenayParameterinsensitiveKernelExtreme2011}}{Frénay and Verleysen}}
+\label{sec:reproducing-frenay}
+
+The first objective is to reproduce the results obtained by \textcite{frenayParameterinsensitiveKernelExtreme2011},
+which will help validate our implementation of the arc sine kernel, ensure that our experimental setup is
+correct and to have a baseline to compare our results with. This also serves as a peer review
+of their results.
+
+In the paper, \citeauthor{frenayParameterinsensitiveKernelExtreme2011} use a double cross-test resampling
+method which is illustrated in \cref{fig:frenay-cross-test}. First, they perform a 10-fold cross validation,
+where the 9 folds of the training set are then used on a second 10-fold cross validation to determine the
+best hyperparameters. This means that there are 100 training processes in total.
+
+\begin{figure}[H]
+    \input{figures/frenay-cross-test.tikz}
+	\caption{Illustration of the cross-test method from \cite{frenayParameterinsensitiveKernelExtreme2011}}
+	\label{fig:frenay-cross-test}
+\end{figure}
+
+\section{Comparing the performance of the kernels with different datasets}%
+\sectionmark{Comparing performance}
+
+\begin{figure}
+    \includegraphics{plots/MSE_frenay}
+    \caption{MSE results on datasets from \cite{frenayParameterinsensitiveKernelExtreme2011}}
+\end{figure}
+
 
 % NOTE: this is without scaling sigma
 \begin{figure}
