@@ -4,7 +4,7 @@
 , linkFarm
 }:
 let
-  datasets = builtins.fromTOML (builtins.readFile ./datasets.toml);
+  datasets = builtins.fromTOML (builtins.readFile ../datasets.toml);
   drvList = lib.mapAttrsToList
     (name: data:
       {

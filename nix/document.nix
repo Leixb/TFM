@@ -10,7 +10,7 @@
 runCommand filename
 {
   SOURCE_DATE_EPOCH = 1685620800; # 2023-06-01
-  src = ./.;
+  src = ../document;
   nativeBuildInputs = [
     texlive.combined.scheme-full
     python3.pkgs.pygments

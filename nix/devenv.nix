@@ -4,8 +4,8 @@ let
   pyenv = inputs.poetry2nix.legacyPackages.${pkgs.system}.mkPoetryEnv {
     projectDir = "";
     preferWheels = true;
-    pyproject = ./pyproject.toml;
-    poetrylock = ./poetry.lock;
+    pyproject = ../pyproject.toml;
+    poetrylock = ../poetry.lock;
     python = pkgs.python3;
   };
 in
@@ -83,7 +83,7 @@ in
       package = pkgs.rWrapper.override {
         packages = lib.attrVals
           (lib.filter (p: p != "")
-            (lib.splitString "\n" (builtins.readFile ./dependencies.txt))
+            (lib.splitString "\n" (builtins.readFile ../dependencies.txt))
           )
           pkgs.rPackages;
       };

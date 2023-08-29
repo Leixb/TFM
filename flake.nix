@@ -38,7 +38,7 @@
         pkgs = import nixpkgs { inherit system; };
         devenvShell = devenv.lib.mkShell {
           inherit inputs pkgs;
-          modules = [ (import ./devenv.nix) ];
+          modules = [ (import ./nix/devenv.nix) ];
         };
 
       in
@@ -46,9 +46,10 @@
         devShells.default = devenvShell;
         packages =
           let
-            datasets = pkgs.callPackage ./datasets.nix { };
+            datasets = pkgs.callPackage ./nix/datasets.nix { };
 
-            document = pkgs.callPackage ./document/document.nix { };
+            document = pkgs.callPackage ./nix/document.nix { };
+            document-split = pkgs.callPackage ./nix/split_appendix.nix { inherit document; };
 
             datasets-tarball = pkgs.runCommand "datasets.tar.gz" { } ''
               tar -hczf $out -C ${datasets} .
@@ -56,11 +57,11 @@
           in
           inputs.libsvm.packages.${system} // {
             inherit (devenvShell) ci;
-            inherit datasets datasets-tarball document;
+            inherit datasets datasets-tarball document document-split;
 
             default = pkgs.linkFarmFromDrvs "document_and_datasets" [
               datasets-tarball
-              document
+              document-split
             ];
           };
       }
