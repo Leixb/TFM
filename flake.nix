@@ -52,17 +52,21 @@
             document-split = pkgs.callPackage ./nix/split_appendix.nix { inherit document; };
 
             datasets-tarball = pkgs.runCommand "datasets.tar.gz" { } ''
-              tar -hczf $out -C ${datasets} .
+              mkdir -p $out
+              tar -hczf $out/datasets.tar.gz -C ${datasets} .
             '';
           in
           inputs.libsvm.packages.${system} // {
             inherit (devenvShell) ci;
             inherit datasets datasets-tarball document document-split;
 
-            default = pkgs.linkFarmFromDrvs "document_and_datasets" [
-              datasets-tarball
-              document-split
-            ];
+            default = pkgs.symlinkJoin {
+              name = "document_and_datasets";
+              paths = [
+                datasets-tarball
+                document-split
+              ];
+            };
           };
       }
     );
