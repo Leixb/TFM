@@ -1,30 +1,35 @@
 \chapter{Experiments}
 \label{sec:experiments}
 
-Once the kernels are implemented, we can proceed to design and run the experiments using them.
-We will follow the objectives and hypotheses stated in \cref{sec:objectives_and_hypotheses}.
+Once the kernels are implemented, we can proceed to design and run the
+experiments using them. We will follow the objectives and hypotheses stated in
+\cref{sec:objectives_and_hypotheses}.
 
 \section{Common experimental setup}
 
 \subsection{Resampling}
 \label{sec:resampling}
 
-Instead of using the double cross-test resampling used in \cref{sec:reproducing-frenay},
-we opted to use a 5\texttimes2 cross-validation resampling method as described by \textcite{dietterichApproximateStatisticalTests1998}.
+Instead of using the double cross-test resampling used in
+\cref{sec:reproducing-frenay}, we opted to use a 5\texttimes2 cross-validation
+resampling method as described by
+\textcite{dietterichApproximateStatisticalTests1998}.
 
-The 5\texttimes2 cross-validation
-consists of doing a 50\textendash50 split of the dataset into two sets. First, we train on the first set and test on the second set
-and then we train on the second set and test on the first set. The process is repeated 5 times, each time
-with a different random split. We choose this method since it is faster than the double cross-test method
-requiring only 10 training processes instead of 100.
+The 5\texttimes2 cross-validation consists of doing a 50\textendash50 split of
+the dataset into two sets. First, we train on the first set and test on the
+second set and then we train on the second set and test on the first set. The
+process is repeated 5 times, each time with a different random split. We choose
+this method since it is faster than the double cross-test method requiring only
+10 training processes instead of 100.
 
 % TODO: Add figure of the 5-2 cross-validation ?
 
 \subsection{Metrics}
 \label{sec:metrics}
 
-For the metrics, we use the normalized root-mean-square error (\emph{nRMSE}), which is
-a normalized version of the root-mean-square error (\emph{RMSE}) defined as follows:
+For the metrics, we use the normalized root-mean-square error (\emph{nRMSE}),
+which is a normalized version of the root-mean-square error (\emph{RMSE})
+defined as follows:
 \begin{equation}
     RMSE = \sqrt{\frac{1}{n}\sum_{i=1}^n (y_i - \hat{y}_i)^2}
 \end{equation}
@@ -32,8 +37,8 @@ a normalized version of the root-mean-square error (\emph{RMSE}) defined as foll
 \subsection{Normalization}
 
 In order to be able to compare the results between different datasets, an effort
-was made to normalize the data and hyperparameters. To that end, the
-following measures were implemented:
+was made to normalize the data and hyperparameters. To that end, the following
+measures were implemented:
 
 \begin{enumerate}
     \item Variables (including target) are standardized
@@ -48,16 +53,16 @@ In the next paragraphs we clarify how each of these steps are implemented and
 what is their effect.
 
 \paragraph{Variable Standardization} this is implemented by taking the mean and
-standard derivation of each column of the training set and using it to
-normalize the columns ($z_i = (x_i - \mu_i)/\sigma_i$). These values are saved as
-part of the model and used again when running on the test set. This process
-is also applied to the target variable.
+standard derivation of each column of the training set and using it to normalize
+the columns ($z_i = (x_i - \mu_i)/\sigma_i$). These values are saved as part of
+the model and used again when running on the test set. This process is also
+applied to the target variable.
 
-This acts as a method of scaling the data to values that are well behaved
-for the SVM.
+This acts as a method of scaling the data to values that are well-behaved for
+the SVM.
 
 \paragraph{Normalized Root-Mean-Square Error} We define the
-normalized root mean square error (\emph{nRMSE}) as follows:
+normalized root-mean-square error (\emph{nRMSE}) as follows:
 
 \begin{equation}
     nRMSE = \frac{RMSE}{\sigma_{obs}}
@@ -65,10 +70,10 @@ normalized root mean square error (\emph{nRMSE}) as follows:
 
 \subsection{Parameter grid}
 
-For the parameter search, we tried all the combinations of values
-in the bounds show in \cref{tab:paramgrid} in a $\log 10$ scale with
-spacing of factor of $10$ between values. For example, for $\sigma_w$ the values
-were $10^{-3},\,10^{-2},\,\dots,\,10^{3}$
+For the parameter search, we tried all the combinations of values in the bounds
+show in \cref{tab:paramgrid} in a $\log 10$ scale with spacing of factor of $10$
+between values. For example, for $\sigma_w$ the values were
+$10^{-3},\,10^{-2},\,\dots,\,10^{3}$
 % TODO: write this part so that it is more clear?
 
 \begin{table}[H]
@@ -88,15 +93,18 @@ were $10^{-3},\,10^{-2},\,\dots,\,10^{3}$
 \section{Reproducing the results of \texorpdfstring{\citeauthor{frenayParameterinsensitiveKernelExtreme2011}}{Frénay and Verleysen}}
 \label{sec:reproducing-frenay}
 
-The first objective is to reproduce the results obtained by \textcite{frenayParameterinsensitiveKernelExtreme2011},
-which will help validate our implementation of the arc sine kernel, ensure that our experimental setup is
-correct and to have a baseline to compare our results with. This also serves as a peer review
-of their results.
+The first objective is to reproduce the results obtained by
+\textcite{frenayParameterinsensitiveKernelExtreme2011}, which will help validate
+our implementation of the arc sine kernel, ensure that our experimental setup is
+correct and to have a baseline to compare our results with. This also serves as
+a peer review of their results.
 
-In the paper, \citeauthor{frenayParameterinsensitiveKernelExtreme2011} use a double cross-test resampling
-method which is illustrated in \cref{fig:frenay-cross-test}. First, they perform a 10-fold cross validation,
-where the 9 folds of the training set are then used on a second 10-fold cross validation to determine the
-best hyperparameters. This means that there are 100 training processes in total.
+In the paper, \citeauthor{frenayParameterinsensitiveKernelExtreme2011} use a
+double cross-test resampling method which is illustrated in
+\cref{fig:frenay-cross-test}. First, they perform a 10-fold cross validation,
+where the 9 folds of the training set are then used on a second 10-fold cross
+validation to determine the best hyperparameters. This means that there are 100
+training processes in total.
 
 \begin{figure}[H]
     \input{figures/frenay-cross-test.tikz}

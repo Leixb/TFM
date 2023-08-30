@@ -4,44 +4,45 @@
 \section{Context}
 
 % 1.1 Background and Context
-% ================================================================================
+% =============================================================================
 % Begin by providing an overview of the field of neural networks and their
-% importance in various domains such as machine learning, computer vision, natural
-% language processing, and more. Briefly mention the rapid advancements in neural
-% network architectures and techniques that have led to significant breakthroughs.
+% importance in various domains such as machine learning, computer vision,
+% natural language processing, and more. Briefly mention the rapid advancements
+% in neural network architectures and techniques that have led to significant
+% breakthroughs.
 
 \Textcite{frenayParameterinsensitiveKernelExtreme2011} presented a
 parameter-insensitive kernel inspired from extreme learning machines (ELMs
-\cite{huangExtremeLearningMachine2006}).
-According to the authors, the meta-parameter associated with the kernel does
-not affect the performance of the results obtained. In the paper they demonstrate
-the effectiveness of the kernel in a Support Vector Regression (SVR) task. The results
-obtained with this kernel are not significantly different from the results obtained
-in the \emph{state-of-the-art} of each dataset using Gaussian kernels.
+\cite{huangExtremeLearningMachine2006}). According to the authors, the
+meta-parameter associated with the kernel does not affect the performance of the
+results obtained. In the paper they demonstrate the effectiveness of the kernel
+in a Support Vector Regression (SVR) task. The results obtained with this kernel
+are not significantly different from the results obtained in the
+\emph{state-of-the-art} of each dataset using Gaussian kernels.
 
 If the kernel is indeed parameter-insensitive, then it is possible that other
-infinite neural network kernels also have this property.
-The aim of this project is to study the effects of these infinite neural network
-kernels in extreme learning machines; understanding their behaviour in practical
-learning problems, with a special focus on the dependence (or lack of) of
-performance on the kernel hyperparameters.
+infinite neural network kernels also have this property. The aim of this project
+is to study the effects of these infinite neural network kernels in extreme
+learning machines; understanding their behaviour in practical learning problems,
+with a special focus on the dependence (or lack of) of performance on the kernel
+hyperparameters.
 
-Having a parameter-insensitive kernel has the potential to cut down on the
-time spent on hyperparameter tuning, which is one of the most time-consuming
-tasks in machine learning.
+Having a parameter-insensitive kernel has the potential to cut down on the time
+spent on hyperparameter tuning, which is one of the most time-consuming tasks in
+machine learning.
 
 \subsection{Scope and Limitations}%
 \label{sub:scope_and_limitations}
 
-Due to the time and computational constraints, the scope of this project is limited
-to the study on a few datasets. The datasets chosen try to cover a wide range of
-characteristics, but are in no way exhaustive. But should be enough to provide
-a good understanding of the behaviour of the kernels and gain some insights
-on their limitations.
+Due to the time and computational constraints, the scope of this project is
+limited to the study on a few datasets. The datasets chosen try to cover a wide
+range of characteristics, but are in no way exhaustive. But should be enough to
+provide a good understanding of the behaviour of the kernels and gain some
+insights on their limitations.
 
 
 % 1.2 Problem Statement
-% ================================================================================
+% ==============================================================================
 % Introduce the specific problem you're addressing in your thesis – the effects
 % of infinite neural network kernels. Explain why this topic is relevant and how
 % it fits within the broader landscape of neural network research. Highlight any
@@ -49,28 +50,28 @@ on their limitations.
 % concept.
 
 % 1.3 Objectives and Research Questions
-% ================================================================================
+% ==============================================================================
 % Clearly state the objectives of your thesis. What do you aim to achieve
 % through your research? Identify the central research questions that will guide
 % your investigation into the effects of infinite neural network kernels.
 
 
 % 1.4 Significance of the Study
-% ================================================================================
+% ==============================================================================
 % Discuss the potential implications and applications of understanding infinite
 % neural network kernels. How might this knowledge contribute to improving
 % neural network design, performance, or interpretability? Highlight the
 % importance of addressing this topic to advance the field of neural networks.
 
 % 1.5 Scope and Limitations
-% ================================================================================
+% ==============================================================================
 % Define the scope of your research. Specify the boundaries of your
 % investigation, such as the specific types of neural networks, data, and
 % mathematical principles you will focus on. Also, acknowledge any limitations
 % that might affect the generalizability of your findings.
 
 % 2.2 Kernel Methods in Machine Learning
-% ================================================================================
+% ==============================================================================
 % Introduce the concept of kernel methods in machine learning, emphasizing their
 % use in support vector machines (SVMs) and other algorithms. Explain how
 % kernels allow algorithms to operate in a higher-dimensional feature space
@@ -78,7 +79,7 @@ on their limitations.
 
 % \subsection{Infinite Neural Network Kernels}%
 % 2.3 Infinite Kernels and Their Implications
-% ================================================================================
+% ==============================================================================
 % Define what is meant by "infinite neural network kernels." Explore how
 % infinite kernels can potentially offer novel insights into neural network
 % behavior, representation learning, and generalization. Touch upon any related
@@ -88,22 +89,22 @@ on their limitations.
 % \label{sec:related_work}
 
 % 3. Related Work
-% ================================================================================
+% ==============================================================================
 
 % 3.1 Studies on Neural Network Kernels
-% ================================================================================
+% ==============================================================================
 % Discuss existing research or studies that have explored neural network
 % kernels, both finite and infinite. Highlight any findings, methodologies, or
 % gaps in the literature that your thesis aims to address.
 
 % 3.2 Applications and Impact
-% ================================================================================
+% ==============================================================================
 % Provide examples of how understanding neural network kernels, particularly
 % infinite ones, has impacted real-world applications or theoretical
 % advancements in machine learning and related fields.
 
 % 6. Conclusion
-% ================================================================================
+% ==============================================================================
 % Summarize the key points you've discussed in the introduction and provide a
 % smooth transition to the subsequent chapters. Emphasize the importance of your
 % research in advancing the understanding of infinite neural network kernels and
@@ -119,34 +120,35 @@ on their limitations.
 
 \subsection{Data Collection and Generation}%
 
-Due to the nature of the analysis, we need a wide variety of datasets in order to
-observe the behaviour of the kernels in different scenarios. The chosen datasets
-are summarized in \cref{tab:datasets}.
+Due to the nature of the analysis, we need a wide variety of datasets in order
+to observe the behaviour of the kernels in different scenarios. The chosen
+datasets are summarized in \cref{tab:datasets}.
 
 \begin{table}[H]
-    \caption{Summary of datasets used in this thesis}
-    \label{tab:datasets}
-    \begin{tabular}{lcc}
-        \toprule
-        Dataset & Samples & Features \\
-        \midrule
-        % TODO: fill this
-        Boston Housing Prices & 506 & 13 \\
-        \bottomrule
-    \end{tabular}
+	\caption{Summary of datasets used in this thesis}
+	\label{tab:datasets}
+	\begin{tabular}{lcc}
+		\toprule
+		Dataset               & Samples & Features \\
+		\midrule
+		% TODO: fill this
+		Boston Housing Prices & 506     & 13       \\
+		\bottomrule
+	\end{tabular}
 \end{table}
 
 \subsection{Experiments and Goals}%
 
-We can classify the experiments in two groups according to their purposes.
-The first group of experiments is used to understand the performance of the
-different kernels and their hyper-parameters relative to each other. This
-is similar to the experiments performed by \textcite{frenayParameterinsensitiveKernelExtreme2011},
-but with a wider range of datasets and using additional kernels.
+We can classify the experiments in two groups according to their purposes. The
+first group of experiments is used to understand the performance of the
+different kernels and their hyperparameters relative to each other. This is
+similar to the experiments performed by
+\textcite{frenayParameterinsensitiveKernelExtreme2011}, but with a wider range
+of datasets and using additional kernels.
 
 The second batch of experiments takes the results from the first group and
 applies meta-learning techniques with the goal of determining if it is possible
-to reach data driven conclusions about which kernel and hyper-parameters to use
+to reach data driven conclusions about which kernel and hyperparameters to use
 for a given dataset.
 
 In \cref{sec:experiments} we describe the experimental design in more detail.
@@ -159,32 +161,33 @@ In \cref{sec:experiments} we describe the experimental design in more detail.
 \section{Structure of the thesis}
 % TODO: make sure this is up to date.
 
-\Cref{sec:theoretical_background} gives an overview of the theoretical background
-of the kernels used in this thesis, showing their derivation and properties. In
-\cref{sec:implementation} we describe the implementation of the kernels in \emph{C}
-and the wrappers used to interface with them from \emph{Julia}. \Cref{sec:experiments}
-discussed the experimental design and the initial results obtained. Finally,
-\cref{sec:analysis} provides an analysis of the results and discusses the
-implications of the findings. \Cref{sec:conclusions} concludes the thesis and
-provides some ideas for future work.
+\Cref{sec:theoretical_background} gives an overview of the theoretical
+background of the kernels used in this thesis, showing their derivation and
+properties. In \cref{sec:implementation} we describe the implementation of the
+kernels in \emph{C} and the wrappers used to interface with them from
+\emph{Julia}. \Cref{sec:experiments} discussed the experimental design and the
+initial results obtained. Finally, \cref{sec:analysis} provides an analysis of
+the results and discusses the implications of the findings.
+\Cref{sec:conclusions} concludes the thesis and provides some ideas for future
+work.
 
 % 4. Methodology
-% ================================================================================
+% ==============================================================================
 
 % 4.1 Data Collection and Preparation
-% ================================================================================
+% ==============================================================================
 % Explain how you plan to gather or generate the data necessary for your
 % analysis. If applicable, clarify the characteristics of the datasets you will
 % use and how they relate to neural network kernels.
 
 % 4.2 Experimental Design
-% ================================================================================
+% ==============================================================================
 % Outline the experimental procedures you will follow to investigate the effects
 % of infinite neural network kernels. Detail the neural network architectures,
 % training strategies, and evaluation metrics you intend to use.
 
 % 5. Structure of the Thesis
-% ================================================================================
+% ==============================================================================
 
 % Provide a brief overview of how your thesis is organized, highlighting the
 % main sections and the flow of your argument.
