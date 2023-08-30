@@ -16,10 +16,18 @@ runCommand "split_document"
   ];
 }
   ''
-    PAGE="$(pdftk "${document}" dump_data_utf8 | grep -A 2 'BookmarkTitle: ${split_at}' | tail -n1 | cut -d' ' -f2)"
+    pdftk "${document}" dump_data | grep Bookmark >bookmarks
 
-    pdftk "${document}" cat 1-$((PAGE-1)) output "${name_main}"
-    pdftk "${document}" cat $PAGE-end output "${name_appendix}"
+    PAGE="$(grep -A 2 'BookmarkTitle: ${split_at}' bookmarks | tail -n1 | cut -d' ' -f2)"
+
+    grep -B1000 'BookmarkTitle: ${split_at}' bookmarks | head -n-2 >bookmarks_main
+    grep -B1 -A1000 'BookmarkTitle: ${split_at}' bookmarks | awk '{ if ($1 == "BookmarkPageNumber:") { print $1, $2-'$PAGE'+1 } else {print $0} }' >bookmarks_appendix
+
+    pdftk "${document}" cat 1-$((PAGE-1)) output tmp_main.pdf
+    pdftk "${document}" cat $PAGE-end output tmp_appendix.pdf
+
+    pdftk tmp_main.pdf update_info bookmarks_main output "${name_main}"
+    pdftk tmp_appendix.pdf update_info bookmarks_appendix output "${name_appendix}"
 
     mkdir -p "$out"
 
