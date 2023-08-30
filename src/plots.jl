@@ -66,17 +66,17 @@ end
 function plot_kernel_3d_grid(kernel, args...; offset = pi/5, dims=(2, 2), kwargs...)
     fig = Figure()
     xs = range(-2, 2, length=100)
-	z = [ kernel(x, y, args...; kwargs...) for x in xs, y in xs]
+    z = [ kernel(x, y, args...; kwargs...) for x in xs, y in xs]
 
     axes = [fig[x, y] for y in 1:dims[1], x in 1:dims[2]]
-	axes = reshape(axes, 1, :)
+    axes = reshape(axes, 1, :)
 
-	angles = LinRange(0, pi/2, length(axes)) .+ offset
+    angles = LinRange(0, pi/2, length(axes)) .+ offset
 
-	for (ax, azimuth) in zip(axes, angles)
-		ax1 = Axis3(ax; azimuth)
-		surface!(ax1, xs, xs, z, rasterize=true)
-	end
+    for (ax, azimuth) in zip(axes, angles)
+        ax1 = Axis3(ax; azimuth)
+        surface!(ax1, xs, xs, z, rasterize=true)
+    end
 
     fig
 
@@ -116,22 +116,22 @@ plot_kernel_3d(args...; interactive=is_interactive(), kwargs...) =
 
 function experiment_data(folder="svms", scan=true)
     if scan
-	    df = collect_results!(
+        df = collect_results!(
             datadir(folder);
             black_list=Experiments.default_ignore_results()
         )
     else
         df = wload(datadir("results_$folder.jld2"))["df"]
     end
-	df.kernel_cat = categorical(string.(df.kernel))
-	df.dataset_cat = categorical(string.(df.dataset))
+    df.kernel_cat = categorical(string.(df.kernel))
+    df.dataset_cat = categorical(string.(df.dataset))
     df.sigma = Utils.gamma2sigma.(df.gamma)
-	df.kernel_family = map(x -> string(x)[1:4], df.kernel_cat)
-	df.cost = round.(df.cost, sigdigits=2)
-	df.cost_cat = map(df.cost) do cost @sprintf("%.0E", cost) end
+    df.kernel_family = map(x -> string(x)[1:4], df.kernel_cat)
+    df.cost = round.(df.cost, sigdigits=2)
+    df.cost_cat = map(df.cost) do cost @sprintf("%.0E", cost) end
     df.measure_cv = df.measurement
-	df.ms = @. Dates.value(df.duration)
-	df.ms_per_iter = @. df.ms / df.n_iter / 5
+    df.ms = @. Dates.value(df.duration)
+    df.ms_per_iter = @. df.ms / df.n_iter / 5
     @rsubset(df, !(:dataset isa DataSets.Servo))
 end
 
@@ -151,13 +151,13 @@ function plot_best(df)
     cols = mapping(
         :kernel_cat,
         :measure_test=>"nRMSE",
-		color=:kernel_cat=>"Kernel"
-	)
-	grp = mapping(layout = :dataset_cat)
-	geom = visual(BarPlot)
+        color=:kernel_cat=>"Kernel"
+    )
+    grp = mapping(layout = :dataset_cat)
+    geom = visual(BarPlot)
 
-	plt = data(df) * cols * grp * geom
-	fg = draw(plt, facet = (; linkyaxes = :none), axis=(;xticklabelrotation=pi/4))
+    plt = data(df) * cols * grp * geom
+    fg = draw(plt, facet = (; linkyaxes = :none), axis=(;xticklabelrotation=pi/4))
 end
 
 function plot_delve(df, dataset::Type{<:DataSets.Delve}, size=32,
@@ -287,8 +287,8 @@ function plot_sigma_subsample(df, show_kernels=["Asin", "AsinNorm"]; linkyaxes=f
     )
     grp = mapping(layout = :kernel_cat => "Kernel")
     geom = visual(Scatter)
-	plt = data(df) * cols * grp * geom
-	fg = draw(plt, facet = (; linkyaxes = :none), axis=(;xscale=log10, xticklabelrotation=pi/4))
+    plt = data(df) * cols * grp * geom
+    fg = draw(plt, facet = (; linkyaxes = :none), axis=(;xscale=log10, xticklabelrotation=pi/4))
 
     fg
 end
@@ -496,27 +496,27 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
 end
 
 function exec_time(df::DataFrame, show_kernels=["Asin", "AsinNorm"];
-	grp = mapping(layout = :cost=>nonnumeric),
-	geom = visual(BoxPlot),
+    grp = mapping(layout = :cost=>nonnumeric),
+    geom = visual(BoxPlot),
     logscale=false, linkyaxes=false)
-	cols = mapping(
-		:kernel_cat=>"Kernel",
-		:n_iter=>"Iterations",
-		color=:kernel_cat=>"Kernel",
-	)
+    cols = mapping(
+        :kernel_cat=>"Kernel",
+        :n_iter=>"Iterations",
+        color=:kernel_cat=>"Kernel",
+    )
 
-	plt = data(@chain df begin
-		@rtransform(:n_iter=:n_iter+1)
-		@rsubset(:kernel_cat in show_kernels)
-	end) * cols * geom * grp
-	fg = draw(plt,
-		facet = (; linkyaxes),
-		axis=(;
-			xticklabelrotation=pi/4,
-			#limits=(nothing, (10, nothing)),
-			yscale=logscale ? log10 : identity,
-		),
-	)
+    plt = data(@chain df begin
+        @rtransform(:n_iter=:n_iter+1)
+        @rsubset(:kernel_cat in show_kernels)
+    end) * cols * geom * grp
+    fg = draw(plt,
+        facet = (; linkyaxes),
+        axis=(;
+            xticklabelrotation=pi/4,
+            #limits=(nothing, (10, nothing)),
+            yscale=logscale ? log10 : identity,
+        ),
+    )
     plt, fg
 end
 
