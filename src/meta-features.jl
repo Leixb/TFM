@@ -55,7 +55,7 @@ end
 end
 
 function MMI.transform(mfe::GeneralMetaFeatureExtractor, X::DataFrame, y::AbstractVector)
-    meta_features = Dict{Symbol, Union{Int, Float64, Vector{Float64}}}()
+    meta_features = Dict{Symbol,Union{Int,Float64,Vector{Float64}}}()
     if mfe.attr_to_inst
         meta_features[:attr_to_inst] = size(X, 2) / size(X, 1)
     end

@@ -57,7 +57,7 @@ struct RepeatedCV{S<:ResamplingStrategy} <: ResamplingStrategy
     resampling::S
     rng::Union{Int,AbstractRNG}
 
-    function RepeatedCV{S}(repeats, rng, args...; kwargs...) where S<:ResamplingStrategy
+    function RepeatedCV{S}(repeats, rng, args...; kwargs...) where {S<:ResamplingStrategy}
 
         if rng isa Integer
             rng = MersenneTwister(rng)
@@ -77,7 +77,7 @@ struct RepeatedCV{S<:ResamplingStrategy} <: ResamplingStrategy
     end
 end
 
-function RepeatedCV{S}(; repeats=5, rng=nothing, kwargs...) where S<:ResamplingStrategy
+function RepeatedCV{S}(; repeats=5, rng=nothing, kwargs...) where {S<:ResamplingStrategy}
     return RepeatedCV{S}(repeats, rng; kwargs...)
 end
 

@@ -6,7 +6,7 @@ using TFM: DataSets, Models
 using Plots
 using DataFrames
 
-EpsilonSVR = @load EpsilonSVR pkg=LIBSVM
+EpsilonSVR = @load EpsilonSVR pkg = LIBSVM
 
 df, target = DataSets.stock()
 
@@ -22,18 +22,19 @@ kernel = Kernel.AsinNorm
 regressor = EpsilonSVR(kernel=kernel, max_iter=Int32(1000))
 
 gamma_values = if kernel == Kernel.RadialBasis
-        10 .^ (-3.0:1.0:0)
-    else let
+    10 .^ (-3.0:1.0:0)
+else
+    let
         sigma_range = 10.0 .^ (-3:1.0:3)
-        sigma2gamma = sigma -> 1 ./ (2 .*sigma.^2)
+        sigma2gamma = sigma -> 1 ./ (2 .* sigma .^ 2)
         sigma2gamma(sigma_range)
     end
 end
 
 hyper_grid = [
-    range(regressor, :gamma, values = gamma_values),
-    range(regressor, :epsilon, values = 10 .^ (-5:1.0:1)),
-    range(regressor, :cost, values = 10 .^ (-2:1.0:6))
+    range(regressor, :gamma, values=gamma_values),
+    range(regressor, :epsilon, values=10 .^ (-5:1.0:1)),
+    range(regressor, :cost, values=10 .^ (-2:1.0:6))
     # range(regressor, :cost, values = 10 .^ (-1:1.0:0))
 ]
 
@@ -49,12 +50,12 @@ tunedRegressor = TunedModel(
 )
 
 model = ContinuousEncoder() |>
-    Standardizer() |>
-    TransformedTargetModel(
-        # regressor;
-        tunedRegressor;
-        transformer=Standardizer()
-    )
+        Standardizer() |>
+        TransformedTargetModel(
+            # regressor;
+            tunedRegressor;
+            transformer=Standardizer()
+        )
 
 mach = machine(model, Xtrain, ytrain)
 

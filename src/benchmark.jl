@@ -35,12 +35,12 @@ struct Result
     times::Vector{Float64}
     exit_codes::Vector{UInt8}
 
-    parameters::Dict{String, Any}
+    parameters::Dict{String,Any}
 
     function Result(command::String, mean::Float64, stddev::Float64, median::Float64,
-            user::Float64, system::Float64, min::Float64, max::Float64,
-            times::Vector{Float64}, exit_codes::Vector{UInt8},
-            parameters::Dict{String, Any}
+        user::Float64, system::Float64, min::Float64, max::Float64,
+        times::Vector{Float64}, exit_codes::Vector{UInt8},
+        parameters::Dict{String,Any}
     )
         # If we have a kernel, parameter, we convert it to LIBSVM.Kernel
         if haskey(parameters, "kernel")
@@ -109,7 +109,7 @@ function Tables.getcolumn(row::Result, i::Int)
         getfield(row, i)
     else
         dict_keys = row.parameters |> keys |> collect |> sort
-        row.parameters[dict_keys[i - width]]
+        row.parameters[dict_keys[i-width]]
     end
 end
 

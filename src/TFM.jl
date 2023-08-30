@@ -44,7 +44,9 @@ include("./plots.jl")
 # HACK: Export `mse` like this so that deserialization works with machines
 # that were saved before the Measures module was created.
 import .Measures
-function mse(ŷ, y) return Measures.mse(ŷ, y) end
+function mse(ŷ, y)
+    return Measures.mse(ŷ, y)
+end
 export mse
 
 @reexport import .Transformers: TopCatTransformer, TopCatResult
@@ -54,8 +56,8 @@ export mse
     # module.
     # see: https://discourse.julialang.org/t/lsp-missing-reference-woes/98231/11
     module LspLink
-        include("../scripts/produce_all.jl")
-        include("../scripts/plots.jl")
+    include("../scripts/produce_all.jl")
+    include("../scripts/plots.jl")
     end
 end
 

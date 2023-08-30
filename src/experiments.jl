@@ -110,20 +110,22 @@ default_measure(::DelveRegressionDataSet) = NormalizedRootMeanSquaredError()
     # Regression specific
     epsilon::Union{Float64,Nothing} = 0.1
 
-    extra_params::Dict{Symbol, Any} = Dict{Symbol, Any}(:max_iter=>Int32(1e5))
+    extra_params::Dict{Symbol,Any} = Dict{Symbol,Any}(:max_iter => Int32(1e5))
 end
 
 is_regression(svm::SVMConfig) = svm.dataset |> is_regression
 
 function model_parameters(svm::SVMConfig)
-    common = [ :kernel, :cost, :gamma ]
+    common = [:kernel, :cost, :gamma]
 
-    if is_regression(svm) return [ common ; :epsilon ] end
+    if is_regression(svm)
+        return [common; :epsilon]
+    end
     return common
 end
 
 # savename configuration
-allaccess(svm::SVMConfig) = [ :dataset, :resampling, :subsample, :measure, model_parameters(svm)...]
+allaccess(svm::SVMConfig) = [:dataset, :resampling, :subsample, :measure, model_parameters(svm)...]
 
 default_prefix(svm::SVMConfig) = is_regression(svm) ? "SVR" : "SVC"
 
@@ -144,7 +146,7 @@ function model(svm::SVMConfig, gamma=nothing)
     Models.pipeline(svm.dataset; parameters..., svm.extra_params...)
 end
 
-function run(svm::SVMConfig)::Tuple{PerformanceEvaluation, ExecutionInfo, Machine}
+function run(svm::SVMConfig)::Tuple{PerformanceEvaluation,ExecutionInfo,Machine}
     start = Dates.now()
 
     (Xtrain, Xtest), (ytrain, ytest) = if isnothing(svm.subsample)
@@ -162,7 +164,7 @@ function run(svm::SVMConfig)::Tuple{PerformanceEvaluation, ExecutionInfo, Machin
     end
 
     pipe = svm.scale_sigma ? model(svm, gamma) : model(svm)
-    if svm.kernel in [ LIBSVM.Kernel.Acos0, LIBSVM.Kernel.Acos1, LIBSVM.Kernel.Acos2 ]
+    if svm.kernel in [LIBSVM.Kernel.Acos0, LIBSVM.Kernel.Acos1, LIBSVM.Kernel.Acos2]
         pipe.multiplier.factor = sqrt(Utils.gamma2sigma(svm.gamma))
     end
     mach = machine(pipe, Xtrain, ytrain, cache=false)
@@ -174,7 +176,7 @@ function run(svm::SVMConfig)::Tuple{PerformanceEvaluation, ExecutionInfo, Machin
 
     duration = Dates.now() - start
 
-    info = ExecutionInfo(;duration, measure_test, sigma_scaled=svm.scale_sigma ? sigma : NaN, n_train=n)
+    info = ExecutionInfo(; duration, measure_test, sigma_scaled=svm.scale_sigma ? sigma : NaN, n_train=n)
 
     return result, info, mach
 end
@@ -232,7 +234,7 @@ end
 This returns a list of dictionaries with the parameters to use for creating SVMConfig
 objects.
 """
-function frenay_parameter_grid(;step::Float64=1.0, datasets=nothing)::Vector{Dict{Symbol, Any}}
+function frenay_parameter_grid(; step::Float64=1.0, datasets=nothing)::Vector{Dict{Symbol,Any}}
     # Blacklist MNIST since it takes too long to run
     if datasets isa Nothing
         datasets = filter(DataSets.all) do d
@@ -242,9 +244,9 @@ function frenay_parameter_grid(;step::Float64=1.0, datasets=nothing)::Vector{Dic
 
     parameters_common = Dict(
         :dataset => datasets,
-        :cost => [ 10 .^ (-2:step:3) ; @onlyif(:dataset isa DataSets.Small, 10 .^ ((3+step):step:6)) ],
+        :cost => [10 .^ (-2:step:3); @onlyif(:dataset isa DataSets.Small, 10 .^ ((3+step):step:6))],
         :epsilon => [
-            @onlyif(is_regression(:dataset) , 10 .^ (-5:step:1));
+            @onlyif(is_regression(:dataset), 10 .^ (-5:step:1))
             @onlyif(!is_regression(:dataset), [0])
         ],
     )
@@ -257,15 +259,15 @@ function frenay_parameter_grid(;step::Float64=1.0, datasets=nothing)::Vector{Dic
     sigma_asin = 10 .^ (-3:step:3)
 
     parameters_asin = Dict(
-        :kernel => [[LIBSVM.Kernel.Asin, LIBSVM.Kernel.AsinNorm]; @onlyif((:dataset isa DataSets.Small) && (:cost <1e4), [LIBSVM.Kernel.Acos0, LIBSVM.Kernel.Acos1, LIBSVM.Kernel.Acos2])],
+        :kernel => [[LIBSVM.Kernel.Asin, LIBSVM.Kernel.AsinNorm]; @onlyif((:dataset isa DataSets.Small) && (:cost < 1e4), [LIBSVM.Kernel.Acos0, LIBSVM.Kernel.Acos1, LIBSVM.Kernel.Acos2])],
         :gamma => Utils.sigma2gamma.(sigma_asin),
         parameters_common...
     )
 
-    [dict_list(parameters_asin) ; dict_list(parameters_rbf)]
+    [dict_list(parameters_asin); dict_list(parameters_rbf)]
 end
 
-function svm_parameter_grid(;step::Float64=1.0, datasets=nothing, acos=false, rbf=true, kwargs...)::Vector{Dict{Symbol, Any}}
+function svm_parameter_grid(; step::Float64=1.0, datasets=nothing, acos=false, rbf=true, kwargs...)::Vector{Dict{Symbol,Any}}
     # Blacklist MNIST since it takes too long to run
     if datasets isa Nothing
         datasets = filter(DataSets.all) do d
@@ -277,7 +279,7 @@ function svm_parameter_grid(;step::Float64=1.0, datasets=nothing, acos=false, rb
         :dataset => datasets,
         :cost => 10 .^ (-2:step:4),
         :epsilon => [
-            @onlyif(is_regression(:dataset), 10 .^ (-5:step:1));
+            @onlyif(is_regression(:dataset), 10 .^ (-5:step:1))
             @onlyif(!is_regression(:dataset), [0])
         ],
         kwargs...
@@ -304,7 +306,7 @@ function svm_parameter_grid(;step::Float64=1.0, datasets=nothing, acos=false, rb
     dict_list(parameters_asin)
 end
 
-function svm_parameter_grid_sigma_reg(;step::Float64=1.0, datasets=nothing, kwargs...)::Vector{Dict{Symbol, Any}}
+function svm_parameter_grid_sigma_reg(; step::Float64=1.0, datasets=nothing, kwargs...)::Vector{Dict{Symbol,Any}}
     # Blacklist MNIST since it takes too long to run
     if datasets isa Nothing
         datasets = filter(DataSets.all) do d

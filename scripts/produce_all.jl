@@ -10,12 +10,12 @@ folder = get(ARGS, 1, "svms3")
 
 datasets = DataSets.all |> filter(DataSets.is_regression)
 
-const parameters_all = Experiments.svm_parameter_grid(;datasets, acos=true, rbf=true, step=1.0, folder, scale_sigma=true)
+const parameters_all = Experiments.svm_parameter_grid(; datasets, acos=true, rbf=true, step=1.0, folder, scale_sigma=true)
 
 @warn "Generated $(length(parameters_all)) executable combinations ..."
 
 configs = map(parameters_all) do params
-    Experiments.SVMConfig(;params...)
+    Experiments.SVMConfig(; params...)
 end
 
 data_path = datadir(folder)

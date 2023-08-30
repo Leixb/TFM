@@ -295,9 +295,9 @@ struct MNIST <: ChoSaul end
 const mnist = MNIST()
 push!(all, mnist)
 
-raw_data(::MNIST) = MNISTData(;split=:train), MNISTData(;split=:test)
+raw_data(::MNIST) = MNISTData(; split=:train), MNISTData(; split=:test)
 
-preprocess(::MNIST) = function(data)
+preprocess(::MNIST) = function (data)
     train, test = data
 
     X = cat(train.features, test.features; dims=3)

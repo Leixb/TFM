@@ -33,8 +33,8 @@ ds = TFM.DataSets.CPU()
 
 The models used for each type of dataset.
 """
-EpsilonSVR = @load EpsilonSVR pkg=LIBSVM verbosity=0
-SVC = @load SVC pkg=LIBSVM verbosity=0
+EpsilonSVR = @load EpsilonSVR pkg = LIBSVM verbosity = 0
+SVC = @load SVC pkg = LIBSVM verbosity = 0
 
 basemodel(::DataSet) = EpsilonSVR # default to regression
 
@@ -61,11 +61,11 @@ function pipeline(ds::DataSet; kernel=Kernel.RadialBasis, gamma=0.5, args...)
 
     if ds isa RegressionDataSet || ds isa DelveRegressionDataSet
         return common |>
-            TransformedTargetModel(basemodel(ds)(;kernel, gamma, args...); transformer=Standardizer())
+               TransformedTargetModel(basemodel(ds)(; kernel, gamma, args...); transformer=Standardizer())
     end
 
     common |>
-        basemodel(ds)(;kernel, gamma, args...)
+    basemodel(ds)(; kernel, gamma, args...)
 end
 
 """
@@ -74,6 +74,6 @@ end
 
 We do not need to one-hot encode or standardize anything.
 """
-pipeline(ds::MNIST; kernel=Kernel.RadialBasis, args...) = basemodel(ds)(;kernel, args...)
+pipeline(ds::MNIST; kernel=Kernel.RadialBasis, args...) = basemodel(ds)(; kernel, args...)
 
 end

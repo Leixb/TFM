@@ -7,17 +7,17 @@ using DrWatson
 using Random
 
 datasets::Vector{DataSets.DataSet} = map(rand(MersenneTwister(1234), UInt32, (5))) do rng
-    DataSets.Blobs(;rng)
+    DataSets.Blobs(; rng)
 end
 
 foreach(print, datasets)
 
-const parameters_all = Experiments.svm_parameter_grid(;datasets)
+const parameters_all = Experiments.svm_parameter_grid(; datasets)
 
 @warn "Generated $(length(parameters_all)) executable combinations ..."
 
 configs = map(parameters_all) do params
-    Experiments.SVMConfig(;params...)
+    Experiments.SVMConfig(; params...)
 end
 
 files_done = Set(readdir(datadir("svms")))

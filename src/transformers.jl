@@ -9,12 +9,12 @@ using MLJModelInterface
 const MMI = MLJModelInterface
 
 @mlj_model mutable struct TopCatTransformer <: Unsupervised
-    features::Vector{Symbol}                     = Symbol[]
-    n::Union{Int,Nothing}                        = 5
+    features::Vector{Symbol} = Symbol[]
+    n::Union{Int,Nothing} = 5
     cutoff::Union{UInt,Float64,Nothing} = nothing # if cutoff is an integer, take all categories with count >= cutoff, if it's a float (between 0 and 1), take all with higher relative frequency.
-    other::String                                = "OTHER"
-    ordered_factor::Bool                         = true
-    ignore::Bool                                 = false
+    other::String = "OTHER"
+    ordered_factor::Bool = true
+    ignore::Bool = false
 end
 
 export TopCatTransformer
@@ -128,7 +128,7 @@ end
     factor::Float64 = 1.0::(arg != 0.0)
 end
 
-Multiplier(factor) = Multiplier(;factor)
+Multiplier(factor) = Multiplier(; factor)
 
 export Multiplier
 

@@ -22,7 +22,7 @@ is_interactive() = string(Makie.current_backend()) == "GLMakie"
 
 "Makie theme with LaTeX fonts"
 function tex_theme!()
-    Makie.update_theme!(fonts = (regular = texfont(), bold = texfont(:bold), italic = texfont(:italic)))
+    Makie.update_theme!(fonts=(regular=texfont(), bold=texfont(:bold), italic=texfont(:italic)))
 end
 
 import ..Utils, ..Experiments, ..DataSets
@@ -32,13 +32,13 @@ import ..Measures
 using DrWatson: projectdir
 
 "Plot the kernel function around the origin with different values of σ"
-function plot_kernel(kernel=Utils.kernel_asin_normalized, args...; interactive=is_interactive(), x = range(-2, 2, length=200), kwargs...)
-    fig = Figure(fonts=(;regular="Latin Modern Roman"))
+function plot_kernel(kernel=Utils.kernel_asin_normalized, args...; interactive=is_interactive(), x=range(-2, 2, length=200), kwargs...)
+    fig = Figure(fonts=(; regular="Latin Modern Roman"))
     ax = Axis(fig[1, 1])
 
     if interactive
         sg = SliderGrid(fig[2, 1],
-            (label = "σ", range=-6:1:6, format="10^{}", startvalue=0)
+            (label="σ", range=-6:1:6, format="10^{}", startvalue=0)
         )
 
         sliderobservables = [s.value for s in sg.sliders]
@@ -63,15 +63,15 @@ function plot_kernel(kernel=Utils.kernel_asin_normalized, args...; interactive=i
     fig
 end
 
-function plot_kernel_3d_grid(kernel, args...; offset = pi/5, dims=(2, 2), kwargs...)
+function plot_kernel_3d_grid(kernel, args...; offset=pi / 5, dims=(2, 2), kwargs...)
     fig = Figure()
     xs = range(-2, 2, length=100)
-    z = [ kernel(x, y, args...; kwargs...) for x in xs, y in xs]
+    z = [kernel(x, y, args...; kwargs...) for x in xs, y in xs]
 
     axes = [fig[x, y] for y in 1:dims[1], x in 1:dims[2]]
     axes = reshape(axes, 1, :)
 
-    angles = LinRange(0, pi/2, length(axes)) .+ offset
+    angles = LinRange(0, pi / 2, length(axes)) .+ offset
 
     for (ax, azimuth) in zip(axes, angles)
         ax1 = Axis3(ax; azimuth)
@@ -88,7 +88,7 @@ function plot_kernel_3d_interactive(kernel, args...; kwargs...)
 
     ax = Axis3(fig[1, 1])
     sg = SliderGrid(fig[2, 1],
-        (label = "σ", range=-6:1:6, format="10^{}", startvalue=0)
+        (label="σ", range=-6:1:6, format="10^{}", startvalue=0)
     )
 
     sliderobservables = [s.value for s in sg.sliders]
@@ -128,7 +128,9 @@ function experiment_data(folder="svms", scan=true)
     df.sigma = Utils.gamma2sigma.(df.gamma)
     df.kernel_family = map(x -> string(x)[1:4], df.kernel_cat)
     df.cost = round.(df.cost, sigdigits=2)
-    df.cost_cat = map(df.cost) do cost @sprintf("%.0E", cost) end
+    df.cost_cat = map(df.cost) do cost
+        @sprintf("%.0E", cost)
+    end
     df.measure_cv = df.measurement
     df.ms = @. Dates.value(df.duration)
     df.ms_per_iter = @. df.ms / df.n_iter / 5
@@ -150,20 +152,20 @@ classification(df) = @rsubset(df, !is_regression(:dataset))
 function plot_best(df)
     cols = mapping(
         :kernel_cat,
-        :measure_test=>"nRMSE",
-        color=:kernel_cat=>"Kernel"
+        :measure_test => "nRMSE",
+        color=:kernel_cat => "Kernel"
     )
-    grp = mapping(layout = :dataset_cat)
+    grp = mapping(layout=:dataset_cat)
     geom = visual(BarPlot)
 
     plt = data(df) * cols * grp * geom
-    fg = draw(plt, facet = (; linkyaxes = :none), axis=(;xticklabelrotation=pi/4))
+    fg = draw(plt, facet=(; linkyaxes=:none), axis=(; xticklabelrotation=pi / 4))
 end
 
 function plot_delve(df, dataset::Type{<:DataSets.Delve}, size=32,
     show_kernels=["Asin", "AsinNorm"],
-    ;fig=Figure(), linkxaxes=true, linkyaxes=false, show_rbf=false,
-    sigma = :sigma, measure = :measure_test, std = :std, show_bands=(measure == :measure_cv),
+    ; fig=Figure(), linkxaxes=true, linkyaxes=false, show_rbf=false,
+    sigma=:sigma, measure=:measure_test, std=:std, show_bands=(measure == :measure_cv),
     interactive=is_interactive()
 )
     df = @chain df begin
@@ -178,11 +180,11 @@ function plot_delve(df, dataset::Type{<:DataSets.Delve}, size=32,
     # fm   nm
     # fh   nh
 
-    ax = Dict{String, Axis}(
+    ax = Dict{String,Axis}(
         "fm" => Axis(fig[1, 1], xscale=log10),
-        "nm" => Axis(fig[1, 2], xscale=log10, yaxisposition = :right),
+        "nm" => Axis(fig[1, 2], xscale=log10, yaxisposition=:right),
         "fh" => Axis(fig[2, 1], xscale=log10),
-        "nh" => Axis(fig[2, 2], xscale=log10, yaxisposition = :right),
+        "nh" => Axis(fig[2, 2], xscale=log10, yaxisposition=:right),
     )
 
     wcolors = Makie.wong_colors()
@@ -217,7 +219,9 @@ function plot_delve(df, dataset::Type{<:DataSets.Delve}, size=32,
             )
         end
 
-        if !show_rbf return end
+        if !show_rbf
+            return
+        end
         df_rbf = @rsubset(df_sub, :kernel_cat == "RadialBasis")
         if !isempty(df_rbf)
             hlines!(ax[name], [minimum(getproperty(df_rbf, measure))], color=:red, linewidth=2, label="RBF (best)", linestyle=:dash)
@@ -240,25 +244,25 @@ function plot_delve(df, dataset::Type{<:DataSets.Delve}, size=32,
         linkxaxes!(values(ax)...)
     end
 
-    Box(fig[1,0])
-    Label(fig[1,0], "Moderate Noise", rotation=pi/2, tellheight=false)
-    Box(fig[2,0])
-    Label(fig[2,0], "High Noise", rotation=pi/2, tellheight=false)
+    Box(fig[1, 0])
+    Label(fig[1, 0], "Moderate Noise", rotation=pi / 2, tellheight=false)
+    Box(fig[2, 0])
+    Label(fig[2, 0], "High Noise", rotation=pi / 2, tellheight=false)
 
-    Box(fig[1:2,-1])
-    Label(fig[1:2,-1], "Noise Level", rotation=pi/2)
+    Box(fig[1:2, -1])
+    Label(fig[1:2, -1], "Noise Level", rotation=pi / 2)
 
-    Box(fig[0,1])
-    Label(fig[0,1], "Fairly linear", tellwidth=false)
-    Box(fig[0,2])
-    Label(fig[0,2], "Non-linear", tellwidth=false)
+    Box(fig[0, 1])
+    Label(fig[0, 1], "Fairly linear", tellwidth=false)
+    Box(fig[0, 2])
+    Label(fig[0, 2], "Non-linear", tellwidth=false)
 
-    Box(fig[-1,1:2])
-    Label(fig[-1,1:2], "Linearity")
+    Box(fig[-1, 1:2])
+    Label(fig[-1, 1:2], "Linearity")
 
     datasetname = split(string(dataset), '.') |> last
 
-    Label(fig[-1:0,-1:0], "$datasetname\n$size", font=:bold, fontsize=20)
+    Label(fig[-1:0, -1:0], "$datasetname\n$size", font=:bold, fontsize=20)
 
     measure = df.measure[1]
     measure_name = if measure isa Measures.MSE
@@ -270,32 +274,32 @@ function plot_delve(df, dataset::Type{<:DataSets.Delve}, size=32,
         titlecase(string(measure))
     end
 
-    Label(fig[1:2, 3], measure_name, rotation=pi/2, font=:bold)
-    Legend(fig[1:2, 4], ax["fm"], "Kernel", framevisible = false, merge=true)
+    Label(fig[1:2, 3], measure_name, rotation=pi / 2, font=:bold)
+    Legend(fig[1:2, 4], ax["fm"], "Kernel", framevisible=false, merge=true)
     Label(fig[3, 1:2], L"\sigma_w", font=:bold)
 
     fig
 end
 
 function plot_sigma_subsample(df, show_kernels=["Asin", "AsinNorm"]; linkyaxes=false,
-    show_rbf = true, measure = :measure_test,
+    show_rbf=true, measure=:measure_test
 )
     cols = mapping(
         :sigma_scaled,
-        measure=>"nRMSE",
-        color=:subsample=>nonnumeric=>"Subsample",
+        measure => "nRMSE",
+        color=:subsample => nonnumeric => "Subsample",
     )
-    grp = mapping(layout = :kernel_cat => "Kernel")
+    grp = mapping(layout=:kernel_cat => "Kernel")
     geom = visual(Scatter)
     plt = data(df) * cols * grp * geom
-    fg = draw(plt, facet = (; linkyaxes = :none), axis=(;xscale=log10, xticklabelrotation=pi/4))
+    fg = draw(plt, facet=(; linkyaxes=:none), axis=(; xscale=log10, xticklabelrotation=pi / 4))
 
     fg
 end
 
 function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
-    ;linkyaxes=false, linkxaxes=false, show_rbf = false,
-    dims=nothing, show_bands=false, sigma = :sigma, measure = :measure_test, std = :std,
+    ; linkyaxes=false, linkxaxes=false, show_rbf=false,
+    dims=nothing, show_bands=false, sigma=:sigma, measure=:measure_test, std=:std,
     interactive=is_interactive(), kwargs...
 )
 
@@ -305,7 +309,7 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
     kernels = unique(df.kernel_cat)
 
     # force order: asin..., acos..., rbf
-    sort!(kernels, by = x -> (startswith(x, "Asin") ? "A$x" : "B$x"))
+    sort!(kernels, by=x -> (startswith(x, "Asin") ? "A$x" : "B$x"))
     wcolors = Makie.wong_colors()
 
     kernel_colors = Dict(k => wcolors[i] for (i, k) in enumerate(kernels))
@@ -320,9 +324,9 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
         if interactive
             Toggle(fig, active=k in show_kernels, buttoncolor=kernel_colors[k])
         else
-            (;active=k in show_kernels)
+            (; active=k in show_kernels)
         end
-        for k in kernels)
+                        for k in kernels)
 
     if interactive && haskey(toggles_dict, "RadialBasis")
         toggles_dict["RadialBasis"].active = show_rbf
@@ -337,7 +341,7 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
         m = Int(ceil(length(datasets) / n))
     end
 
-    axes = [Axis(gr[i, j]) for j in 1:m, i in 1:n if (i-1)*n+j <= length(datasets)]
+    axes = [Axis(gr[i, j]) for j in 1:m, i in 1:n if (i - 1) * n + j <= length(datasets)]
 
     df_groups = @chain df begin
         sort(:sigma)
@@ -386,8 +390,8 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
                 end
 
                 # lines = lines!(ax, df_kernel.sigma, df_kernel.measure_test,
-                    # linestyle = :dot,
-                    # label=string(kernel), visible = true, color=kernel_colors[kernel])
+                # linestyle = :dot,
+                # label=string(kernel), visible = true, color=kernel_colors[kernel])
                 # connect!(lines.visible, toggles_dict[kernel].active)
                 continue
             elseif !(kernel in show_kernels || interactive)
@@ -395,11 +399,11 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
             end
 
             slines = lines!(ax, val_sigma, val_measure,
-                linestyle = df_kernel.kernel_family[1] == "Acos" ? :dash : :solid,
-                label=string(kernel), visible = true, color=kernel_colors[kernel])
+                linestyle=df_kernel.kernel_family[1] == "Acos" ? :dash : :solid,
+                label=string(kernel), visible=true, color=kernel_colors[kernel])
 
             spoints = scatter!(ax, val_sigma, val_measure,
-                label=string(kernel), visible = true, color=kernel_colors[kernel])
+                label=string(kernel), visible=true, color=kernel_colors[kernel])
 
             if interactive
                 connect!(slines.visible, toggles_dict[kernel].active)
@@ -423,9 +427,9 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
 
     resampling = string(df.resampling[1])
 
-    Label(fig[1, 0], text = measure_name, font = :bold, fontsize = 20, tellheight = false,  rotation = pi/2)
-    Label(fig[2, 1], text = L"\sigma_w", font = :bold, fontsize = 20, tellwidth = false)
-    Label(fig[0, 1:2], text = "Sigma vs $measure_name by Dataset ($resampling)", font = :bold, fontsize = 20, tellwidth = false)
+    Label(fig[1, 0], text=measure_name, font=:bold, fontsize=20, tellheight=false, rotation=pi / 2)
+    Label(fig[2, 1], text=L"\sigma_w", font=:bold, fontsize=20, tellwidth=false)
+    Label(fig[0, 1:2], text="Sigma vs $measure_name by Dataset ($resampling)", font=:bold, fontsize=20, tellwidth=false)
 
     if linkxaxes && !interactive
         linkxaxes!(axes...)
@@ -436,7 +440,7 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
 
     if linkyaxes && !interactive
         linkyaxes!(axes...)
-        for i in (setdiff(Set(1:length(axes)) , Set(1:m:length(axes))))
+        for i in (setdiff(Set(1:length(axes)), Set(1:m:length(axes))))
             hideydecorations!(axes[i]; grid=false, minorgrid=false)
         end
     end
@@ -450,16 +454,18 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
 
     toggles = collect(pairs(toggles_dict))
 
-    sort!(toggles, by = first)
+    sort!(toggles, by=first)
 
     labels = map(toggles) do (kernel, _)
         Label(fig, string(kernel))
     end
-    toggles = map(toggles) do (_, toggle) toggle end
+    toggles = map(toggles) do (_, toggle)
+        toggle
+    end
 
     fig[1, 2] = grid!(
         hcat(toggles, labels),
-        tellheight = false)
+        tellheight=false)
 
     fig[1, 2][0, 1:2] = Label(fig, "Kernels", font=:bold)
 
@@ -481,7 +487,7 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
 
     fig[1, 2][length(toggles)+1, 1:2] = grid!(
         hcat(customize_toggles, customize_labels),
-        tellheight = false
+        tellheight=false
     )
 
     on(linkyaxes_toggle.active) do active
@@ -496,25 +502,25 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
 end
 
 function exec_time(df::DataFrame, show_kernels=["Asin", "AsinNorm"];
-    grp = mapping(layout = :cost=>nonnumeric),
-    geom = visual(BoxPlot),
+    grp=mapping(layout=:cost => nonnumeric),
+    geom=visual(BoxPlot),
     logscale=false, linkyaxes=false)
     cols = mapping(
-        :kernel_cat=>"Kernel",
-        :n_iter=>"Iterations",
-        color=:kernel_cat=>"Kernel",
+        :kernel_cat => "Kernel",
+        :n_iter => "Iterations",
+        color=:kernel_cat => "Kernel",
     )
 
     plt = data(@chain df begin
-        @rtransform(:n_iter=:n_iter+1)
-        @rsubset(:kernel_cat in show_kernels)
-    end) * cols * geom * grp
+              @rtransform(:n_iter = :n_iter + 1)
+              @rsubset(:kernel_cat in show_kernels)
+          end) * cols * geom * grp
     fg = draw(plt,
-        facet = (; linkyaxes),
+        facet=(; linkyaxes),
         axis=(;
-            xticklabelrotation=pi/4,
+            xticklabelrotation=pi / 4,
             #limits=(nothing, (10, nothing)),
-            yscale=logscale ? log10 : identity,
+            yscale=logscale ? log10 : identity
         ),
     )
     plt, fg
@@ -523,7 +529,7 @@ end
 """
 Reverse the effects of `linkaxes!` on the given axes.
 """
-function unlinkaxes!(dir::Union{Val{:x}, Val{:y}}, a::Axis, others...)
+function unlinkaxes!(dir::Union{Val{:x},Val{:y}}, a::Axis, others...)
     axes = Axis[a; others...]
     for ax in axes
         setproperty!(ax, dir isa Val{:x} ? :xaxislinks : :yaxislinks, Vector{Axis}())
@@ -554,13 +560,15 @@ plotsdocdir(args...) = projectdir("document", "figures", "plots", args...)
 
 macro saveplot(name, args...)
     if name isa Expr
-        args = [name.args[2] ; args...]
+        args = [name.args[2]; args...]
         name = name.args[1]
     end
 
     str_name = string(name) * ".pdf"
 
-    declaration = esc(quote $name = $(args...) end)
+    declaration = esc(quote
+        $name = $(args...)
+    end)
 
     saving = esc(quote
         @info("Saving " * $str_name)
@@ -569,7 +577,9 @@ macro saveplot(name, args...)
     end)
 
     if isempty(args)
-        return esc(quote $saving end)
+        return esc(quote
+            $saving
+        end)
     end
 
     quote

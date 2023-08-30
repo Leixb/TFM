@@ -81,9 +81,9 @@ end
         using MLJ
         using TFM.Transformers
         X = (vendor=categorical(["IBM", "HP", "HP", "Asus", "IBM", "honeywell", "hello", "IBM"]),
-             height=[1.85, 1.67, 1.5, 1.67, 1.85, 1.67, 1.5, 1.67],
-             grade=categorical(["A", "B", "A", "B", "A", "B", "B", "A"], ordered=true),
-             n_devices=[3, 2, 4, 3, 3, 2, 4, 3])
+            height=[1.85, 1.67, 1.5, 1.67, 1.85, 1.67, 1.5, 1.67],
+            grade=categorical(["A", "B", "A", "B", "A", "B", "B", "A"], ordered=true),
+            n_devices=[3, 2, 4, 3, 3, 2, 4, 3])
         trans = TopCatTransformer(n=3)
         mach = machine(trans, X)
         @test_logs (:info, "Training machine(TopCatTransformer(features = Symbol[], …), …).") fit!(mach)
@@ -122,10 +122,10 @@ end
         using TFM.Transformers
 
         X = [
-            1 2 3 4 5 6;
-            2 3 4 5 6 7;
-            3 4 5 6 7 8;
-            4 5 6 7 8 9;
+            1 2 3 4 5 6
+            2 3 4 5 6 7
+            3 4 5 6 7 8
+            4 5 6 7 8 9
         ]
 
         trans = Multiplier(factor=2.5)
@@ -133,10 +133,10 @@ end
         W = transform(mach, X)
 
         @test W == [
-            2.5 5.0 7.5 10.0 12.5 15.0;
-            5.0 7.5 10.0 12.5 15.0 17.5;
-            7.5 10.0 12.5 15.0 17.5 20.0;
-            10.0 12.5 15.0 17.5 20.0 22.5;
+            2.5 5.0 7.5 10.0 12.5 15.0
+            5.0 7.5 10.0 12.5 15.0 17.5
+            7.5 10.0 12.5 15.0 17.5 20.0
+            10.0 12.5 15.0 17.5 20.0 22.5
         ]
     end
 end
