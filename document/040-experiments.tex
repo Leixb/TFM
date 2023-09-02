@@ -99,6 +99,8 @@ our implementation of the arc sine kernel, ensure that our experimental setup is
 correct and to have a baseline to compare our results with. This also serves as
 a peer review of their results.
 
+\subsection{Considerations on the resampling method}
+
 In the paper, \citeauthor{frenayParameterinsensitiveKernelExtreme2011} use a
 double cross-test resampling method which is illustrated in
 \cref{fig:frenay-cross-test}. First, they perform a 10-fold cross validation,
@@ -111,6 +113,12 @@ training processes in total.
     \caption{Illustration of the cross-test method from \cite{frenayParameterinsensitiveKernelExtreme2011}}
     \label{fig:frenay-cross-test}
 \end{figure}
+
+As mentioned in \cref{sec:resampling}, we opted to use a 5\texttimes2 cross
+which sacrifices part of the statistical power of their method in favor of
+speed. This decision was made since 5\texttimes2 should be enough to get a
+reasonable estimate of the performance and verify that the results are
+consistent with the paper without requiring a lot of computational power.
 
 \section{Comparing the performance of the kernels with different datasets}%
 \sectionmark{Comparing performance}

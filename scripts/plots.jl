@@ -76,7 +76,11 @@ end
 
 @info "Kernel plots"
 let
-    @saveplot kernel_asin = Plots.plot_kernel(Utils.kernel_asin_normalized)
+    @saveplot kernel_asin = Plots.plot_kernel(
+        Utils.kernel_asin_normalized; fig_opts=(; resolution=(375, 200)),
+        x=range(-1, 1, 201)
+    )
+
     @saveplot kernel_asin_3d_sig0001 = Plots.plot_kernel_3d(Utils.kernel_asin_normalized, 1e-3)
     @saveplot kernel_asin_3d_sig1 = Plots.plot_kernel_3d(Utils.kernel_asin_normalized, 1e+0)
     @saveplot kernel_asin_3d_sig1000 = Plots.plot_kernel_3d(Utils.kernel_asin_normalized, 1e+3)

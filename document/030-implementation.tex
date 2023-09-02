@@ -449,3 +449,26 @@ the following repositories:
 % TODO: Check if memoization if worth it or if we can do it manually in a more
 % sensible way.
 
+\subsection{Visualizing the kernels}
+
+Once all the kernels are implemented and the \emph{Julia} interface through
+\emph{MLJ} is also complete, we can try to run the kernels to produce some
+plots and compare them with the equivalent plots from the literature.
+
+\begin{figure}[H]
+    \begin{subfigure}{.59\textwidth}
+        \includegraphics{plots/kernel_asin}
+        \caption{Our custom implementation}
+    \end{subfigure} \begin{subfigure}{.40\textwidth}
+        \includegraphics{frenay-kernel}
+        \caption{\textcite{frenayParameterinsensitiveKernelExtreme2011}}
+    \end{subfigure}
+    \caption{Normalized Asymptotic ELM kernel evaluated around 0}
+    \label{fig:kernel_asin_comparison}
+\end{figure}
+
+\Cref{fig:kernel_asin_comparison} shows the result of plotting the normalized
+asymptotic ELM kernel around 0 through our implementation in \emph{Julia} and
+the equivalent plot given in the original paper (the legend applies to both
+plots).
+

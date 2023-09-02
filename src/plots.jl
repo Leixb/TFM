@@ -36,8 +36,10 @@ import ..Measures
 using DrWatson: projectdir
 
 "Plot the kernel function around the origin with different values of σ"
-function plot_kernel(kernel=Utils.kernel_asin_normalized, args...; interactive=is_interactive(), x=range(-2, 2, length=200), kwargs...)
-    fig = Figure(fonts=(; regular="Latin Modern Roman"))
+function plot_kernel(kernel=Utils.kernel_asin_normalized, args...;
+    fig_opts::NamedTuple=(),
+    interactive=is_interactive(), x=range(-2, 2, length=200), y=0, kwargs...)
+    fig = Figure(fonts=(; regular="Latin Modern Roman"); fig_opts...)
     ax = Axis(fig[1, 1])
 
     if interactive
@@ -47,21 +49,28 @@ function plot_kernel(kernel=Utils.kernel_asin_normalized, args...; interactive=i
 
         sliderobservables = [s.value for s in sg.sliders]
         values = lift(sliderobservables...) do slvalues...
-            kernel.(x, 0, 10.0^slvalues[1], args...; kwargs...)
+            kernel.(x, y, 10.0^slvalues[1], args...; kwargs...)
         end
 
         lines!(ax, x, values)
     else
-        sigma_values = range(-3, 3, step=3)
 
-        for sigma in sigma_values
-            values = kernel.(x, 0, 10.0^sigma, args...; kwargs...)
-            lines!(ax, x, values, label=latexstring("10^{$sigma}"))
+        with_theme(
+            Theme(
+                Lines=(cycle=Cycle([:color, :linestyle], covary=true),)
+            )) do
+            sigma_values = range(-3, 3, step=3)
+
+            for sigma in sigma_values
+                values = kernel.(x, y, 10.0^sigma, args...; kwargs...)
+                lines!(ax, x, values, label=latexstring("10^{$sigma}"))
+            end
         end
-        axislegend(L"\sigma_w")
+        # axislegend(L"\sigma_w")
+        fig[1, 2] = Legend(fig, ax, L"\sigma_w", framevisible=false)
     end
 
-    ylims!(ax, 0, 1)
+    ylims!(ax, 0.5, 1)
     xlims!(ax, extrema(x))
 
     fig
