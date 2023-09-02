@@ -408,9 +408,9 @@ the libraries interface with each other.
 \begin{figure}[H]
     \begin{tikzpicture}[
             box/.style={draw, rectangle, minimum width=1cm, minimum height=1cm},
-            C/.style={fill=lightgray},
-            Julia/.style={fill=lime!70},
-            JLL/.style={fill=orange!50},
+            C/.style={fill=wong_blue!40,postaction={pattern=north west lines,pattern color=wong_blue!10}},
+            Julia/.style={fill=wong_green!70},
+            JLL/.style={fill=wong_orange!70,postaction={pattern=north east lines,pattern color=wong_orange!10}},
         ]
         \node[box,C] (libsvm) at (0,0) {libsvm};
         \node[box,JLL,below=of libsvm] (libsvm_jll) {libsvm\_jll};
@@ -418,7 +418,7 @@ the libraries interface with each other.
         \node[box,Julia,right=of LIBSVM] (MLJLIBSVMInterface) {MLJLIBSVMInterface.jl};
         \node[box,Julia,below=of MLJLIBSVMInterface] (MLJ) {MLJ.jl};
 
-        \draw[->] (libsvm) -- (libsvm_jll) node[midway, anchor=west,color=lime!60!black] {build\_tarballs.jl};
+        \draw[->] (libsvm) -- (libsvm_jll) node[midway, anchor=west,color=wong_green] {build\_tarballs.jl};
         \draw[->] (libsvm_jll) -- (LIBSVM);
         \draw[->] (LIBSVM) -- (MLJLIBSVMInterface);
         \draw[->] (MLJLIBSVMInterface) -- (MLJ);

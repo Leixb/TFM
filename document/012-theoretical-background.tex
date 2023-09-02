@@ -281,16 +281,16 @@ no analytical expression for the kernel).
                 grid style={dotted, draw=gray!40, line width=1.0pt}
             ]
             \nextgroupplot[title={\bfseries Step $(n = 0)$}]
-            \draw[line width=2pt, color=blue] (-1,0) -- (0,0);
-            \draw[line width=2pt, color=blue, dashed] (0,0) -- (0,1);
-            \draw[line width=2pt, color=blue] (0,1) -- (1,1);
+            \draw[line width=2pt, color=wong_blue] (-1,0) -- (0,0);
+            \draw[line width=2pt, color=wong_blue, dashed] (0,0) -- (0,1);
+            \draw[line width=2pt, color=wong_blue] (0,1) -- (1,1);
 
             \nextgroupplot[title={\bfseries Ramp $(n=1)$}]
-            \draw[line width=2pt, color=red] (-1,0) -- (0,0) -- (1.1,1.1);
+            \draw[line width=2pt, color=wong_orange] (-1,0) -- (0,0) -- (1.1,1.1);
 
             \nextgroupplot[title={\bfseries Quarter-pipe $(n=2)$}]
-            \draw[line width=2pt, color=green!70!black] (-1,0) -- (0,0);
-            \addplot[domain=0:1.1, line width=2pt, color=green!70!black] {x^2};
+            \draw[line width=2pt, color=wong_green] (-1,0) -- (0,0);
+            \addplot[domain=0:1.1, line width=2pt, color=wong_green] {x^2};
         \end{groupplot}
     \end{tikzpicture}
     \caption{Activation functions $\Theta(z)z^n$ for $n = 0,\,1,\,2$}
