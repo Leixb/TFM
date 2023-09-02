@@ -25,6 +25,7 @@ in
     LD_LIBRARY_PATH = "/run/opengl-driver/lib:/run/opengl-driver-32/lib:${pkgs.stdenv.cc.cc.lib}/lib";
 
     PYTHON = "${pyenv}/bin/python";
+    PYTHONHOME = pyenv;
 
     FREETYPE_ABSTRACTION_FONT_PATH = "${pkgs.lmodern}/share/fonts/opentype/public/lm";
   };
