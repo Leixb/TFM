@@ -39,29 +39,29 @@ We can model the model mathematically as follows:
 \end{equation}
 where:
 \begin{align}
-    \textbf H &= \begin{bmatrix}
-        g(\textbf w_1 \cdot \textbf x_1 + b_1) & g(\textbf w_2 \cdot \textbf x_1 + b_2) & \dots & g(\textbf w_{\tilde{N}} \cdot \textbf x_1 + b_{\tilde{N}}) \\
-        g(\textbf w_1 \cdot \textbf x_2 + b_1) & g(\textbf w_2 \cdot \textbf x_2 + b_2) & \dots & g(\textbf w_{\tilde{N}} \cdot \textbf x_2 + b_{\tilde{N}}) \\
-        \vdots                                 & \vdots                                 & \ddots & \vdots                                 \\
-        g(\textbf w_1 \cdot \textbf x_N + b_1) & g(\textbf w_2 \cdot \textbf x_N + b_2) & \dots & g(\textbf w_{\tilde{N}} \cdot \textbf x_N + b_{\tilde{N}})
-    \end{bmatrix}_{N \times \tilde{N}}, \\
-    \boldsymbol\beta &= \begin{bmatrix}
-        \boldsymbol\beta_1 \\
-        \boldsymbol\beta_2 \\
-        \vdots             \\
-        \boldsymbol\beta_{\tilde{N}}
-    \end{bmatrix}_{\tilde{N} \times m}, \quad
+    \textbf H        & = \begin{bmatrix}
+                             g(\textbf w_1 \cdot \textbf x_1 + b_1) & g(\textbf w_2 \cdot \textbf x_1 + b_2) & \dots  & g(\textbf w_{\tilde{N}} \cdot \textbf x_1 + b_{\tilde{N}}) \\
+                             g(\textbf w_1 \cdot \textbf x_2 + b_1) & g(\textbf w_2 \cdot \textbf x_2 + b_2) & \dots  & g(\textbf w_{\tilde{N}} \cdot \textbf x_2 + b_{\tilde{N}}) \\
+                             \vdots                                 & \vdots                                 & \ddots & \vdots                                                     \\
+                             g(\textbf w_1 \cdot \textbf x_N + b_1) & g(\textbf w_2 \cdot \textbf x_N + b_2) & \dots  & g(\textbf w_{\tilde{N}} \cdot \textbf x_N + b_{\tilde{N}})
+                         \end{bmatrix}_{N \times \tilde{N}}, \\
+    \boldsymbol\beta & = \begin{bmatrix}
+                             \boldsymbol\beta_1 \\
+                             \boldsymbol\beta_2 \\
+                             \vdots             \\
+                             \boldsymbol\beta_{\tilde{N}}
+                         \end{bmatrix}_{\tilde{N} \times m}, \quad
     \textbf T = \begin{bmatrix}
-        \textbf t_1 \\
-        \textbf t_2 \\
-        \vdots      \\
-        \textbf t_N
-    \end{bmatrix}_{N \times m}
+                    \textbf t_1 \\
+                    \textbf t_2 \\
+                    \vdots      \\
+                    \textbf t_N
+                \end{bmatrix}_{N \times m}
 \end{align}
 
 The conventional way to train a SLFN is to use the backpropagation algorithm,
 which is gradient based algorithm that aims to minimize the error $\left\lVert
-\textbf{T} - \textbf{H}\boldsymbol\beta \right\rVert$ by iteratively updating
+    \textbf{T} - \textbf{H}\boldsymbol\beta \right\rVert$ by iteratively updating
 the weights and biases of the network. This algorithm is computationally
 expensive and can take a long time to converge.
 
@@ -95,7 +95,7 @@ expensive and can take a long time to converge.
 
         % connections
         \foreach \i in {1,2,4}
-            \foreach \j in {1,2,4} {
+        \foreach \j in {1,2,4} {
                 \draw[->] (x\i) -- (h\j);
                 \draw[->] (h\i) -- (y\j);
             }
@@ -142,36 +142,36 @@ the activation function $g$ is the sigmoid \emph{erf} function defined in
 Then, the asymptotic kernel $k$ can be analytically computed as shown in
 \cref{eq:kernel_asin}:
 \begin{equation}\label{eq:kernel_asin}
-	k(\x,\,\z \mid p \to + \infty)  = \frac{2}{\pi}
-	\arcsin \frac{1 + \left\langle \x,\,\z \right\rangle}{\sqrt{
-			\left(
-			\frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
-			\right)
-			\left(
-			\frac{1}{2\sigma_w^2} + 1 + \left\langle \z,\,\z \right\rangle
-			\right)
-		}}
+    k(\x,\,\z \mid p \to + \infty)  = \frac{2}{\pi}
+    \arcsin \frac{1 + \left\langle \x,\,\z \right\rangle}{\sqrt{
+            \left(
+            \frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
+            \right)
+            \left(
+            \frac{1}{2\sigma_w^2} + 1 + \left\langle \z,\,\z \right\rangle
+            \right)
+        }}
 \end{equation}
 
 \begin{figure}[htpb]
-\begin{tikzpicture}
-\begin{axis}[
-    every axis plot/.append style={smooth, mark=none, line width=1.5pt, domain=-3:3, samples=50, no markers},
-    enlarge x limits=false,
-    legend pos=north west,
-    height=5cm,
-    width=0.7\textwidth,
-    grid=both,
-    grid style={dotted, draw=gray!40, line width=1.0pt}
-    ]
-    \addplot+ gnuplot[id=erf]{erf(x)};
-    \addlegendentry{$\erf(x)$};
-    \addplot+[dashed] gnuplot[id=tanh]{tanh(x)};
-    \addlegendentry{$\tanh(x)$};
-\end{axis}
-\end{tikzpicture}
-\caption{Comparison between the \emph{erf} and \emph{tanh} functions}
-\label{fig:erf}
+    \begin{tikzpicture}
+        \begin{axis}[
+                every axis plot/.append style={smooth, mark=none, line width=1.5pt, domain=-3:3, samples=50, no markers},
+                enlarge x limits=false,
+                legend pos=north west,
+                height=5cm,
+                width=0.7\textwidth,
+                grid=both,
+                grid style={dotted, draw=gray!40, line width=1.0pt}
+            ]
+            \addplot+ gnuplot[id=erf]{erf(x)};
+            \addlegendentry{$\erf(x)$};
+            \addplot+[dashed] gnuplot[id=tanh]{tanh(x)};
+            \addlegendentry{$\tanh(x)$};
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Comparison between the \emph{erf} and \emph{tanh} functions}
+    \label{fig:erf}
 \end{figure}
 
 This kernel is the same as the one proposed by
@@ -217,11 +217,11 @@ matrix $\boldsymbol\Sigma$, \citeauthor{williamsComputationInfiniteNeural1998}
 obtains the following expression for the covariance matrix:
 \begin{equation}\label{eq:integral_williams}
     V_{\erf}\left(\x,\,\x'\right) = \frac{1}{(2\pi)^{\frac{d+1}{2}}|\boldsymbol\Sigma|^{\frac{1}{2}}}
-        \int
-            \erf \left(\textbf u^T \tilde \x\right)
-            \erf \left(\textbf u^T \tilde \x'\right) \times \exp \left(
-                -\frac{1}{2} \textbf u^T \boldsymbol\Sigma^{-1} \textbf u
-            \right) \,d\textbf u
+    \int
+    \erf \left(\textbf u^T \tilde \x\right)
+    \erf \left(\textbf u^T \tilde \x'\right) \times \exp \left(
+    -\frac{1}{2} \textbf u^T \boldsymbol\Sigma^{-1} \textbf u
+    \right) \,d\textbf u
 \end{equation}
 then, in the appendix, \citeauthor{williamsComputationInfiniteNeural1998} shows
 that the integral can evaluated to the expression shown in
@@ -237,7 +237,7 @@ infinite neural network kernels to include other activation functions. Their
 formulation starts from the following integral:
 \begin{equation}\label{eq:integral_cho}
     k_n(\x, \y) = 2 \bigintss \frac{\exp\left(-\frac{\lVert \textbf w \rVert^2}{2}\right)}{(2\pi)^{d/2}}
-        \Theta(\textbf w \cdot \x) \Theta(\textbf w \cdot \y) (\textbf w \cdot \x)^n (\textbf w \cdot \y)^n \,d\textbf w
+    \Theta(\textbf w \cdot \x) \Theta(\textbf w \cdot \y) (\textbf w \cdot \x)^n (\textbf w \cdot \y)^n \,d\textbf w
 \end{equation}
 where $\Theta(z) = \frac{1}{2} \bigl(1 + \text{sign}(z)\bigr)$ is the Heaviside
 step function. And $n$ is a hyperparameter corresponding to the order of the
@@ -258,20 +258,20 @@ formulation when $n=0$ can be derived from a specialization of the formulation
 from \textcite{williamsComputationInfiniteNeural1998}.
 
 The integral in \cref{eq:integral_cho} can be only computed for $n >
--\frac{1}{2}$. However, for $n < 0$, the behaviour is unintuitive, as the kernel
+    -\frac{1}{2}$. However, for $n < 0$, the behaviour is unintuitive, as the kernel
 map the origin in the input space to infinity in the feature space (and there is
 no analytical expression for the kernel).
 
 \begin{figure}[H]
-	\begin{tikzpicture}
-		\begin{groupplot}[group style={
-						group size=3 by 1,
-						xlabels at=edge bottom,
-						ylabels at=edge left,
+    \begin{tikzpicture}
+        \begin{groupplot}[group style={
+                        group size=3 by 1,
+                        xlabels at=edge bottom,
+                        ylabels at=edge left,
                         vertical sep=4em,
-					},
-				width = .3\textwidth,
-				ymin=-0.1, ymax=1.1,
+                    },
+                width = .3\textwidth,
+                ymin=-0.1, ymax=1.1,
                 every axis plot/.append style={smooth, mark=none, line width=2pt},
                 enlarge x limits=false,
                 samples=25,
@@ -279,21 +279,21 @@ no analytical expression for the kernel).
                 xmin=-1, xmax=1,
                 grid=both,
                 grid style={dotted, draw=gray!40, line width=1.0pt}
-			]
-			\nextgroupplot[title={\bfseries Step $(n = 0)$}]
+            ]
+            \nextgroupplot[title={\bfseries Step $(n = 0)$}]
             \draw[line width=2pt, color=blue] (-1,0) -- (0,0);
             \draw[line width=2pt, color=blue, dashed] (0,0) -- (0,1);
             \draw[line width=2pt, color=blue] (0,1) -- (1,1);
 
-			\nextgroupplot[title={\bfseries Ramp $(n=1)$}]
+            \nextgroupplot[title={\bfseries Ramp $(n=1)$}]
             \draw[line width=2pt, color=red] (-1,0) -- (0,0) -- (1.1,1.1);
 
             \nextgroupplot[title={\bfseries Quarter-pipe $(n=2)$}]
             \draw[line width=2pt, color=green!70!black] (-1,0) -- (0,0);
             \addplot[domain=0:1.1, line width=2pt, color=green!70!black] {x^2};
-		\end{groupplot}
-	\end{tikzpicture}
-	\caption{Activation functions $\Theta(z)z^n$ for $n = 0,\,1,\,2$}
+        \end{groupplot}
+    \end{tikzpicture}
+    \caption{Activation functions $\Theta(z)z^n$ for $n = 0,\,1,\,2$}
     \label{fig:activation_functions}
 \end{figure}
 
@@ -303,35 +303,35 @@ and provide such expressions for $n = 0,\,1,\,2$. This expression has a simple
 relationship with the magnitude of the input vectors $\x$ and $\y$ and a more
 complex one with the angle between them:
 \begin{equation}\label{eq:kernel_cho}
-	k_n(\x,\,\y) = \frac{1}{\pi} \left\lVert \x \right\rVert^n \left\lVert \y \right\rVert^n J_n(\theta)
+    k_n(\x,\,\y) = \frac{1}{\pi} \left\lVert \x \right\rVert^n \left\lVert \y \right\rVert^n J_n(\theta)
 \end{equation}
 where $\theta$ is the angle between $\x$ and $\y$ and $J_n(\theta)$ is the more complex
 part of the expression:
 \begin{equation}
-	J_n(\theta) = (-1)^n \left( \sin \theta \right)^{(2n+1)}
-	\left( \frac{1}{\sin \theta} \frac{\partial}{\partial \theta} \right)^2
-	\left( \frac{\pi - \theta}{\sin \theta} \right)
-	\quad \text{for} \quad \forall n \in \left\{ 0,\,1,\,2,\,\dots \right\}
+    J_n(\theta) = (-1)^n \left( \sin \theta \right)^{(2n+1)}
+    \left( \frac{1}{\sin \theta} \frac{\partial}{\partial \theta} \right)^2
+    \left( \frac{\pi - \theta}{\sin \theta} \right)
+    \quad \text{for} \quad \forall n \in \left\{ 0,\,1,\,2,\,\dots \right\}
 \end{equation}
 For $n = 0,\,1,\,2$, the expression for $J_n(\theta)$ is:
 \begin{align}
-	J_0(\theta) & = \pi - \theta                                                                    \\
-	J_1(\theta) & = \sin\theta + \left(\pi - \theta\right)\cos\theta                                \\
-	J_2(\theta) & = 3\sin\theta\cos\theta + \left(\pi - \theta\right)\left(1 + 2\cos^2\theta\right)
+    J_0(\theta) & = \pi - \theta                                                                    \\
+    J_1(\theta) & = \sin\theta + \left(\pi - \theta\right)\cos\theta                                \\
+    J_2(\theta) & = 3\sin\theta\cos\theta + \left(\pi - \theta\right)\left(1 + 2\cos^2\theta\right)
 \end{align}
 
 From these, and using $\theta = \arccos\frac{\x \cdot \y}{\left\lVert \x
-\right\rVert \left\lVert \y \right\rVert}$ we get the expression for the first
+        \right\rVert \left\lVert \y \right\rVert}$ we get the expression for the first
 three kernels:
 \begin{align}
     \label{eq:kernel_cho_n0}
-	k_0(\x,\,\y) & = 1 - \frac{1}{\pi} \arccos\frac{\x \cdot \y}{\left\lVert \x \right\rVert \left\lVert \y \right\rVert} \\
+    k_0(\x,\,\y) & = 1 - \frac{1}{\pi} \arccos\frac{\x \cdot \y}{\left\lVert \x \right\rVert \left\lVert \y \right\rVert} \\
     \label{eq:kernel_cho_n1}
-	k_1(\x,\,\y) & = \frac{1}{\pi} \left\lVert \x \right\rVert \left\lVert \y \right\rVert
-	\bigl( \sin\theta + \left(\pi - \theta\right)\cos\theta \bigr)                                                        \\
+    k_1(\x,\,\y) & = \frac{1}{\pi} \left\lVert \x \right\rVert \left\lVert \y \right\rVert
+    \bigl( \sin\theta + \left(\pi - \theta\right)\cos\theta \bigr)                                                        \\
     \label{eq:kernel_cho_n2}
-	k_2(\x,\,\y) & = \frac{1}{\pi} \left\lVert \x \right\rVert^2 \left\lVert \y \right\rVert^2
-	\Bigl( 3\sin\theta\cos\theta + \left(\pi - \theta\right)\left(1 + 2\cos^2\theta\right) \Bigr)
+    k_2(\x,\,\y) & = \frac{1}{\pi} \left\lVert \x \right\rVert^2 \left\lVert \y \right\rVert^2
+    \Bigl( 3\sin\theta\cos\theta + \left(\pi - \theta\right)\left(1 + 2\cos^2\theta\right) \Bigr)
 \end{align}
 
 \subsection{Covariance arc cosine kernel}
@@ -342,7 +342,7 @@ derived from a standard normal distribution (i.e. mean 0 and variance 1).
 a gaussian distribution with mean 0 and covariance $\Sigma$, then the kernel
 $K_{\Sigma,\,n}$ is related to the original kernel $K_{n}$ as follows:
 \begin{equation}\label{eq:kernel_pandey}
-K_{\Sigma,\,n}(\x,\,\y) = K_{n}\left(\Sigma^{\frac{1}{2}}\x,\,\Sigma^{\frac{1}{2}}\y\right)
+    K_{\Sigma,\,n}(\x,\,\y) = K_{n}\left(\Sigma^{\frac{1}{2}}\x,\,\Sigma^{\frac{1}{2}}\y\right)
 \end{equation}
 
 \section{Kernel normalization}%

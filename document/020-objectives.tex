@@ -9,13 +9,13 @@
     \label{tab:kernels_summary}
     \begin{tabular}{lcccc}
         \toprule
-        \textbf{Kernel} & \textbf{Distribution} & \textbf{Activation function} & \textbf{Reference} & \textbf{Equation} \\
+        \textbf{Kernel}  & \textbf{Distribution} & \textbf{Activation function} & \textbf{Reference}                                                                       & \textbf{Equation}      \\
         \midrule
-        Arc-sine         & \textit{Gaussian} & \textit{erf}       & \cite{williamsComputationInfiniteNeural1998,frenayParameterinsensitiveKernelExtreme2011} & \ref{eq:kernel_asin} \\
+        Arc-sine         & \textit{Gaussian}     & \textit{erf}                 & \cite{williamsComputationInfiniteNeural1998,frenayParameterinsensitiveKernelExtreme2011} & \ref{eq:kernel_asin}   \\
         \addlinespace
-        Arc-cosine $n=0$ & \textit{Gaussian} & \textit{heavyside} & \cite{choLargemarginClassificationInfinite2010,pandeyGoDeepWide2014}                     & \ref{eq:kernel_cho_n0}  \\
-        Arc-cosine $n=1$ & \textit{Gaussian} & \textit{ReLu}      & \cite{choLargemarginClassificationInfinite2010,pandeyGoDeepWide2014}                     & \ref{eq:kernel_cho_n1}  \\
-        Arc-cosine $n=2$ & \textit{Gaussian} & \textit{RePu}      & \cite{choLargemarginClassificationInfinite2010,pandeyGoDeepWide2014}                     & \ref{eq:kernel_cho_n2}  \\
+        Arc-cosine $n=0$ & \textit{Gaussian}     & \textit{heavyside}           & \cite{choLargemarginClassificationInfinite2010,pandeyGoDeepWide2014}                     & \ref{eq:kernel_cho_n0} \\
+        Arc-cosine $n=1$ & \textit{Gaussian}     & \textit{ReLu}                & \cite{choLargemarginClassificationInfinite2010,pandeyGoDeepWide2014}                     & \ref{eq:kernel_cho_n1} \\
+        Arc-cosine $n=2$ & \textit{Gaussian}     & \textit{RePu}                & \cite{choLargemarginClassificationInfinite2010,pandeyGoDeepWide2014}                     & \ref{eq:kernel_cho_n2} \\
         \bottomrule
     \end{tabular}
 \end{table}
@@ -45,7 +45,7 @@ We can state the following objectives for the thesis:
         \begin{itemize}
             \item The experiments should be able to run on a laptop.
             \item The experiments should be able to run in a reasonable amount
-                of time (less than a day).
+                  of time (less than a day).
         \end{itemize}
     \item[O5] Make the experiments reproducible and the code available to the
         public. % TODO: add link to code, and Zenodo

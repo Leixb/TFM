@@ -20,11 +20,11 @@
     V_{\erf}\left(\x,\,\x'\right) =
     \frac{1}{(2\pi)^{\frac{d+1}{2}} |\boldsymbol \Sigma|^{\frac{1}{2}}}
     \int
-        \erf \left(\bu ^T \tilde \x \right)
-        \erf \left(\bu ^T \tilde \x '\right)
-        \exp \left(
-            -\frac{1}{2} \bu ^T \boldsymbol \Sigma^{-1} \bu
-        \right)
+    \erf \left(\bu ^T \tilde \x \right)
+    \erf \left(\bu ^T \tilde \x '\right)
+    \exp \left(
+    -\frac{1}{2} \bu ^T \boldsymbol \Sigma^{-1} \bu
+    \right)
     \,d\boldsymbol u
 \end{equation}
 
@@ -33,71 +33,71 @@ Appropriately scaled, the graph of this function is very similar to the
 literature \cite{williamsComputationInfiniteNeural1998}.
 
 \begin{equation}
-	k(\x,\,\z \mid p \to + \infty)  = \frac{2}{\pi}
-	\arcsin \frac{1 + \left\langle \x,\,\z \right\rangle}{\sqrt{
-			\left(
-			\frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
-			\right)
-			\left(
-			\frac{1}{2\sigma_w^2} + 1 + \left\langle \z,\,\z \right\rangle
-			\right)
-		}}
+    k(\x,\,\z \mid p \to + \infty)  = \frac{2}{\pi}
+    \arcsin \frac{1 + \left\langle \x,\,\z \right\rangle}{\sqrt{
+            \left(
+            \frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
+            \right)
+            \left(
+            \frac{1}{2\sigma_w^2} + 1 + \left\langle \z,\,\z \right\rangle
+            \right)
+        }}
 \end{equation}
 
 \begin{equation}
-	\gamma = \frac{1}{2\sigma_w^2}
+    \gamma = \frac{1}{2\sigma_w^2}
 \end{equation}
 
 \paragraph{Normalization}
 
 \begin{equation}
-	\tilde{k}(\x,\,\z \mid p \to + \infty) = \frac{
-		k(\x,\,\z \mid p \to + \infty) }{
-		\sqrt{
-			k(\x,\,\x \mid p \to + \infty)
-			k(\z,\,\z \mid p \to + \infty)
-		}
-	}
+    \tilde{k}(\x,\,\z \mid p \to + \infty) = \frac{
+        k(\x,\,\z \mid p \to + \infty) }{
+        \sqrt{
+            k(\x,\,\x \mid p \to + \infty)
+            k(\z,\,\z \mid p \to + \infty)
+        }
+    }
 \end{equation}
 
 \begin{align*}
-	k(\x,\,\x \mid p \to + \infty)
-	 & = \frac{2}{\pi}
-	\arcsin \frac{1 + \left\langle \x,\,\x \right\rangle}{\sqrt{
-			\left(
-			\frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
-			\right)
-			\left(
-			\frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
-			\right)
-	}}                 \\
-	 & = \frac{2}{\pi}
-	\arcsin \frac{1 + \left\langle \x,\,\x \right\rangle}{
-		\frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
-	}
+    k(\x,\,\x \mid p \to + \infty)
+     & = \frac{2}{\pi}
+    \arcsin \frac{1 + \left\langle \x,\,\x \right\rangle}{\sqrt{
+            \left(
+            \frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
+            \right)
+            \left(
+            \frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
+            \right)
+    }}                 \\
+     & = \frac{2}{\pi}
+    \arcsin \frac{1 + \left\langle \x,\,\x \right\rangle}{
+        \frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
+    }
 \end{align*}
 
 \begin{equation}
-	\tilde{k}(\x,\,\z \mid p \to + \infty) =
-	\frac{
-		\arcsin \frac{1 + \left\langle \x,\,\z \right\rangle}{\sqrt{
-				\left(
-				\frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
-				\right)
-				\left(
-				\frac{1}{2\sigma_w^2} + 1 + \left\langle \z,\,\z \right\rangle
-				\right)
-			}}
-	}{
-		\sqrt{
-			\arcsin \frac{1 + \left\langle \x,\,\x \right\rangle}{
-				\frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
-			}
-			\arcsin \frac{1 + \left\langle \z,\,\z \right\rangle}{
-				\frac{1}{2\sigma_w^2} + 1 + \left\langle \z,\,\z \right\rangle
-			}
-		}
-	}
+    \tilde{k}(\x,\,\z \mid p \to + \infty) =
+    \frac{
+        \arcsin \frac{1 + \left\langle \x,\,\z \right\rangle}{\sqrt{
+                \left(
+                \frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
+                \right)
+                \left(
+                \frac{1}{2\sigma_w^2} + 1 + \left\langle \z,\,\z \right\rangle
+                \right)
+            }}
+    }{
+        \sqrt{
+            \arcsin \frac{1 + \left\langle \x,\,\x \right\rangle}{
+                \frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
+            }
+            \arcsin \frac{1 + \left\langle \z,\,\z \right\rangle}{
+                \frac{1}{2\sigma_w^2} + 1 + \left\langle \z,\,\z \right\rangle
+            }
+        }
+    }
 \end{equation}
 
 \section{Implementation details}
@@ -110,7 +110,7 @@ only once\footnote{See \cref{lst:dot} in the appendix}.
 \begin{listing}
     \caption{Relevant fragment of the kernel modifications for the prediction case (\texttt{svm.cpp})}
     \label{lst:svm_cpp_k_function}
-\begin{minted}{C}
+    \begin{minted}{C}
 double Kernel::k_function(const svm_node *x, const svm_node *y, const svm_parameter& param) {
   switch(param.kernel_type) {
     // ...
@@ -150,7 +150,7 @@ double Kernel::k_function(const svm_node *x, const svm_node *y, const svm_parame
 \begin{listing}
     \caption{Comparison of the \texttt{dot} implementation for the case of $x = y$ and $x \neq y$}
     \label{lst:dot}
-\begin{minted}{C}
+    \begin{minted}{C}
 double Kernel::dot(const svm_node *px, const svm_node *py)
 {
 	double sum = 0;

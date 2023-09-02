@@ -43,10 +43,10 @@ measures were implemented:
 \begin{enumerate}
     \item Variables (including target) are standardized
     \item We use normalized root-mean-square error as our performance
-        measure.
+          measure.
     \item The kernel itself is normalized.
     \item The hyperparameter $\sigma_w$ is divided by the number of samples in
-        the training data of each dataset.
+          the training data of each dataset.
 \end{enumerate}
 
 In the next paragraphs we clarify how each of these steps are implemented and
@@ -81,11 +81,11 @@ $10^{-3},\,10^{-2},\,\dots,\,10^{3}$
     \label{tab:paramgrid}
     \begin{tabular}{ccc}
         \toprule
-        Variable & lower & upper \\
+        Variable      & lower     & upper  \\
         \midrule
-        $\sigma_w$ & $10^{-3}$ & $10^3$ \\
+        $\sigma_w$    & $10^{-3}$ & $10^3$ \\
         $\varepsilon$ & $10^{-5}$ & $10^1$ \\
-        $C$ & $10^{-2}$ & $10^4$ \\
+        $C$           & $10^{-2}$ & $10^4$ \\
         \bottomrule
     \end{tabular}
 \end{table}
@@ -108,8 +108,8 @@ training processes in total.
 
 \begin{figure}[H]
     \input{figures/frenay-cross-test.tikz}
-	\caption{Illustration of the cross-test method from \cite{frenayParameterinsensitiveKernelExtreme2011}}
-	\label{fig:frenay-cross-test}
+    \caption{Illustration of the cross-test method from \cite{frenayParameterinsensitiveKernelExtreme2011}}
+    \label{fig:frenay-cross-test}
 \end{figure}
 
 \section{Comparing the performance of the kernels with different datasets}%

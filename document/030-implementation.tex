@@ -51,7 +51,7 @@ run, the user only needs to install \emph{nix} and \emph{direnv} and run
 All the datasets used are publicly available and are downloaded automatically by
 \emph{nix}. There is a file \texttt{datasets.toml} which contains the URLs of
 the datasets and their checksums\footnote{The checksum uses
-\url{https://www.mankier.com/1/nix-hash}}, this guarantees that other users will
+    \url{https://www.mankier.com/1/nix-hash}}, this guarantees that other users will
 know if the dataset has been modified.
 
 \begin{listing}[htpb]
@@ -203,7 +203,7 @@ The first step, is to add the new kernel types to the \texttt{enum} in
 \begin{listing}[H]
     \caption{Modified Enum definition from \texttt{svm.h}}
     \label{lst:svm_h_enum}
-\begin{minted}{C}
+    \begin{minted}{C}
 enum { LINEAR, POLY, RBF, SIGMOID, PRECOMPUTED, ASIN, ASIN_NORM, ACOS_0, ACOS_1, ACOS_2}; /* kernel_type */
 \end{minted}
 \end{listing}
@@ -227,7 +227,7 @@ a parameter to the kernel function.
 \begin{listing}[H]
     \caption{Helper functions for the asin kernel (\texttt{svm.cpp})}
     \label{lst:svm_cpp_helper}
-\begin{minted}{C}
+    \begin{minted}{C}
 // Passing x_square and y_square as parameters, we can avoid computing them again
 // every time we call the kernel function
 static inline double asin_elm(const svm_node *x, const svm_node *y, const double x_square, const double y_square, const double gamma) {
@@ -252,7 +252,7 @@ static inline double asin_elm_equal(const double x_square, const double gamma) {
         (Notice the use of \texttt{x\_square} to avoid computing the dot product of $x$ with itself every time)
     }
     \label{lst:kernel_function}
-\begin{minted}{C}
+    \begin{minted}{C}
 double kernel_asin(int i, int j) const
 {
     return M_2_PI*asin_elm(x[i], x[j], x_square[i], x_square[j], gamma);
@@ -359,13 +359,13 @@ translation between Julia types and the C types used by the library.
 The kernels can be added by extending the \texttt{Kernel} \texttt{enum} in Julia
 to reflect the \texttt{enum} in the C library.
 \begin{listing}[H]
-\begin{minted}{julia}
+    \begin{minted}{julia}
 module kernel
 @enum KERNEL Linear Polynomial RadialBasis Sigmoid Precomputed Asin AsinNorm Acos0 Acos1 Acos2
 end
 \end{minted}
-\caption{Julia \texttt{enum} definition for the kernels, equivalent to the C definition in \cref{lst:svm_h_enum}.}
-\label{lst:kernel_enum_julia}
+    \caption{Julia \texttt{enum} definition for the kernels, equivalent to the C definition in \cref{lst:svm_h_enum}.}
+    \label{lst:kernel_enum_julia}
 \end{listing}
 
 Technically, this is the only change needed to add the kernels to the library,
@@ -406,33 +406,33 @@ train, evaluate, tune and visualize our SVM models with flexibility and ease.
 the libraries interface with each other.
 
 \begin{figure}[H]
-\begin{tikzpicture}[
-    box/.style={draw, rectangle, minimum width=1cm, minimum height=1cm},
-    C/.style={fill=lightgray},
-    Julia/.style={fill=lime!70},
-    JLL/.style={fill=orange!50},
-    ]
-    \node[box,C] (libsvm) at (0,0) {libsvm};
-    \node[box,JLL,below=of libsvm] (libsvm_jll) {libsvm\_jll};
-    \node[box,Julia,right=of libsvm_jll] (LIBSVM) {LIBSVM.jl};
-    \node[box,Julia,right=of LIBSVM] (MLJLIBSVMInterface) {MLJLIBSVMInterface.jl};
-    \node[box,Julia,below=of MLJLIBSVMInterface] (MLJ) {MLJ.jl};
+    \begin{tikzpicture}[
+            box/.style={draw, rectangle, minimum width=1cm, minimum height=1cm},
+            C/.style={fill=lightgray},
+            Julia/.style={fill=lime!70},
+            JLL/.style={fill=orange!50},
+        ]
+        \node[box,C] (libsvm) at (0,0) {libsvm};
+        \node[box,JLL,below=of libsvm] (libsvm_jll) {libsvm\_jll};
+        \node[box,Julia,right=of libsvm_jll] (LIBSVM) {LIBSVM.jl};
+        \node[box,Julia,right=of LIBSVM] (MLJLIBSVMInterface) {MLJLIBSVMInterface.jl};
+        \node[box,Julia,below=of MLJLIBSVMInterface] (MLJ) {MLJ.jl};
 
-    \draw[->] (libsvm) -- (libsvm_jll) node[midway, anchor=west,color=lime!60!black] {build\_tarballs.jl};
-    \draw[->] (libsvm_jll) -- (LIBSVM);
-    \draw[->] (LIBSVM) -- (MLJLIBSVMInterface);
-    \draw[->] (MLJLIBSVMInterface) -- (MLJ);
+        \draw[->] (libsvm) -- (libsvm_jll) node[midway, anchor=west,color=lime!60!black] {build\_tarballs.jl};
+        \draw[->] (libsvm_jll) -- (LIBSVM);
+        \draw[->] (LIBSVM) -- (MLJLIBSVMInterface);
+        \draw[->] (MLJLIBSVMInterface) -- (MLJ);
 
-    % Color Legend
-    \matrix [draw,right] at ($(current bounding box.east)+(0.5,0)$) {
-      \node [C,label=right:C] {}; \\
-      \node [JLL,label=right:Julia Link Library] {}; \\
-      \node [Julia,label=right:Julia] {}; \\
-    };
+        % Color Legend
+        \matrix [draw,right] at ($(current bounding box.east)+(0.5,0)$) {
+            \node [C,label=right:C] {};                    \\
+            \node [JLL,label=right:Julia Link Library] {}; \\
+            \node [Julia,label=right:Julia] {};            \\
+        };
 
-\end{tikzpicture}
-\caption{Dependency graph of Julia packages exposing the libsvm library API.}
-\label{fig:julia_libsvm_deps}
+    \end{tikzpicture}
+    \caption{Dependency graph of Julia packages exposing the libsvm library API.}
+    \label{fig:julia_libsvm_deps}
 \end{figure}
 
 The forked versions of the libraries discussed in this section can be found in
