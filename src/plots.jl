@@ -25,6 +25,10 @@ function tex_theme!()
     Makie.update_theme!(fonts=(regular=texfont(), bold=texfont(:bold), italic=texfont(:italic)))
 end
 
+function no_color_cycle!()
+    Makie.update_theme!(palette=(cycle=Cycle([:color, :marker, :linestyle], covary=true),))
+end
+
 import ..Utils, ..Experiments, ..DataSets
 import ..DataSets: is_regression
 import ..Measures

@@ -10,6 +10,7 @@ using CairoMakie
 @info "Activating CairoMakie with LaTeX theme"
 CairoMakie.activate!()
 Plots.tex_theme!()
+Plots.no_color_cycle!()
 
 resolution = (1200, 800) # For big plots
 show_bands = true
