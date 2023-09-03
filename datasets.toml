@@ -1,116 +1,333 @@
 [abalone]
 url = "https://archive.ics.uci.edu/ml/machine-learning-databases/abalone/abalone.data"
 sha256 = "sha256:17s4g2y2zzi3p9g90s61i0gmyaihqbvliwhlsl4w6l5arb6wsdyy"
+[abalone.meta]
+title = "Abalone"
+description = "Predict the age of abalone from physical measurements"
+doi = "10.24432/C55C7W"
+kind = "classification/regression"
+year = 1995
+home = "https://archive.ics.uci.edu/dataset/1/abalone"
 
 [cancer]
 url = "https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wpbc.data"
 sha256 = "sha256:13jw6jz5g8v175mbklygpzv0qhq7k4ql7h0d6wrahvq8nv6mrggj"
+[cancer.meta]
+title = "Breast Cancer Wisconsin (Prognostic)"
+description = "Predict whether breast cancer is benign or malignant"
+doi = "10.24432/C5GK50"
+kind = "classification"
+year = 1995
+home = "https://archive.ics.uci.edu/dataset/16"
 
 [cpu]
 url = "https://archive.ics.uci.edu/ml/machine-learning-databases/cpu-performance/machine.data"
 sha256 = "sha256:12s4pnfr2ydpk9hwrn6gkrihhappa15ryzma4i5a30c3zd90wpy9"
+[cpu.meta]
+title = "Computer Hardware"
+description = "Relative CPU Performance Data, described in terms of its cycle time, memory size, etc."
+doi = "10.24432/C5830D"
+kind = "regression"
+year = 1987
+home = "https://archive.ics.uci.edu/dataset/29"
 
 [ailerons]
 url = "https://www.dcc.fc.up.pt/~ltorgo/Regression/ailerons.tgz"
 sha256 = "sha256:1qcwxh5r8xvwh5r3y51kgn32fn83pzx4qvzrizbvf0d58rgvy0wj"
+[ailerons.meta]
+title = "Ailerons"
+description = """
+This data set addresses a control problem, namely flying a F16 aircraft. The
+attributes describe the status of the aeroplane, while the goal is to predict
+the control action on the ailerons of the aircraft.
+"""
+doi = ""
+kind = "regression"
+year = ""
+home = "https://www.dcc.fc.up.pt/~ltorgo/Regression/ailerons.html"
 
 [compActs]
 url = "https://www.dcc.fc.up.pt/~ltorgo/Regression/compact.tar.gz"
 sha256 = "sha256:10bnnyq9bwpp8n9z3cmkx5n5cavhqj6ypr5dyaqwca6maw7x1z6q"
+[compActs.meta]
+title = "Computer Activity"
+description = "Predict a computer system activity from system performance measures"
+doi = ""
+kind = "regression"
+year = ""
+home = "https://www.dcc.fc.up.pt/~ltorgo/Regression/comp.html"
 
 [elevators]
 url = "https://www.dcc.fc.up.pt/~ltorgo/Regression/elevators.tgz"
 sha256 = "sha256:15w8w05w9iwzj9mqhchjdmdydfzmmb921cmsx93h46ncdc92b40v"
+[elevators.meta]
+title = "Elevators"
+description = "Predict the energy used by an elevator system"
+doi = ""
+kind = "regression"
+year = ""
+home = "https://www.dcc.fc.up.pt/~ltorgo/Regression/elevators.html"
 
 [stock]
 url = "https://www.dcc.fc.up.pt/~ltorgo/Regression/stock.tgz"
 sha256 = "sha256:0mma9c6qd1js19nwf63syclr22j1krlmq050hvafqb9f0p95ak9p"
+[stock.meta]
+title = "Stock"
+description = "Daily stock prices from January 1988 through October 1991, for ten aerospace companies."
+doi = ""
+kind = "regression"
+year = 1991
+home = "https://www.dcc.fc.up.pt/~ltorgo/Regression/stock.html"
 
 [triazines]
 url = "https://www.dcc.fc.up.pt/~ltorgo/Regression/triazines.tar.gz"
 sha256 = "sha256:0xkapr4p19ks429a8x704dmh1mgz6ajmzslgd1zlw9qzzz67g0rh"
+[triazines.meta]
+title = "Triazines"
+description = "Predict the activity from the descriptive structural attributes"
+doi = "10.1080/08839519508945474"
+kind = "regression"
+year = 1995
+home = "https://www.dcc.fc.up.pt/~ltorgo/Regression/triazines.html"
 
 [iris]
 url = "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
 sha256 = "sha256:1h2n4sg5cn54f4mqg9zd6kbsprl4pkcv89sdkcqicwiilxqqnq3g"
+[iris.meta]
+title = "Iris"
+description = "A small classic dataset from Fisher, 1936. One of the earliest known datasets used for evaluating classification methods"
+doi = "10.24432/C56C76"
+kind = "classification"
+year = 1936
+home = "https://archive.ics.uci.edu/dataset/53/iris"
 
 [wine]
 url = "https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data"
 sha256 = "sha256:0nd6mvb7qgfjjr7j0n1rd02x8g3ji9xyaw1sal5xyl9x7whb3rkb"
+[wine.meta]
+title = "Wine"
+description = "Using chemical analysis to determine the origin of wines"
+doi = "10.24432/C5PC7J"
+kind = "classification"
+year = 1991
+home = "https://archive.ics.uci.edu/dataset/109/wine"
 
 [cancer_class]
 url = "https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data"
 sha256 = "sha256:0jjzd71r9zzz4x9kss6a73zz1ai5ni9bda552yiyhnry3x0sy1nn"
+[cancer_class.meta]
+title = "Breast Cancer Wisconsin (Diagnostic)"
+description = "Predict whether breast cancer is benign or malignant"
+doi = "10.24432/C5DW2B"
+kind = "classification"
+year = 1995
+home = "https://archive.ics.uci.edu/dataset/17"
 
 [servo]
 url = "https://archive.ics.uci.edu/ml/machine-learning-databases/servo/servo.data"
 sha256 = "sha256:03x098fhl6f9qw4macg6jgw76mkvba58fd698g82nvzqwx9g68kz"
+[servo.meta]
+title = "Servo"
+description = "Predict the rise time of a servomechanism"
+doi = "10.24432/C5Q30F"
+kind = "regression"
+year = 1993
+home = "https://archive.ics.uci.edu/dataset/87/servo"
+
+# PumaDyn Family
 
 [pumadyn-8fh]
 url = "https://ftp.cs.toronto.edu/pub/neuron/delve/data/tarfiles/pumadyn-family/pumadyn-8fh.tar.gz"
 sha256 = "sha256:0dhd8r125kxff4x1n3d7f9niw56fn5hjwmd75k9bpn2j2pad7h1b"
+[pumadyn-8fh.meta]
+title = "Pumadyn 8 inputs, fairly linear, high noise"
+description = "Realistic simulation of the dynamics of a Puma 560 robot arm"
+doi = ""
+kind = "regression"
+year = 1996
+home = "https://www.cs.toronto.edu/~delve/data/pumadyn/desc.html"
 
 [pumadyn-8fm]
 url = "https://ftp.cs.toronto.edu/pub/neuron/delve/data/tarfiles/pumadyn-family/pumadyn-8fm.tar.gz"
 sha256 = "sha256:16vxp2zh679w573xicfh4qbrdkhfnznhl5d4hjah8gkgl94nclh4"
+[pumadyn-8fm.meta]
+title = "Pumadyn 8 inputs, fairly linear, moderate noise"
+description = "Realistic simulation of the dynamics of a Puma 560 robot arm"
+doi = ""
+kind = "regression"
+year = 1996
+home = "https://www.cs.toronto.edu/~delve/data/pumadyn/desc.html"
 
 [pumadyn-8nh]
 url = "https://ftp.cs.toronto.edu/pub/neuron/delve/data/tarfiles/pumadyn-family/pumadyn-8nh.tar.gz"
 sha256 = "sha256:17b6879xmdbgn39kfbyj4b5dzafxs5bwzf6s96x5rpr8i18rb0cc"
+[pumadyn-8nh.meta]
+title = "Pumadyn 8 inputs, non-linear, high noise"
+description = "Realistic simulation of the dynamics of a Puma 560 robot arm"
+doi = ""
+kind = "regression"
+year = 1996
+home = "https://www.cs.toronto.edu/~delve/data/pumadyn/desc.html"
 
 [pumadyn-8nm]
 url = "https://ftp.cs.toronto.edu/pub/neuron/delve/data/tarfiles/pumadyn-family/pumadyn-8nm.tar.gz"
 sha256 = "sha256:09lvqabv8w9qhl6sdqfk8a1y3f0a6jcsn0p2krpx1ph654l6yrwq"
+[pumadyn-8nm.meta]
+title = "Pumadyn 8 inputs, non-linear, moderate noise"
+description = "Realistic simulation of the dynamics of a Puma 560 robot arm"
+doi = ""
+kind = "regression"
+year = 1996
+home = "https://www.cs.toronto.edu/~delve/data/pumadyn/desc.html"
 
 [pumadyn-32fh]
 url = "https://ftp.cs.toronto.edu/pub/neuron/delve/data/tarfiles/pumadyn-family/pumadyn-32fh.tar.gz"
 sha256 = "sha256:1b7lmmlmd5lb4s3dpqhw3g6s7mafbgp7h4agv6x90gxgvjq3md12"
+[pumadyn-32fh.meta]
+title = "Pumadyn 32 inputs, fairly linear, high noise"
+description = "Realistic simulation of the dynamics of a Puma 560 robot arm"
+doi = ""
+kind = "regression"
+year = 1996
+home = "https://www.cs.toronto.edu/~delve/data/pumadyn/desc.html"
 
 [pumadyn-32fm]
 url = "https://ftp.cs.toronto.edu/pub/neuron/delve/data/tarfiles/pumadyn-family/pumadyn-32fm.tar.gz"
 sha256 = "sha256:0jnyamvy73v7i5654xxgwbrkikvm0j0zfzd9br7j5bx7qam2j7as"
+[pumadyn-32fm.meta]
+title = "Pumadyn 32 inputs, fairly linear, moderate noise"
+description = "Realistic simulation of the dynamics of a Puma 560 robot arm"
+doi = ""
+kind = "regression"
+year = 1996
+home = "https://www.cs.toronto.edu/~delve/data/pumadyn/desc.html"
 
 [pumadyn-32nh]
 url = "https://ftp.cs.toronto.edu/pub/neuron/delve/data/tarfiles/pumadyn-family/pumadyn-32nh.tar.gz"
 sha256 = "sha256:0bdwmgi7587dq43xnh8vn9fvc5cvpjcfw9r1crpyd01hipnfn69j"
+[pumadyn-32nh.meta]
+title = "Pumadyn 32 inputs, non-linear, high noise"
+description = "Realistic simulation of the dynamics of a Puma 560 robot arm"
+doi = ""
+kind = "regression"
+year = 1996
+home = "https://www.cs.toronto.edu/~delve/data/pumadyn/desc.html"
 
 [pumadyn-32nm]
 url = "https://ftp.cs.toronto.edu/pub/neuron/delve/data/tarfiles/pumadyn-family/pumadyn-32nm.tar.gz"
 sha256 = "sha256:18jfinjsvzilqdlzv2cq714qlnv6w87w7iaiy7ggssiclfj86ykw"
+[pumadyn-32nm.meta]
+title = "Pumadyn 32 inputs, non-linear, moderate noise"
+description = "Realistic simulation of the dynamics of a Puma 560 robot arm"
+doi = ""
+kind = "regression"
+year = 1996
+home = "https://www.cs.toronto.edu/~delve/data/pumadyn/desc.html"
+
+# Bank Family
 
 [bank-8fm]
 url = "https://ftp.cs.toronto.edu/pub/neuron/delve/data/tarfiles/bank-family/bank-8fm.tar.gz"
 sha256 = "sha256:1j78dawj0vhg1qvckm259d6gyhjgn4y3142wxqkkfjs6xfslja5n"
+[bank-8fm.meta]
+title = "Bank 8 inputs, fairly linear, moderate noise"
+description = "Generated from a simplistic simulator, which simulates the queues in a series of banks"
+doi = ""
+kind = "regression"
+year = 1996
+home = "https://www.cs.toronto.edu/~delve/data/bank/desc.html"
 
 [bank-8fh]
 url = "https://ftp.cs.toronto.edu/pub/neuron/delve/data/tarfiles/bank-family/bank-8fh.tar.gz"
 sha256 = "sha256:0jyqi8c4myc33i0cmm0bdi84009rj933p4wg3zm0b6yywb3kc9w7"
+[bank-8fh.meta]
+title = "Bank 8 inputs, fairly linear, high noise"
+description = "Generated from a simplistic simulator, which simulates the queues in a series of banks"
+doi = ""
+kind = "regression"
+year = 1996
+home = "https://www.cs.toronto.edu/~delve/data/bank/desc.html"
 
 [bank-8nm]
 url = "https://ftp.cs.toronto.edu/pub/neuron/delve/data/tarfiles/bank-family/bank-8nm.tar.gz"
 sha256 = "sha256:0pfy7bcj7zd7qqrz7amvxhjrv9f39zi11fbzszclbxjkqv53yv8y"
+[bank-8nm.meta]
+title = "Bank 8 inputs, non-linear, moderate noise"
+description = "Generated from a simplistic simulator, which simulates the queues in a series of banks"
+doi = ""
+kind = "regression"
+year = 1996
 
 [bank-8nh]
 url = "https://ftp.cs.toronto.edu/pub/neuron/delve/data/tarfiles/bank-family/bank-8nh.tar.gz"
 sha256 = "sha256:0fc162v7wk006sbbaa995hps3s28znsml4qhpqhism9qa36jcfhk"
+[bank-8nh.meta]
+title = "Bank 8 inputs, non-linear, high noise"
+description = "Generated from a simplistic simulator, which simulates the queues in a series of banks"
+doi = ""
+kind = "regression"
+year = 1996
 
 [bank-32fm]
 url = "https://ftp.cs.toronto.edu/pub/neuron/delve/data/tarfiles/bank-family/bank-32fm.tar.gz"
 sha256 = "sha256:04bnpflq6cwchhypc94ndjrcc6d0bzzac9wc7q1l5lmjzr5x4346"
+[bank-32fm.meta]
+title = "Bank 32 inputs, fairly linear, moderate noise"
+description = "Generated from a simplistic simulator, which simulates the queues in a series of banks"
+doi = ""
+kind = "regression"
+year = 1996
 
 [bank-32fh]
 url = "https://ftp.cs.toronto.edu/pub/neuron/delve/data/tarfiles/bank-family/bank-32fh.tar.gz"
 sha256 = "sha256:1vs18n2dil657l9b74k0hadxm59fh83gb24p29vq6s8cm4rr468d"
+[bank-32fh.meta]
+title = "Bank 32 inputs, fairly linear, high noise"
+description = "Generated from a simplistic simulator, which simulates the queues in a series of banks"
+doi = ""
+kind = "regression"
+year = 1996
 
 [bank-32nm]
 url = "https://ftp.cs.toronto.edu/pub/neuron/delve/data/tarfiles/bank-family/bank-32nm.tar.gz"
 sha256 = "sha256:0bi605qa2jywm96p5c5missc0npq63qkzw06x26jjvagns8rllgb"
+[bank-32nm.meta]
+title = "Bank 32 inputs, non-linear, moderate noise"
+description = "Generated from a simplistic simulator, which simulates the queues in a series of banks"
+doi = ""
+kind = "regression"
+year = 1996
 
 [bank-32nh]
 url = "https://ftp.cs.toronto.edu/pub/neuron/delve/data/tarfiles/bank-family/bank-32nh.tar.gz"
 sha256 = "sha256:1567ivhcnij02p2fb8vyzximp6ws3mk2hwxna0fcvw64py9hnrhz"
+[bank-32nh.meta]
+title = "Bank 32 inputs, non-linear, high noise"
+description = "Generated from a simplistic simulator, which simulates the queues in a series of banks"
+doi = ""
+kind = "regression"
+year = 1996
 
 [ionosphere]
 url = "https://archive.ics.uci.edu/static/public/52/ionosphere.zip"
 sha256 = "sha256:1a8vbn4jpwcnm3virwkan8x6wzjqhn5y6f1q6srln99zghfysaiq"
 stripRoot = false
+[ionosphere.meta]
+title = "Ionosphere"
+description = "Classifications of radar returns from the ionosphere"
+doi = "10.24432/C5W01B"
+kind = "classification"
+year = 1988
+home = "https://archive.ics.uci.edu/dataset/52/ionosphere"
+
+[adult]
+url = "https://archive.ics.uci.edu/static/public/2/adult.zip"
+sha256 = "sha256:1qnbzbk9v1vfb18w4bprbbwfps746mj4qy52fb3w1ph6qs5b7fg8"
+stripRoot = false
+[adult.meta]
+title = "Adult"
+description = "Predict whether income exceeds $50K/yr based on census data. Also known as 'Census Income' dataset"
+doi = "10.24432/C5XW20"
+kind = "classification"
+year = 1996
+home = "https://archive.ics.uci.edu/dataset/2/adult"
