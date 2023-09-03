@@ -26,7 +26,11 @@ function tex_theme!()
 end
 
 function no_color_cycle!()
-    Makie.update_theme!(palette=(cycle=Cycle([:color, :marker, :linestyle], covary=true),))
+    Makie.update_theme!(
+        ScatterLines=(cycle=Cycle([:color, :marker, :linestyle], covary=true),),
+        Lines=(cycle=Cycle([:color, :linestyle], covary=true),),
+        Scatter=(cycle=Cycle([:color, :marker], covary=true),),
+    )
 end
 
 import ..Utils, ..Experiments, ..DataSets
@@ -200,8 +204,7 @@ function plot_delve(df, dataset::Type{<:DataSets.Delve}, size=32,
         "nh" => Axis(fig[2, 2], xscale=log10, yaxisposition=:right),
     )
 
-    wcolors = Makie.wong_colors()
-    kernel_colors = Dict(k => wcolors[i] for (i, k) in enumerate(show_kernels))
+    kernel_num = Dict(k => i for (i, k) in enumerate(show_kernels))
 
     do_plot = (name) -> begin
         df_sub = @rsubset(df, :dataset.linearity == name[1], :dataset.noise == name[2])
@@ -218,7 +221,7 @@ function plot_delve(df, dataset::Type{<:DataSets.Delve}, size=32,
                     ax[name],
                     val_sigma, val_lower, val_upper,
                     label=kernel, visible=true,
-                    color=(kernel_colors[kernel], 0.3)
+                    color=(Cycled(kernel_num[kernel]), 0.3)
                 )
             end
         end
@@ -227,7 +230,9 @@ function plot_delve(df, dataset::Type{<:DataSets.Delve}, size=32,
             df_sub_kern = @rsubset(df_sub, :kernel_cat == kernel)
 
             scatterlines!(ax[name], getproperty(df_sub_kern, sigma), getproperty(df_sub_kern, measure),
-                color=kernel_colors[kernel],
+                color=Cycled(kernel_num[kernel]),
+                marker=Cycled(kernel_num[kernel]),
+                linestyle=Cycled(kernel_num[kernel]),
                 label=kernel
             )
         end
@@ -243,7 +248,11 @@ function plot_delve(df, dataset::Type{<:DataSets.Delve}, size=32,
         # text!(ax[name], 1, 1, text=name)
     end
 
-    map(do_plot, collect(keys(ax)))
+    with_theme(
+        ScatterLines=(cycle=Cycle([:color, :marker, :linestyle], covary=true),)
+    ) do
+        map(do_plot, collect(keys(ax)))
+    end
 
     if linkyaxes
         linkyaxes!(values(ax)...)
@@ -325,7 +334,8 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
     sort!(kernels, by=x -> (startswith(x, "Asin") ? "A$x" : "B$x"))
     wcolors = Makie.wong_colors()
 
-    kernel_colors = Dict(k => wcolors[i] for (i, k) in enumerate(kernels))
+    kernel_idx = Dict(k => i for (i, k) in enumerate(kernels))
+    kernel_colors = Dict(k => wcolors[kernel_idx[k]] for k in kernels)
 
     # We only add std bands toggle if they are requested
     # initially since they may not be valid
@@ -335,7 +345,7 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
 
     toggles_dict = Dict(k =>
         if interactive
-            Toggle(fig, active=k in show_kernels, buttoncolor=kernel_colors[k])
+            Toggle(fig, active=k in show_kernels, buttoncolor=Cycled(kernel_idx[k]))
         else
             (; active=k in show_kernels)
         end
@@ -398,7 +408,7 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
 
             if kernel == "RadialBasis"
                 if show_rbf || interactive
-                    hline = hlines!(ax, [minimum(val_measure)], color=kernel_colors[kernel], linewidth=2, label="RBF (best)", linestyle=:dash)
+                    hline = hlines!(ax, [minimum(val_measure)], color=Cycled(kernel_idx[kernel]), linewidth=2, label="RBF (best)", linestyle=:dash)
                     interactive && connect!(hline.visible, toggles_dict[kernel].active)
                 end
 
@@ -411,16 +421,14 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
                 continue
             end
 
-            slines = lines!(ax, val_sigma, val_measure,
+            slines = scatterlines!(ax, val_sigma, val_measure,
                 linestyle=df_kernel.kernel_family[1] == "Acos" ? :dash : :solid,
-                label=string(kernel), visible=true, color=kernel_colors[kernel])
-
-            spoints = scatter!(ax, val_sigma, val_measure,
-                label=string(kernel), visible=true, color=kernel_colors[kernel])
+                marker=Cycled(kernel_idx[kernel]),
+                label=string(kernel), visible=true, color=Cycled(kernel_idx[kernel]),
+            )
 
             if interactive
                 connect!(slines.visible, toggles_dict[kernel].active)
-                connect!(spoints.visible, toggles_dict[kernel].active)
             end
         end
         ax.title = string(dataset)

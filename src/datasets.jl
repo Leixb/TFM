@@ -65,7 +65,7 @@ drop_columns(::DataSet) = nothing
 url(ds::DataSet) = error("url not implemented for $(typeof(ds))")
 
 # doi(ds::DataSet) returns the DOI of the relevant paper that uses the dataset.
-doi(ds::DataSet) = error("doi not implemented for $(typeof(ds))")
+doi(::DataSet) = nothing
 
 "List of all datasets defined in the module"
 all = Vector{DataSet}()
