@@ -58,6 +58,7 @@ export mse
     module LspLink
     include("../scripts/produce_all.jl")
     include("../scripts/plots.jl")
+    include("../scripts/save_datasets.jl")
     end
 end
 
