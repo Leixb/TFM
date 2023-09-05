@@ -18,17 +18,20 @@ See the `scipts/extract_metafeatures.jl` file for the implementation in Julia
 of the dataset preprocessing and saving location.
 """
 
-import argparse
-import json
 from typing import Dict, Optional, Any, Generator
+import argparse
 import glob
+import json
+import sys
 
 import pandas as pd
 import numpy as np
-import pymfe.mfe as mfe
+import pymfe.mfe as mfe  # type: ignore
 
 
 def extract_dataset(X: np.ndarray, y: Optional[np.ndarray],
+                    extract_args: Dict[str, Any] = {
+                        "verbose": 1, "suppress_warnings": True},
                     *args, **kwargs) -> Dict[str, Any]:
     "Extract meta-features from dataset, extra arguments are passed to MFE"
 
@@ -39,21 +42,29 @@ def extract_dataset(X: np.ndarray, y: Optional[np.ndarray],
     else:
         extractor.fit(X)
 
-    ft = extractor.extract()
+    ft = extractor.extract(**extract_args)
 
     return dict(zip(ft[0], ft[1]))
 
 
-def process_all(pattern: str = "data/datasets_processed/*.X") -> \
-        Generator[Dict[str, Any], None, None]:
+def process_all(pattern: str = "data/datasets_processed/*.X",
+                *args, **kwargs) -> Generator[Dict[str, Any], None, None]:
     for file in glob.glob(pattern):
         # trim extension
         file = file[:-2]
 
+        # WARN: skip MNIST dataset since it is too big, should be computed
+        # separately with a subset of the data
+        if file.endswith("MNIST"):
+            print(f"Skipping {file}", file=sys.stderr)
+            continue
+
+        print(f"Processing {file}", file=sys.stderr)
+
         X = pd.read_csv(file + ".X").to_numpy()
         y = pd.read_csv(file + ".y", header=None).to_numpy()
 
-        ft = extract_dataset(X, y)
+        ft = extract_dataset(X, y, *args, **kwargs)
 
         ft["name"] = file.split("/")[-1]
 
@@ -63,13 +74,22 @@ def process_all(pattern: str = "data/datasets_processed/*.X") -> \
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "output",
-        type=str,
+        "-o",
+        "--output",
+        type=argparse.FileType("w"),
         help="Output file to save the metafeatures",
+        default=sys.stdout
+    )
+    parser.add_argument(
+        "--features",
+        nargs="+",
+        help="Groups of features to extract, if not given, default are extracted",
+        default=["general", "statistical", "model-based", "landmarking"]
     )
     args = parser.parse_args()
 
-    data = process_all()
-
-    with open(args.output, "w") as f:
-        json.dump(list(data), f, default=str)
+    with args.output as f:
+        for ft in process_all(groups=args.features):
+            json.dump(ft, f, default=str)
+            f.write("\n")
+            f.flush()
