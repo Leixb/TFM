@@ -17,15 +17,23 @@ in
     # context for taskwarrior
     TW_CONTEXT = "tfm";
 
+    PYTHON = "${pyenv}/bin/python";
+    PYTHONHOME = pyenv;
+
     JULIA_NUM_THREADS = 8;
+
+    JULIA_PYCALL_DEPS = pkgs.runCommand "julia-pycall-deps.jl"
+      {
+        pythonhome = pyenv;
+        pythonversion = pyenv.python.version;
+      } ''
+      substituteAll ${./deps.jl} $out
+    '';
 
     DATASETS = pkgs.callPackage ./datasets.nix { };
 
     # Needed for OpenGL
     LD_LIBRARY_PATH = "/run/opengl-driver/lib:/run/opengl-driver-32/lib:${pkgs.stdenv.cc.cc.lib}/lib";
-
-    PYTHON = "${pyenv}/bin/python";
-    PYTHONHOME = pyenv;
 
     FREETYPE_ABSTRACTION_FONT_PATH = "${pkgs.lmodern}/share/fonts/opentype/public/lm";
   };
@@ -42,6 +50,8 @@ in
     '';
 
     pluto.exec = "julia --project=$DEVENV_ROOT -e 'using Pkg; Pkg.instantiate(); using Pluto; Pluto.run(auto_reload_from_file=true)'";
+
+    sync-pycall-deps.exec = "julia ${./julia_link_pycall.jl}";
   };
 
   enterShell = ''
@@ -56,6 +66,9 @@ in
         ln -sfn "$DATASETS" data/exp_raw
       fi
     fi
+
+    # Make sure julia links to the proper python version
+    sync-pycall-deps || echo "Failed to sync pycall deps" >&2 &
   '';
 
   packages = with pkgs; [
