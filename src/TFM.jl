@@ -59,6 +59,7 @@ export mse
     include("../scripts/produce_all.jl")
     include("../scripts/plots.jl")
     include("../scripts/save_datasets.jl")
+    include("../scripts/extract_features.jl")
     end
 end
 
