@@ -29,6 +29,27 @@ import numpy as np
 import pymfe.mfe as mfe  # type: ignore
 
 
+class NumpyEncoder(json.JSONEncoder):
+    """ Custom encoder for numpy data types """
+    # Adapted from: https://stackoverflow.com/questions/50916422
+
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, np.complexfloating):
+            return {'real': obj.real, 'imag': obj.imag}
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        elif isinstance(obj, np.bool_):
+            return bool(obj)
+        elif isinstance(obj, np.void):
+            return None
+
+        return json.JSONEncoder.default(self, obj)
+
+
 def extract_dataset(X: np.ndarray, y: Optional[np.ndarray],
                     extract_args: Dict[str, Any] = {
                         "verbose": 1, "suppress_warnings": True},
@@ -90,6 +111,6 @@ if __name__ == "__main__":
 
     with args.output as f:
         for ft in process_all(groups=args.features):
-            json.dump(ft, f, default=str)
+            json.dump(ft, f, cls=NumpyEncoder, default=str)
             f.write("\n")
             f.flush()
