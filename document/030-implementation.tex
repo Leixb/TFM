@@ -472,3 +472,53 @@ asymptotic ELM kernel around 0 through our implementation in \emph{Julia} and
 the equivalent plot given in the original paper (the legend applies to both
 plots).
 
+
+\section{Meta learning}
+
+The trial and error approach of machine learning tasks is often tedious and
+time-consuming. Driven by this, multiple approaches have been proposed to make
+recommender systems, which take the results of simple experiments and metrics
+(meta-features) and use them to recommend hyperparameter values, search spaces
+and optimization algorithms for similar tasks. This process of using
+meta-features is a form of meta-learning. \Textcite{rivolliMetafeaturesMetalearning2022}
+provides a comprehensive survey of the different meta-features and meta-learning
+approaches.
+
+We will use statistical and landmarking meta-features:
+\begin{description}
+    \item[Statistical] meta-features are computed from the dataset
+        characteristics: number of instances, number of features, number of
+        classes, ratio of instances to features, etc.
+
+    \item[Landmarking] meta-features are computed by training a set of simple
+        models on the dataset and using their performance as meta-features.
+        These models are called \emph{landmarking} models and are usually simple
+        and fast to train. The models used in this work are:
+        \begin{itemize}
+            % TODO: fill this properly
+            \item \emph{ZeroR}: A model that always predicts the most frequent
+                  class.
+            \item \emph{OneR}: A model that uses a single feature to predict the
+                  class.
+            \item \emph{DecisionStump}: A decision tree with a single split.
+            \item \emph{NaiveBayes}: A Naive Bayes classifier.
+            \item \emph{RandomNode}: A decision tree with a single split on a
+                  random feature.
+            \item \emph{RandomTree}: A decision tree with a random split.
+            \item \emph{RandomGuess}: A model that predicts a random class.
+        \end{itemize}
+\end{description}
+
+Implementing the meta-features and meta-learning algorithms is out of the scope
+of this work, so we will use the \emph{PyMFE} python
+package~\cite{WelcomePyMFEDocumentation,JMLR:v21:19-348} which provides
+a vast collection of the most common meta-features.
+
+Julia provides a convenient way to call Python code and libraries through the
+\emph{PyCall.jl} package, which allows us to use \emph{PyMFE} from Julia.
+
+
+
+
+
+\cite{JMLR:v21:19-348,WelcomePyMFEDocumentation}
