@@ -12,7 +12,7 @@
   };
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "github:leixb/nixpkgs?rev=182ce5b195431cc51967c0d5ec00f478a762a4a2";
     flake-utils.url = "github:numtide/flake-utils";
     devenv = {
       url = "github:cachix/devenv/latest";

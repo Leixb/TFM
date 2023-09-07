@@ -66,9 +66,6 @@ in
         ln -sfn "$DATASETS" data/exp_raw
       fi
     fi
-
-    # Make sure julia links to the proper python version
-    sync-pycall-deps || echo "Failed to sync pycall deps" >&2 &
   '';
 
   packages = with pkgs; [
@@ -105,7 +102,31 @@ in
 
     julia = {
       enable = true;
-      package = pkgs.julia_19;
+      package =
+        let
+          # WARN: This uses the experimental PR for Julia packages in nix:
+          # https://github.com/NixOS/nixpkgs/pull/225513
+          # It may not work for all packages, and may change in the future.
+          # The version used is fixed with flake.lock in my own fork of the PR
+          # so it will be stable as is, but do not copy this code without checking
+          # if the PR has been merged and a more sensible API is available.
+          #
+          # One of the major caveats is that the package list is fixed through
+          # the versions in an external registry, so it is not possible to use
+          # the Manifest.toml file. This should change in the future when the
+          # API stabilizes and julia2nix is updated to use it.
+
+          packageOverrides = builtins.mapAttrs (name: value: pkgs.fetchFromGitHub value) (lib.importTOML ./juliaPackageOverrides.toml);
+          python3 = pyenv;
+          juliaWithPackages = pkgs.julia.withPackages.override { inherit python3 packageOverrides; };
+
+          projectPackages = builtins.attrNames (lib.importTOML ../Project.toml).deps;
+          brokenPackages = [ "GLMakie" ];
+          isNotBroken = p: ! (builtins.elem p brokenPackages);
+
+          packageList = builtins.filter isNotBroken projectPackages;
+        in
+        juliaWithPackages packageList;
     };
   };
 

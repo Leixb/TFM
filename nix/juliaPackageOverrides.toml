@@ -1,0 +1,26 @@
+# Overrides of Julia packages for libsvm to use our custom libsvm fork
+[b1bec4e5-fd48-53fe-b0cb-9723c09d164b]
+owner = "LeixB"
+repo = "LIBSVM.jl"
+rev = "93a62a67dca18cf729c97df5ef0341eb3daf91ba"
+sha256 = "sha256-YyPR1m1N8NXQSgAUuzPmyFyT1M7ewHb12rbvoh7kVOc="
+
+[61c7150f-6c77-4bb1-949c-13197eac2a52]
+owner = "LeixB"
+repo = "MLJLIBSVMInterface.jl"
+rev = "e190d3ff8226a709f5fbd06432c850dfd2b40903"
+sha256 = "sha256-8doA2tjQ+2ofGj4giF6HoGcG4CWkFZB0/nDCHfo2LQk="
+
+[08558c22-525a-5d2a-acf6-0ac6658ffce4]
+owner = "LeixB"
+repo = "libsvm_jll.jl"
+rev = "b2662a79e9e6a28f69bcd2a623149b7ee14fd8df"
+sha256 = "sha256-AIVs2Nl12y7EhJZRL9vfd9oSe7OXrMvkKC6AMkVY+l0="
+
+# Fork of GLMakie that works properly in Linux window managers
+
+# [e9468ef8-e4e7-5192-8a1a-b1aee30e663a]
+# owner = "LeixB"
+# repo = "Makie.jl"
+# rev = "209a3da1de8e99c611e9b153e61d8d05b8fc235e"
+# sha256 = "sha256-vAmZbt9NisrNik2BTumQk0LDFNWqRZ6FzqpKuzwraoM="
