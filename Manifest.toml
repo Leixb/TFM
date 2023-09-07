@@ -2,7 +2,7 @@
 
 julia_version = "1.9.3"
 manifest_format = "2.0"
-project_hash = "90f2dc90a95c2a8348a8425ff8ce204d8cbe7ef1"
+project_hash = "36f5dc091391a14b67c668d365586955596aa143"
 
 [[deps.ARFFFiles]]
 deps = ["CategoricalArrays", "Dates", "Parsers", "Tables"]
@@ -1988,6 +1988,12 @@ git-tree-sha1 = "6ec7ac8412e83d57e313393220879ede1740f9ee"
 uuid = "1fd47b50-473d-5c70-9696-f719f8f3bcdc"
 version = "2.8.2"
 
+[[deps.RCall]]
+deps = ["CategoricalArrays", "Conda", "DataFrames", "DataStructures", "Dates", "Libdl", "Missings", "REPL", "Random", "Requires", "StatsModels", "WinReg"]
+git-tree-sha1 = "535f5e8dde3b19d7da332002181d89432b38da33"
+uuid = "6f49c342-dc21-5d91-9882-a32aef131414"
+version = "0.13.17"
+
 [[deps.RData]]
 deps = ["CategoricalArrays", "CodecZlib", "DataFrames", "Dates", "FileIO", "Requires", "TimeZones", "Unicode"]
 git-tree-sha1 = "19e47a495dfb7240eb44dc6971d660f7e4244a72"
@@ -2634,6 +2640,11 @@ deps = ["Unicode"]
 git-tree-sha1 = "71142739e695823729a335e9bc124ef41ec1433a"
 uuid = "b8c1c048-cf81-46c6-9da0-18c1d99e41f2"
 version = "1.0.1"
+
+[[deps.WinReg]]
+git-tree-sha1 = "cd910906b099402bcc50b3eafa9634244e5ec83b"
+uuid = "1b915085-20d7-51cf-bf83-8f477d6f5128"
+version = "1.0.0"
 
 [[deps.WoodburyMatrices]]
 deps = ["LinearAlgebra", "SparseArrays"]
