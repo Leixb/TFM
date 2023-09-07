@@ -97,7 +97,7 @@ in
       package = pkgs.rWrapper.override {
         packages = lib.attrVals
           (lib.filter (p: p != "")
-            (lib.splitString "\n" (builtins.readFile ../dependencies.txt))
+            (lib.splitString "\n" (builtins.readFile ../R-dependencies.txt))
           )
           pkgs.rPackages;
       };
