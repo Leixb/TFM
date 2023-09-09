@@ -21,6 +21,8 @@ import ...Utils
 
 export SVMConfig
 
+export svm_parameter_grid, svm_parameter_grid_sigma_reg, frenay_parameter_grid
+
 """
     SVMConfig <: ExperimentParameters
 
@@ -95,6 +97,9 @@ function run(svm::SVMConfig)::Tuple{PerformanceEvaluation,ExecutionInfo,Machine}
     if svm.scale_sigma && svm.kernel != LIBSVM.Kernel.RadialBasis
         sigma = Utils.gamma2sigma(svm.gamma) / n
         gamma = Utils.sigma2gamma(sigma)
+    else
+        gamma = svm.gamma
+        sigma = Utils.gamma2sigma(gamma)
     end
 
     pipe = svm.scale_sigma ? model(svm, gamma) : model(svm)

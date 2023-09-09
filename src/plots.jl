@@ -135,7 +135,7 @@ function experiment_data(folder="svms", scan=true)
     if scan
         df = collect_results!(
             datadir(folder);
-            black_list=Experiments.default_ignore_results()
+            black_list=Experiments.SVMExperiment.default_ignore_results()
         )
     else
         df = wload(datadir("results_$folder.jld2"))["df"]
@@ -242,7 +242,7 @@ function plot_delve(df, dataset::Type{<:DataSets.Delve}, size=32,
         end
         df_rbf = @rsubset(df_sub, :kernel_cat == "RadialBasis")
         if !isempty(df_rbf)
-            hlines!(ax[name], [minimum(getproperty(df_rbf, measure))], color=:red, linewidth=2, label="RBF (best)", linestyle=:dash)
+            hlines!(ax[name], [minimum(getproperty(df_rbf, measure))], color=:red, linewidth=2, label="RBF (best)", linestyle=:dot)
         end
 
         # text!(ax[name], 1, 1, text=name)
@@ -303,18 +303,19 @@ function plot_delve(df, dataset::Type{<:DataSets.Delve}, size=32,
     fig
 end
 
-function plot_sigma_subsample(df, show_kernels=["Asin", "AsinNorm"]; linkyaxes=false,
+function plot_sigma_subsample(df, show_kernels=["Asin", "AsinNorm"]; linkyaxes=true,
     show_rbf=true, measure=:measure_test
 )
     cols = mapping(
         :sigma_scaled,
         measure => "nRMSE",
         color=:subsample => nonnumeric => "Subsample",
+        marker=:subsample => nonnumeric => "Subsample",
     )
     grp = mapping(layout=:kernel_cat => "Kernel")
     geom = visual(Scatter)
     plt = data(df) * cols * grp * geom
-    fg = draw(plt, facet=(; linkyaxes=:none), axis=(; xscale=log10, xticklabelrotation=pi / 4))
+    fg = draw(plt, facet=(; linkyaxes), axis=(; xscale=log10, xticklabelrotation=pi / 4))
 
     fg
 end
@@ -408,7 +409,7 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
 
             if kernel == "RadialBasis"
                 if show_rbf || interactive
-                    hline = hlines!(ax, [minimum(val_measure)], color=Cycled(kernel_idx[kernel]), linewidth=2, label="RBF (best)", linestyle=:dash)
+                    hline = hlines!(ax, [minimum(val_measure)], color=:red, linewidth=2, label="RBF (best)", linestyle=:dot)
                     interactive && connect!(hline.visible, toggles_dict[kernel].active)
                 end
 

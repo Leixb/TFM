@@ -49,8 +49,6 @@ function mse(ŷ, y)
 end
 export mse
 
-@reexport import .Transformers: TopCatTransformer, TopCatResult
-
 @static if false
     # HACK: Trick LSP into thinking that files outside `src` are part of the
     # module.

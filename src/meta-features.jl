@@ -5,6 +5,8 @@ import ..DataSets: DataSet, unpack, MNIST, Delve
 using PyCall
 using DataFrames
 
+import DataFrames: vcat
+
 export extract_features
 
 # TODO: Choose subset of meta-features to use

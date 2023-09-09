@@ -86,7 +86,7 @@ The fields will be saved to disk along with the results of the execution itself.
   - `sigma_scaled`: The value of sigma used for the RBF kernel, scaled by the
     number of training samples
 """
-Base.@kwdef struct ExecutionInfo <: TFMType
+@kwdef struct ExecutionInfo <: TFMType
     date::Date = Date(Dates.now())
     host::String = gethostname()
     measure_test::Float64 = NaN
@@ -138,6 +138,11 @@ function load(ex::ExperimentParameters; filename::String=default_savefile(ex))
 end
 
 # Specific experiment configurations
+
 include("./experiments/svm.jl")
+using .SVMExperiment
+
+include("./experiments/precomputed_vs_native.jl")
+using .PrecomputedVsNativeExperiment
 
 end # module Experiments
