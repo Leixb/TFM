@@ -1,6 +1,4 @@
-bookdown
-kableExtra
-elmNNRcpp
 kernlab
 languageserver
 tidyverse
+breakDown

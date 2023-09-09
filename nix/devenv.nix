@@ -8,6 +8,13 @@ let
     poetrylock = ../poetry.lock;
     python = pkgs.python3;
   };
+  Renv = pkgs.rWrapper.override {
+    packages = lib.attrVals
+      (lib.filter (p: p != "")
+        (lib.splitString "\n" (builtins.readFile ../R-dependencies.txt))
+      )
+      pkgs.rPackages;
+  };
 in
 {
   # https://devenv.sh/basics/
@@ -19,6 +26,8 @@ in
 
     PYTHON = "${pyenv}/bin/python";
     PYTHONHOME = pyenv;
+
+    R_HOME = Renv + "/lib/R";
 
     JULIA_NUM_THREADS = 8;
 
@@ -90,13 +99,14 @@ in
     nix.enable = true;
 
     r = {
-      enable = false;
-      package = pkgs.rWrapper.override {
-        packages = lib.attrVals
-          (lib.filter (p: p != "")
-            (lib.splitString "\n" (builtins.readFile ../dependencies.txt))
-          )
-          pkgs.rPackages;
+      enable = true;
+      package = pkgs.symlinkJoin {
+        name = "R";
+        paths = [ Renv ];
+        buildInputs = [ pkgs.makeWrapper ];
+        postBuild = ''
+          wrapProgram "$out/bin/R" --set R_LIBS_SITE ""
+        '';
       };
     };
 
