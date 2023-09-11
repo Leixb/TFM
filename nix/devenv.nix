@@ -24,7 +24,7 @@ in
     # context for taskwarrior
     TW_CONTEXT = "tfm";
 
-    PYTHON = "${pyenv}/bin/python";
+    PYTHON = lib.getExe pyenv;
     PYTHONHOME = pyenv;
 
     R_HOME = Renv + "/lib/R";
