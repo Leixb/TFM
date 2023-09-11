@@ -206,35 +206,49 @@ function svm_parameter_grid(; step::Float64=1.0, datasets=nothing, acos=false, r
         end
     end
 
-    parameters_common = Dict(
-        :dataset => datasets,
-        :cost => 10 .^ (-2:step:4),
-        :epsilon => [
-            @onlyif(is_regression(:dataset), 10 .^ (-5:step:1))
-            @onlyif(!is_regression(:dataset), [0])
-        ],
-        kwargs...
-    )
+    kernels = [LIBSVM.Kernel.Asin, LIBSVM.Kernel.AsinNorm]
+    if acos
+        push!(kernels, LIBSVM.Kernel.Acos0, LIBSVM.Kernel.Acos1, LIBSVM.Kernel.Acos2)
+    end
 
-    parameters_rbf =
-        Dict(
+    sigma_asin = 10 .^ (-3:step:8)
+
+    # INFO: We avoid using @onlyif since it is quite slow
+    # Instead, we just do each dataset separately
+
+    all_params = map(datasets) do dataset
+        parameters_common = Dict(
+            :dataset => dataset,
+            :cost => 10 .^ (-2:step:4),
+            :epsilon => if is_regression(dataset)
+                10 .^ (-5:step:1)
+            else
+                0
+            end,
+            kwargs...
+        )
+
+        @info parameters_common
+
+        parameters_rbf = Dict(
             :kernel => LIBSVM.Kernel.RadialBasis,
             :gamma => 10 .^ (-3:step:0), parameters_common...
         )
 
-    sigma_asin = 10 .^ (-3:step:6)
+        parameters_asin = Dict(
+            :kernel => kernels,
+            :gamma => Utils.sigma2gamma.(sigma_asin),
+            parameters_common...
+        )
 
-    parameters_asin = Dict(
-        :kernel => [[LIBSVM.Kernel.Asin, LIBSVM.Kernel.AsinNorm]; @onlyif(acos, [LIBSVM.Kernel.Acos0, LIBSVM.Kernel.Acos1, LIBSVM.Kernel.Acos2])],
-        :gamma => Utils.sigma2gamma.(sigma_asin),
-        parameters_common...
-    )
-
-    if rbf
-        return [dict_list(parameters_rbf); dict_list(parameters_asin)]
+        if rbf
+            [dict_list(parameters_rbf); dict_list(parameters_asin)]
+        else
+            dict_list(parameters_asin)
+        end
     end
 
-    dict_list(parameters_asin)
+    vcat(all_params...)
 end
 
 function svm_parameter_grid_sigma_reg(; step::Float64=1.0, datasets=nothing, kwargs...)::Vector{Dict{Symbol,Any}}
