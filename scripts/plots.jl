@@ -15,6 +15,8 @@ Plots.no_color_cycle!()
 resolution = (1200, 800) # For big plots
 show_bands = true
 scan_dirs = "--scan" in ARGS
+# WARN: --scan only affects Experiment 3, since 1 and 2 have already been
+# purged.
 
 @info scan_dirs ? "Scanning directories" : "Not scanning directories (pass --scan to scan for new data)"
 
@@ -24,7 +26,7 @@ let
         linkxaxes=true, linkyaxes=false,
         show_rbf=true
     )
-    local mse = @chain Plots.experiment_data("svms", scan_dirs) begin
+    local mse = @chain Plots.experiment_data("svms", false) begin
         @rsubset(:dataset isa DataSets.DataSet)
         Plots.summarize_best([:kernel_cat, :dataset_cat, :sigma])
         @rename(:measure_test = :measurement)
@@ -40,7 +42,7 @@ let
         linkxaxes=true, linkyaxes=false,
         show_rbf=true
     )
-    local nrmse = @chain Plots.experiment_data("svms_2", scan_dirs) begin
+    local nrmse = @chain Plots.experiment_data("svms_2", false) begin
         Plots.summarize_best([:kernel_cat, :dataset_cat, :sigma], by=:measurement)
         Plots.regression()
     end
