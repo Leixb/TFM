@@ -393,6 +393,13 @@ end
 url(::Ionosphere) = "https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data"
 doi(::Ionosphere) = "10.24432/C5W01B"
 
+@dataset CategoricalDataSet Adult datasetdir("adult", "adult.data") [
+    :age, :workclass, :fnlwgt, :education, :education_num, :marital_status,
+    :occupation, :relationship, :race, :sex, :capital_gain, :capital_loss,
+    :hours_per_week, :native_country, :income] :income
+url(::Adult) = "https://archive.ics.uci.edu/dataset/2/adult"
+doi(::Adult) = "10.24432/C5XW20"
+
 ################################################################################
 # Synthetic Datasets
 ################################################################################
