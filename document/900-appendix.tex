@@ -1,6 +1,67 @@
 %! TEX root = **/000-main.tex
 % vim: spell spelllang=en:
 \chapter{Appendix}
+
+\section{Additional plots}
+
+% NOTE: this is without scaling sigma
+\begin{figure}[H]
+    \includegraphics{plots/nRMSE_frenay}
+    \caption{nRMSE results on datasets from \cite{frenayParameterinsensitiveKernelExtreme2011}}
+\end{figure}
+
+% WARN: these don't have all values of epsilon in our grid
+\begin{figure}[H]
+    \includegraphics{plots/nRMSE_bank}
+    \caption{nRMSE results on Delve Bank dataset}
+\end{figure}
+
+% WARN: these don't have all values of epsilon in our grid
+\begin{figure}[H]
+    \includegraphics{plots/nRMSE_pumadyn}
+    \caption{nRMSE results on Delve PumaDyn dataset}
+\end{figure}
+
+\begin{figure}[H]
+    \includegraphics{plots/nRMSE_all_scaled}
+    \caption{nRMSE results on Regression datasets with $\sigma_w$ scaled}
+\end{figure}
+
+\begin{figure}[H]
+    \includegraphics{plots/nRMSE_frenay_scaled}
+    \caption{nRMSE results on Frenay datasets with $\sigma_w$ scaled}
+\end{figure}
+
+\subsection{3D kernels}
+
+% 3d version
+\begin{figure}
+    \includegraphics{plots/kernel_asin_3d_sig1}
+    \caption{asin kernel with $\sigma_w=1$}
+\end{figure}
+
+\begin{figure}
+    \includegraphics{plots/kernel_asin_3d_sig1000}
+    \caption{asin kernel with $\sigma_w=1\,000$}
+\end{figure}
+
+
+% The acos ones are not very interesting with one dimensional vectors
+\begin{figure}
+    \includegraphics{plots/kernel_acos0_3d}
+    \caption{acos kernel $n=0$}
+\end{figure}
+
+\begin{figure}
+    \includegraphics{plots/kernel_acos1_3d}
+    \caption{acos kernel $n=1$}
+\end{figure}
+
+\begin{figure}
+    \includegraphics{plots/kernel_acos2_3d}
+    \caption{acos kernel $n=2$}
+\end{figure}
+
 % TODO: remove
 \section{Kernels}
 \subsection{Arc sine kernel}

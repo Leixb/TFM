@@ -120,44 +120,248 @@ speed. This decision was made since 5\texttimes2 should be enough to get a
 reasonable estimate of the performance and verify that the results are
 consistent with the paper without requiring a lot of computational power.
 
+\subsection{Results for the arc sine kernel on the Frenay datasets}
+
+% TODO: bands for std or no bands, if not, make sure that the explaination below
+% is clear.
+\begin{important}
+    Remove STD bands?
+\end{important}
+\begin{figure}[H]
+    \includegraphics[width=\textwidth]{plots/MSE_frenay}
+    \caption{MSE results on datasets from \cite{frenayParameterinsensitiveKernelExtreme2011}}
+    \label{fig:mse-frenay}
+\end{figure}
+
+\Cref{fig:mse-frenay} shows the results of the arc-sine
+kernel~(normalized and non-normalized) on the same datasets used by \textcite{frenayParameterinsensitiveKernelExtreme2011}. The shading corresponds to the standard deviation when averaging the
+cross-validation results.
+
+The results are consistent with the results obtained by \citeauthor{frenayParameterinsensitiveKernelExtreme2011}.
+Except for the \texttt{CPU} dataset, which in the original paper is reported to
+not be significantly different from the RBF kernel for $\sigma_w > 0.1$. In
+our results, the optimal value of $\sigma_w$ is $0.01$ which is indeed not
+significantly different from the RBF kernel, but once we increase $\sigma_w$,
+the performance drops significantly and converges to a much higher value than
+expected. This may be due to the fact that the \texttt{CPU} dataset is very
+small and thus the difference in our resampling method is more noticeable.
+
+What we can conclude however is that both the normalized and non-normalized
+arc-sine kernel do seem to be insensitive to the value of $\sigma_w$ for
+$\sigma_w > 0.1$.
+
+\begin{figure}[H]
+    \includegraphics{plots/nRMSE_frenay_scaled}
+    \caption{nRMSE results on datasets from \cite{frenayParameterinsensitiveKernelExtreme2011} with
+        scaled $\sigma_w$}%
+    \label{fig:nrmse-frenay-scaled}
+\end{figure}
+
+\Cref{fig:nrmse-frenay-scaled} shows the results of the arc-sine kernel using
+\emph{nRMSE} as the performance measure and with $\sigma_w$ scaled. These allow
+us to compare the results between datasets.
+
+\begin{cnote}
+    Add copy of the table of Frénay and Verleysen along with the equivalent
+    table for our results?
+
+    The table is quite dense, so putting them side by side my be too much.
+
+    Figure out what is the most relevant information to show, rest in the
+    appendix
+\end{cnote}
+
+\subsection{Results for the arc cosine kernel on the Frenay datasets}
+
+\Cref{fig:nrmse-acos-frenay-scaled} shows the results when using the arc cosine kernels
+with $n=0,1,2$ on the Frenay datasets.
+
+\begin{figure}[H]
+    \includegraphics{plots/nRMSE_acos_frenay_scaled}
+    \caption{nRMSE results on datasets from \cite{frenayParameterinsensitiveKernelExtreme2011} with
+        scaled $\sigma_w$ using Arc cosine kernel}%
+    \label{fig:nrmse-acos-frenay-scaled}
+\end{figure}
+
+\begin{cnote}
+    Arc cosine kernel for n=2 is too slow (specially when $cost>1000$)
+    I have removed it, but ideally we run it with a smaller parameter grid.
+    Should be addressed either way.
+\end{cnote}
+
+
+\section{Execution time and number of iterations}
+
+\begin{figure}[H]
+    \includegraphics{plots/execution_log}
+    \caption{Execution time of the different kernels (log scale) Changing the cost
+        parameter}%
+    \label{fig:execution-log}
+\end{figure}
+
+\Cref{fig:execution-log} shows boxplots of the execution times of the different
+kernels for across all datasets. The title above each subplot indicates the
+value of the cost parameter. As we can see, increasing the cost parameter
+increases the execution time of the SVM. This effect is more noticeable for the
+kernels with more complex computations, such as the normalized arc-sine kernel
+and specially the arc-cosine kernels with $n=1$ and $n=2$.
+
+\begin{cnote}
+    These values of the cost are too high.
+    In the other plots, we use $10^4$ as the upper bound.
+    We should probably remove the bottom row altogether.
+
+    Also, add cost=... to the subplot titles
+\end{cnote}
+
+\begin{figure}[H]
+    \includegraphics{plots/iter_log}
+    \caption{Iterations needed for different kernels (log scale) Changing the cost
+        parameter}
+\end{figure}
+
+\begin{cnote}
+    Why asin-norm has more iterations than asin in average?
+\end{cnote}
+
 \section{Comparing the performance of the kernels with different datasets}%
 \sectionmark{Comparing performance}
 
-\begin{figure}
-    \includegraphics{plots/MSE_frenay}
-    \caption{MSE results on datasets from \cite{frenayParameterinsensitiveKernelExtreme2011}}
-\end{figure}
+\subsection{Delve (Bank and PumaDyn) dataset families}
 
+The Delve datasets are a collection of datasets used in the Delve project,
+among them are the Bank and PumaDyn datasets. There are 8 variations of
+these datasets, which come from the combination of these properties%
+\footnote{\url{https://www.cs.toronto.edu/~delve/data/families.html}}:
+\begin{description}
+    \item[Attributes] 32 or 8
+    \item[Linearity] Fairly linear or Nonlinear
+    \item[Noise] High or Low.
+\end{description}
 
-% NOTE: this is without scaling sigma
-\begin{figure}
-    \includegraphics{plots/nRMSE_frenay}
-    \caption{nRMSE results on datasets from \cite{frenayParameterinsensitiveKernelExtreme2011}}
-\end{figure}
+% We refer to a specific combination as \texttt{Bank32fh}, which corresponds to
+% the Bank dataset with 32 attributes, \textbf{f}airly linear and \textbf{h}igh
+% noise.
 
-% WARN: these don't have all values of epsilon in our grid
-\begin{figure}
-    \includegraphics{plots/nRMSE_bank}
-    \caption{nRMSE results on Delve Bank dataset}
-\end{figure}
+\subsubsection{Bank}
 
-% WARN: these don't have all values of epsilon in our grid
-\begin{figure}
-    \includegraphics{plots/nRMSE_pumadyn}
-    \caption{nRMSE results on Delve PumaDyn dataset}
-\end{figure}
-
-\begin{figure}
-    \includegraphics{plots/nRMSE_delve_bank_32_scaled}
+\begin{figure}[H]
+    \includegraphics[width=0.7\textwidth]{plots/nRMSE_delve_bank_32_scaled}
     \caption{nRMSE results on Delve Bank32 dataset with $\sigma_w$ scaled}
+    \label{fig:nrmse-delve-bank-32-scaled}
 \end{figure}
 
-\begin{figure}
-    \includegraphics{plots/nRMSE_all_scaled}
-    \caption{nRMSE results on Regression datasets with $\sigma_w$ scaled}
+\begin{figure}[H]
+    \includegraphics[width=0.7\textwidth]{plots/nRMSE_delve_bank_8_scaled}
+    \caption{nRMSE results on Delve Bank8 dataset with $\sigma_w$ scaled}
+    \label{fig:nrmse-delve-bank-8-scaled}
 \end{figure}
 
-\begin{figure}
-    \includegraphics{plots/nRMSE_frenay_scaled}
-    \caption{nRMSE results on Frenay datasets with $\sigma_w$ scaled}
+\subsubsection{Pumadyn}
+
+\begin{figure}[H]
+    \includegraphics[width=0.7\textwidth]{plots/nRMSE_delve_pumadyn_32_scaled}
+    \caption{nRMSE results on Delve PumaDyn32 dataset with $\sigma_w$ scaled}
+    \label{fig:nrmse-delve-pumadyn-32-scaled}
 \end{figure}
+
+\begin{figure}[H]
+    \includegraphics[width=0.7\textwidth]{plots/nRMSE_delve_pumadyn_8_scaled}
+    \caption{nRMSE results on Delve PumaDyn8 dataset with $\sigma_w$ scaled}
+    \label{fig:nrmse-delve-pumadyn-8-scaled}
+\end{figure}
+
+\Cref{fig:nrmse-delve-bank-32-scaled,fig:nrmse-delve-bank-8-scaled,fig:nrmse-delve-pumadyn-32-scaled,fig:nrmse-delve-pumadyn-8-scaled}
+show the results obtained on the different datasets in the Band and PumaDyn
+families. We can see that the arc-sine kernels do converge when $\sigma_w > 1$.
+In the fairly linear datasets, there is not much difference to the RBF kernel,
+but in the non-linear there are situations where there is a noticeable
+difference. In particular, we see a similar behaviour to the one observed in the
+CPU dataset, in which there is a value of $\sigma_w$ that is \emph{optimal} (in
+the sense that is not significantly different from the RBF kernel) but
+increasing $\sigma_w$ does worsen the performance. This seems to contradict the
+theory that there is a threshold $t$ for which increasing $\sigma_w > t$ does
+not affect the result and this result is optimal.
+
+It seems that the linearity of the dataset determines whether the arc-sine
+kernel performs as the state-of-the-art RBF kernel or not when $\sigma_w$ is
+large. This is an interesting result, since we may be able to use meta-learning
+to determine if a dataset is a good candidate for the arc-sine kernel or not.
+
+% TODO: can we really draw conclusions from this?
+
+\subsection{Delve (Bank and PumaDyn) dataset using arc cosine}
+
+% TODO: every result with acos is weird
+
+\subsubsection{Bank}
+
+\begin{figure}[H]
+    \includegraphics[width=0.7\textwidth]{plots/nRMSE_acos_delve_bank_32_scaled}
+    \caption{nRMSE results on Delve Bank32 dataset with $\sigma_w$ scaled}
+    \label{fig:nrmse-acos-delve-bank-32-scaled}
+\end{figure}
+
+\begin{figure}[H]
+    \includegraphics[width=0.7\textwidth]{plots/nRMSE_acos_delve_bank_8_scaled}
+    \caption{nRMSE results on Delve Bank8 dataset with $\sigma_w$ scaled}
+    \label{fig:nrmse-acos-delve-bank-8-scaled}
+\end{figure}
+
+\subsubsection{Pumadyn}
+
+\begin{figure}[H]
+    \includegraphics[width=0.7\textwidth]{plots/nRMSE_acos_delve_pumadyn_32_scaled}
+    \caption{nRMSE results on Delve PumaDyn32 dataset with $\sigma_w$ scaled}
+    \label{fig:nrmse-acos-delve-pumadyn-32-scaled}
+\end{figure}
+
+\begin{figure}[H]
+    \includegraphics[width=0.7\textwidth]{plots/nRMSE_acos_delve_pumadyn_8_scaled}
+    \caption{nRMSE results on Delve PumaDyn8 dataset with $\sigma_w$ scaled}
+    \label{fig:nrmse-acos-delve-pumadyn-8-scaled}
+\end{figure}
+
+\section{Classification}
+
+\begin{figure}[H]
+    \includegraphics{plots/nRMSE_class_all_scaled}
+    \caption{Classification accuracy}
+    \label{fig:nrmse-class-all}
+\end{figure}
+
+\begin{marker}
+    This makes no sense, the accuracies are too low, specially iris (Even on the
+    RBF).
+
+    Add the other datasets.
+    Add more values of sigma.
+    Other metrics (precision, recall, f1, etc)
+\end{marker}
+
+\section{Meta-learning}
+
+As explained in \cref{sec:meta-learning}, we want to use meta-learning
+techniques to determine the best value of sigma for a given dataset, or at least
+to determine if a dataset is a good candidate for the arc-sine kernel or not.
+For that, we can create two models:
+\begin{enumerate}
+    \item Predict the best value of $\sigma_w$ for a given dataset.
+    \item Predict whether a high value of $\sigma_w$ will achieve equivalent
+          performance to the RBF kernel.
+\end{enumerate}
+
+For the first model,
+we can use the best value of $\sigma_w$ for each dataset
+obtained from the previous experiments. This will be our target
+variable.
+
+For the second model, we need to determine if there is a statistically
+significant difference between the performance at $\sigma \gg 10$ and the
+performance of the RBF kernel.
+% TODO: t-test or arbitrary threshold?
+
+% TODO: probably need a lot more datasets to be able to do anything...
+
+
+

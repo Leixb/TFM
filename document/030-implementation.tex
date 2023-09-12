@@ -196,7 +196,20 @@ For the RBF kernel, Instead of doing $\exp\left(-\gamma\|x_i - x_j\|^2\right)$,
 it computes $\exp\bigl(-\gamma(\|x_i\|^2 - 2x_i^Tx_j + \|x_j\|^2)\bigr)$, and by
 precomputing $\|x_i\|^2$ for all $x_i$ in the beginning, the number of
 operations is reduced from $3n$ to $2n$. This same optimization can be applied
-to our kernels.
+to our kernels. \Cref{fig:c_improvement} shows the improvement in performance
+when using this optimization.
+
+\begin{cnote}
+    The plot probably should be improved:
+    Better legend, change labels and remove RBF since it is not relevant.
+    Also, add error bars?
+\end{cnote}
+\begin{figure}[H]
+    \includegraphics{plots/c_improvement}
+    \caption{Comparison between kernels on the training phase with and without
+        pre-computation when training the Adult dataset}%
+    \label{fig:c_improvement}
+\end{figure}
 
 The first step, is to add the new kernel types to the \texttt{enum} in
 \texttt{svm.h} as shown in \cref{lst:svm_h_enum}.
@@ -302,6 +315,7 @@ is accomplished by using a modified version of \emph{libsvm}. Since we are
 modifying the library as well, we added the same functionality to our modified
 version
 
+\pagebreak % INFO: make sure this is start of page so wrapfigure plays nice
 \section{Julia}%
 \label{sub:impl_julia}
 
@@ -472,8 +486,15 @@ asymptotic ELM kernel around 0 through our implementation in \emph{Julia} and
 the equivalent plot given in the original paper (the legend applies to both
 plots).
 
+\begin{cnote}
+    Arc cosine kernels cannot be easily visualized in 2d, since 0 is undefined.
+    Also, they look like their activation functions when plotted as done
+    with asin.
+\end{cnote}
+
 
 \section{Meta learning}
+\label{sec:meta-learning}
 
 The trial and error approach of machine learning tasks is often tedious and
 time-consuming. Driven by this, multiple approaches have been proposed to make
@@ -484,29 +505,31 @@ meta-features is a form of meta-learning. \Textcite{rivolliMetafeaturesMetalearn
 provides a comprehensive survey of the different meta-features and meta-learning
 approaches.
 
-We will use statistical and landmarking meta-features:
+\begin{important}
+    Add table with meta-features (probably in appendix? There are 60+)
+\end{important}
 \begin{description}
-    \item[Statistical] meta-features are computed from the dataset
-        characteristics: number of instances, number of features, number of
-        classes, ratio of instances to features, etc.
+    % TODO: probably rewrite all this descriptions
+    % TODO: table with all the used meta-features? There are ~60
+    \item[General]: also referred to as simple, are features that can be
+    extracted from the data easily, with little computational cost. In this
+    category, we have the number of instances, number of attributes, number
+    of numeric attributes, the ratio of instances to attributes, etc.
 
-    \item[Landmarking] meta-features are computed by training a set of simple
-        models on the dataset and using their performance as meta-features.
-        These models are called \emph{landmarking} models and are usually simple
-        and fast to train. The models used in this work are:
-        \begin{itemize}
-            % TODO: fill this properly
-            \item \emph{ZeroR}: A model that always predicts the most frequent
-                  class.
-            \item \emph{OneR}: A model that uses a single feature to predict the
-                  class.
-            \item \emph{DecisionStump}: A decision tree with a single split.
-            \item \emph{NaiveBayes}: A Naive Bayes classifier.
-            \item \emph{RandomNode}: A decision tree with a single split on a
-                  random feature.
-            \item \emph{RandomTree}: A decision tree with a random split.
-            \item \emph{RandomGuess}: A model that predicts a random class.
-        \end{itemize}
+    \item[Statistical]: as the name implies, they capture statistical properties
+    of the data: mean, standard deviation, skewness, kurtosis, etc.
+    These are only applicable to numeric attributes.
+
+    \item[Information theory]: based on entropy measures, they capture the
+    complexity and amount of information in the data.
+    Only applicable to categorical attributes.
+
+    \item[Model-based]: extracted from measures on models trained on the data.
+    Usually from decision trees. These include the number of leaves, the
+    number of nodes, the maximum depth, etc.
+
+    \item[Landmarking]: not to be confused with the model-based, these focus
+    on the performance of simple models on the data.
 \end{description}
 
 Implementing the meta-features and meta-learning algorithms is out of the scope
@@ -515,10 +538,48 @@ package~\cite{WelcomePyMFEDocumentation,JMLR:v21:19-348} which provides
 a vast collection of the most common meta-features.
 
 Julia provides a convenient way to call Python code and libraries through the
-\emph{PyCall.jl} package, which allows us to use \emph{PyMFE} from Julia.
+\emph{PyCall.jl} package, which allows us to use \emph{PyMFE} from Julia, an
+example of this is shown in \cref{lst:metafeatures}.
+
+\begin{listing}
+    \caption{Using \emph{PyMFE} from Julia to extract meta-features from a datasets.}%
+    \label{lst:metafeatures}
+    \begin{minted}{julia}
+module MetaFeatures
+
+import ..DataSets: DataSet, unpack
+using PyCall, DataFrames, ProgressMeter
+
+export extract_features
+
+const MFE = pyimport("pymfe.mfe").MFE
+
+"Return a Dict with the meta-features extracted from the dataset using the pymfe library."
+function extract_features(X, y, args...; features=MFE.valid_metafeatures(), kwargs...)
+    mfe = MFE(args...; features, kwargs...)
+    mfe.fit(Matrix(X), y, precomp_groups=["general", "model-based", "landmarking"])
+    ft = mfe.extract()
+
+    # Convert list of tuples [(a, 7), (b, 4), ...] to Dict {a => 7, b => 4, ...}
+    zip(ft...) |> Dict
+end
+
+function extract_features(datasets::Vector{<:DataSet}, args...; kwargs...)
+    features = @showprogress map(datasets) do ds
+        @info "Extracting features from $(ds)"
+        X, y = unpack(ds)
+        ft = extract_features(X, y, args...; kwargs...) |> DataFrame
+        ft.dataset = [string(ds)]
+
+        ft
+    end
+
+    vcat(features..., cols=:union)
+end
+
+end # module MetaFeatures
+    \end{minted}
+\end{listing}
 
 
-
-
-
-\cite{JMLR:v21:19-348,WelcomePyMFEDocumentation}
+% TODO: statistical meta-features we don't use since they take too long

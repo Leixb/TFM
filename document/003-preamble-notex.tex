@@ -1,0 +1,26 @@
+\usepackage{tcolorbox}
+\tcbuselibrary{most}
+
+\tcbset{%
+    marker/.style={%
+            enhanced,
+            parbox=false,
+            before skip balanced=2mm,after skip balanced=3mm,
+            boxrule=0.4pt,left=5mm,right=2mm,top=1mm,bottom=1mm,
+            colback=#1!50,
+            colframe=#1!20!black,
+            coltitle=black,
+            sharp corners,rounded corners=southeast,arc is angular,arc=3mm,
+            underlay={%
+                    \path[fill=tcbcolback!80!black] ([yshift=3mm]interior.south east)--++(-0.4,-0.1)--++(0.1,-0.2);
+                    \path[draw=tcbcolframe,shorten <=-0.05mm,shorten >=-0.05mm] ([yshift=3mm]interior.south east)--++(-0.4,-0.1)--++(0.1,-0.2);
+                    \path[fill=#1!50!black,draw=none] (interior.south west) rectangle node[white]{\Huge\bfseries !} ([xshift=4mm]interior.north west);
+                },
+            % drop fuzzy shadow,
+        },
+}
+
+\newtcolorbox{marker}[1][]{marker={yellow!50!white},#1}
+\newtcolorbox{important}[1][]{marker=red,#1}
+\newtcolorbox{cnote}[1][]{marker=orange,#1}
+\newtcolorbox{note}[1][]{marker=white,#1}

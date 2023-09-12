@@ -62,18 +62,42 @@ let
     end
     local opts = (;
         linkyaxes=true, linkxaxes=true,
-        sigma=:sigma_scaled
+        sigma=:sigma_scaled,
+        show_rbf=true
     )
 
-    @saveplot nRMSE_all_scaled = Plots.plot_sigma(nrmse_s; opts..., resolution)
-    @saveplot nRMSE_frenay_scaled = Plots.plot_sigma(@rsubset(nrmse_s, :dataset isa DataSets.Frenay); opts...)
-    @saveplot nRMSE_frenay_s_scaled = Plots.plot_sigma(@rsubset(nrmse_s, :dataset isa DataSets.Small); opts...)
-    @saveplot nRMSE_frenay_l_scaled = Plots.plot_sigma(@rsubset(nrmse_s, :dataset isa DataSets.Large); opts...)
+    @saveplot nRMSE_all_scaled = Plots.plot_sigma(nrmse_s; opts..., show_bands, resolution)
+    @saveplot nRMSE_frenay_scaled = Plots.plot_sigma(@rsubset(nrmse_s, :dataset isa DataSets.Frenay); opts..., show_bands)
+    @saveplot nRMSE_frenay_s_scaled = Plots.plot_sigma(@rsubset(nrmse_s, :dataset isa DataSets.Small); opts..., show_bands)
+    @saveplot nRMSE_frenay_l_scaled = Plots.plot_sigma(@rsubset(nrmse_s, :dataset isa DataSets.Large); opts..., show_bands)
 
     @saveplot nRMSE_delve_bank_32_scaled = Plots.plot_delve(nrmse_s, DataSets.Bank, 32; opts...)
     @saveplot nRMSE_delve_bank_8_scaled = Plots.plot_delve(nrmse_s, DataSets.Bank, 8; opts...)
     @saveplot nRMSE_delve_pumadyn_32_scaled = Plots.plot_delve(nrmse_s, DataSets.Pumadyn, 32; opts...)
     @saveplot nRMSE_delve_pumadyn_8_scaled = Plots.plot_delve(nrmse_s, DataSets.Pumadyn, 8; opts...)
+
+    local kernels = ["Acos0", "Acos1", "Acos2"]
+
+    @saveplot nRMSE_acos_all_scaled = Plots.plot_sigma(nrmse_s, kernels; opts..., resolution)
+    @saveplot nRMSE_acos_frenay_scaled = Plots.plot_sigma(@rsubset(nrmse_s, :dataset isa DataSets.Frenay), kernels; opts...)
+    @saveplot nRMSE_acos_frenay_s_scaled = Plots.plot_sigma(@rsubset(nrmse_s, :dataset isa DataSets.Small), kernels; opts...)
+    @saveplot nRMSE_acos_frenay_l_scaled = Plots.plot_sigma(@rsubset(nrmse_s, :dataset isa DataSets.Large), kernels; opts...)
+
+    @saveplot nRMSE_acos_delve_bank_32_scaled = Plots.plot_delve(nrmse_s, DataSets.Bank, 32, kernels; opts...)
+    @saveplot nRMSE_acos_delve_bank_8_scaled = Plots.plot_delve(nrmse_s, DataSets.Bank, 8, kernels; opts...)
+    @saveplot nRMSE_acos_delve_pumadyn_32_scaled = Plots.plot_delve(nrmse_s, DataSets.Pumadyn, 32, kernels; opts...)
+    @saveplot nRMSE_acos_delve_pumadyn_8_scaled = Plots.plot_delve(nrmse_s, DataSets.Pumadyn, 8, kernels; opts...)
+
+    local nrmse_s = @chain Plots.experiment_data("svms3", scan_dirs) begin
+        Plots.summarize_best([:kernel_cat, :dataset_cat, :sigma])
+        Plots.classification()
+    end
+
+    @saveplot nRMSE_class_all_scaled = Plots.plot_sigma(nrmse_s; opts..., show_bands, resolution)
+
+    local kernels = ["Acos0", "Acos1", "Acos2"]
+
+    @saveplot nRMSE_class_acos_all_scaled = Plots.plot_sigma(nrmse_s, kernels; opts..., resolution)
 end
 
 @info "Kernel plots"
