@@ -38,6 +38,10 @@ kind = "classification/regression"
 year = 1995
 home = "https://archive.ics.uci.edu/dataset/1/abalone"
 family = "Frenay"
+field = "Life Science"
+nattr = 8
+ninst = 4177
+creators = ["Warwick Nash", "Tracy Sellers", "Simon Talbot", "Andrew Cawthorn", "Wes Ford"]
 
 [cancer]
 url = "https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wpbc.data"
@@ -384,3 +388,111 @@ doi = "10.24432/C5XW20"
 kind = "classification"
 year = 1996
 home = "https://archive.ics.uci.edu/dataset/2/adult"
+
+################################################################################
+[statlog_german_credit_data]
+url = "https://archive.ics.uci.edu/static/public/144/statlog+german+credit+data.zip"
+stripRoot = false
+sha256 = "sha256-UsU6oM6GywGzhPdefMDYHHKg8UyXzX92T0rouc2ztMY="
+[statlog_german_credit_data.meta]
+title = "Statlog (German Credit Data)"
+description = "This dataset classifies people described by a set of attributes as good or bad credit risks. Comes in two formats (one all numeric). Also comes with a cost matrix"
+doi = "10.24432/C5NC77"
+kind = "Classification"
+year = 1994
+home = "https://archive.ics.uci.edu/dataset/144/statlog+german+credit+data"
+family = "UCI"
+field = "Social Science"
+nattr = 20
+ninst = 1000
+creators = ["Hans Hofmann"]
+
+################################################################################
+[bank_marketing]
+url = "https://archive.ics.uci.edu/static/public/222/bank+marketing.zip"
+stripRoot = false
+sha256 = "sha256-+myYl/cDZ73d3tTZkdcUa4MoxlZkyvlaPqExha84Vs4="
+[bank_marketing.meta]
+title = "Bank Marketing"
+description = "The data is related with direct marketing campaigns (phone calls) of a Portuguese banking institution. The classification goal is to predict if the client will subscribe a term deposit (variable y)."
+doi = "10.24432/C5K306"
+kind = "Classification"
+year = 2014
+home = "https://archive.ics.uci.edu/dataset/222/bank+marketing"
+family = "UCI"
+field = "Business"
+nattr = 17
+ninst = 45211
+creators = ["S. Moro", "P. Rita", "P. Cortez"]
+
+################################################################################
+[glass_identification]
+url = "https://archive.ics.uci.edu/static/public/42/glass+identification.zip"
+stripRoot = false
+sha256 = "sha256-fAGjpiX745pPrSwcAUTAeC5jQH+wXYsb4ys6VGPoz/U="
+[glass_identification.meta]
+title = "Glass Identification"
+description = "From USA Forensic Science Service; 6 types of glass; defined in terms of their oxide content (i.e. Na, Fe, K, etc)"
+doi = "10.24432/C5WW2P"
+kind = "Classification"
+year = 1987
+home = "https://archive.ics.uci.edu/dataset/42/glass+identification"
+family = "UCI"
+field = "Physical Science"
+nattr = 9
+ninst = 214
+creators = ["B. German"]
+
+################################################################################
+[automobile]
+url = "https://archive.ics.uci.edu/static/public/10/automobile.zip"
+stripRoot = false
+sha256 = "sha256-KlhB+mxZtozRTL8dNAZTKKJoOrAXfw5qnDGQOw9gZtA="
+[automobile.meta]
+title = "Automobile"
+description = "From 1985 Ward's Automotive Yearbook"
+doi = "10.24432/C5B01C"
+kind = "Regression"
+year = 1985
+home = "https://archive.ics.uci.edu/dataset/10/automobile"
+family = "UCI"
+field = "Other"
+nattr = 25
+ninst = 205
+creators = ["Jeffrey Schlimmer"]
+
+################################################################################
+[auto_mpg]
+url = "https://archive.ics.uci.edu/static/public/9/auto+mpg.zip"
+stripRoot = false
+sha256 = "sha256-6L8QorfZlDeTbqnTw51YixnsBdMqparxZe0Acm9/Zts="
+[auto_mpg.meta]
+title = "Auto MPG"
+description = "Revised from CMU StatLib library, data concerns city-cycle fuel consumption"
+doi = "10.24432/C5859H"
+kind = "Regression"
+year = 1993
+home = "https://archive.ics.uci.edu/dataset/9/auto+mpg"
+family = "UCI"
+field = "Other"
+nattr = 7
+ninst = 398
+creators = ["R. Quinlan"]
+
+################################################################################
+[student_performance]
+url = "https://archive.ics.uci.edu/static/public/320/student+performance.zip"
+stripRoot = false
+sha256 = "sha256-y45XjAPXZJi2E1/hmQcU6d1F6SM5X39xEDICjVamWcU="
+[student_performance.meta]
+title = "Student Performance"
+description = "Predict student performance in secondary education (high school). "
+doi = "10.24432/C5TG7T"
+kind = "Classification, Regression"
+year = 2008
+home = "https://archive.ics.uci.edu/dataset/320/student+performance"
+family = "UCI"
+field = "Social Science"
+nattr = 33
+ninst = 649
+creators = ["Paulo Cortez"]
