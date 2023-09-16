@@ -124,7 +124,34 @@ abstract type Small <: Frenay end
 datasetdir(path...) = joinpath(ENV["DATASETS"], path...)
 
 ################################################################################
-# Abalone
+# Abalone (ID=1) 1994
+#-------------------------------------------------------------------------------
+# - 4177 instances
+# - 8 attributes
+#-------------------------------------------------------------------------------
+# Predict the age of abalone from physical measurements
+#-------------------------------------------------------------------------------
+# # Creators
+#
+#  - Warwick Nash ()
+#  - Tracy Sellers ()
+#  - Simon Talbot ()
+#  - Andrew Cawthorn ()
+#  - Wes Ford ()
+#
+#-------------------------------------------------------------------------------
+# # Attribute Information
+#
+# - Sex: (Categorical Feature) M, F, and I (infant)
+# - Length: (Continuous Feature) Longest shell measurement
+# - Diameter: (Continuous Feature) perpendicular to length
+# - Height: (Continuous Feature) with meat in shell
+# - Whole_weight: (Continuous Feature) whole abalone
+# - Shucked_weight: (Continuous Feature) weight of meat
+# - Viscera_weight: (Continuous Feature) gut weight (after bleeding)
+# - Shell_weight: (Continuous Feature) after being dried
+# - Rings: (Integer Target) +1.5 gives the age in years
+#
 ################################################################################
 
 @dataset Large Abalone datasetdir("abalone") [
@@ -132,7 +159,8 @@ datasetdir(path...) = joinpath(ENV["DATASETS"], path...)
 ] :Rings
 preprocess(ds::Abalone) = X -> coerce(X, target(ds) => Continuous, :Sex => Multiclass)
 
-url(::Abalone) = "https://archive.ics.uci.edu/ml/machine-learning-databases/abalone/abalone.data"
+url(::Abalone) = "https://archive.ics.uci.edu/dataset/1/abalone"
+doi(::Abalone) = "10.24432/C55C7W"
 
 ################################################################################
 # Ailerons
@@ -159,6 +187,7 @@ url(::Ailerons) = "https://www.dcc.fc.up.pt/~ltorgo/Regression/ailerons.tgz"
 drop_columns(::Cancer) = [:Column1, :Column2]
 
 url(::Cancer) = "https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data"
+doi(::Cancer) = "10.24432/C5GK50"
 
 ################################################################################
 # CompActs
@@ -238,7 +267,15 @@ drop_columns(::Triazines) = [:p5_flex, :p5_h_doner]
 url(::Triazines) = "https://www.dcc.fc.up.pt/~ltorgo/Regression/triazines.tgz"
 
 ################################################################################
-# Servo
+# Servo (ID=87) 1986
+#-------------------------------------------------------------------------------
+# - 167 instances
+# - 4 attributes
+#-------------------------------------------------------------------------------
+# Data was from a simulation of a servo system
+#-------------------------------------------------------------------------------
+# # Creators
+#  - Karl Ulrich ()
 ################################################################################
 
 @dataset Small Servo datasetdir("servo") [
@@ -246,7 +283,8 @@ url(::Triazines) = "https://www.dcc.fc.up.pt/~ltorgo/Regression/triazines.tgz"
 ] :class
 preprocess(::Servo) = (X -> coerce(X, :motor => Multiclass, :screw => Multiclass))
 
-url(::Servo) = "https://archive.ics.uci.edu/ml/machine-learning-databases/servo/servo.data"
+url(::Servo) = "https://archive.ics.uci.edu/dataset/87/servo"
+doi(::Servo) = "10.24432/C5Q30F"
 
 ################################################################################
 # Iris
@@ -436,5 +474,332 @@ raw_data(ds::Regression) = MLJ.make_regression(ds.N, ds.p; ds.noise, ds.sparse, 
 unpack(ds::Regression) = data(ds)
 preprocess(::Regression) = identity
 Base.show(io::IO, ds::Regression) = print(io, typeof(ds), "(", ds.N, ",", ds.p, ",", ds.noise, ",", ds.sparse, ",", ds.outliers, ",", ds.rng, ")")
+
+################################################################################
+
+
+################################################################################
+# Statlog (German Credit Data) (144) 1994
+#-------------------------------------------------------------------------------
+# - 1000 instances
+# - 20 attributes
+#-------------------------------------------------------------------------------
+# This dataset classifies people described by a set of attributes as good or bad credit risks. Comes in two formats (one all numeric). Also comes with a cost matrix
+################################################################################
+@dataset CategoricalDataSet StatlogGermanCreditData datasetdir("statlog_german_credit_data", "german.data") [
+    :Attribute1, :Attribute2, :Attribute3, :Attribute4, :Attribute5, :Attribute6, :Attribute7, :Attribute8, :Attribute9, :Attribute10, :Attribute11, :Attribute12, :Attribute13, :Attribute14, :Attribute15, :Attribute16, :Attribute17, :Attribute18, :Attribute19, :Attribute20, :class,
+] :class
+
+preprocess(::StatlogGermanCreditData) = X -> coerce(X,
+    :Attribute1 => Multiclass,
+    :Attribute2 => Count,
+    :Attribute3 => Multiclass,
+    :Attribute4 => Multiclass,
+    :Attribute5 => Count,
+    :Attribute6 => Multiclass,
+    :Attribute7 => Multiclass,
+    :Attribute8 => Count,
+    :Attribute9 => Multiclass,
+    :Attribute10 => Multiclass,
+    :Attribute11 => Count,
+    :Attribute12 => Multiclass,
+    :Attribute13 => Count,
+    :Attribute14 => Multiclass,
+    :Attribute15 => Multiclass,
+    :Attribute16 => Count,
+    :Attribute17 => Multiclass,
+    :Attribute18 => Count,
+    :Attribute19 => Finite{2},
+    :Attribute20 => Finite{2},
+    :class => Finite{2},
+)
+
+url(::StatlogGermanCreditData) = "https://archive.ics.uci.edu/dataset/144/statlog+german+credit+data"
+doi(::StatlogGermanCreditData) = "10.24432/C5NC77"
+
+################################################################################
+# Automobile (10) 1985
+#-------------------------------------------------------------------------------
+# - 205 instances
+# - 25 attributes
+#-------------------------------------------------------------------------------
+# From 1985 Ward's Automotive Yearbook
+################################################################################
+# @dataset RegressionDataSet Automobile datasetdir("automobile", "imports-85.data") [
+#     :symboling, :normalized_losses, :make, :fuel_type, :aspiration, :num_of_doors, :body_style, :drive_wheels,
+#     :engine_location, :wheel_base, :length, :width, :height, :curb_weight, :engine_type, :num_of_cylinders, :engine_size,
+#     :fuel_system, :bore, :stroke, :compression_ratio, :horsepower, :peak_rpm, :city_mpg, :highway_mpg, :price,
+# ] :price
+#
+# preprocess(::Automobile) = X -> coerce(X,
+#     :fuel_system => Multiclass,
+#     :num_of_cylinders => Count,
+#     :engine_type => Multiclass,
+#     :engine_location => Finite{2},
+#     :drive_wheels => Multiclass,
+#     :body_style => Multiclass,
+#     :num_of_doors => Count,
+#     :aspiration => Finite{2},
+#     :fuel_type => Finite{2},
+#     :make => Multiclass,
+#     :symboling => Count,
+# )
+#
+# url(::Automobile) = "https://archive.ics.uci.edu/dataset/10/automobile"
+# doi(::Automobile) = "10.24432/C5B01C"
+
+################################################################################
+# Soybean (Large) (ID=90) 1980
+#-------------------------------------------------------------------------------
+# - 307 instances
+# - 35 attributes
+#-------------------------------------------------------------------------------
+# Michalski's famous soybean disease database
+#-------------------------------------------------------------------------------
+# # Creators
+#
+#  - R.S. Michalski ()
+#  - R.L. Chilausky ()
+# 
+#-------------------------------------------------------------------------------
+# # Attribute Information
+# 
+# - class: (Categorical Target) .
+# - date: (Categorical Feature) .
+# - plant-stand: (Categorical Feature) .
+# - precip: (Categorical Feature) .
+# - temp: (Categorical Feature) .
+# - hail: (Categorical Feature) .
+# - crop-hist: (Categorical Feature) .
+# - area-damaged: (Categorical Feature) .
+# - severity: (Categorical Feature) .
+# - seed-tmt: (Categorical Feature) .
+# - germination: (Categorical Feature) .
+# - plant-growth: (Categorical Feature) .
+# - leaves: (Categorical Feature) .
+# - leafspots-halo: (Categorical Feature) .
+# - leafspots-marg: (Categorical Feature) .
+# - leafspot-size: (Categorical Feature) .
+# - leaf-shread: (Categorical Feature) .
+# - leaf-malf: (Categorical Feature) .
+# - leaf-mild: (Categorical Feature) .
+# - stem: (Categorical Feature) .
+# - lodging: (Categorical Feature) .
+# - stem-cankers: (Categorical Feature) .
+# - canker-lesion: (Categorical Feature) .
+# - fruiting-bodies: (Categorical Feature) .
+# - external decay: (Categorical Feature) .
+# - mycelium: (Categorical Feature) .
+# - int-discolor: (Categorical Feature) .
+# - sclerotia: (Categorical Feature) .
+# - fruit-pods: (Categorical Feature) .
+# - fruit spots: (Categorical Feature) .
+# - seed: (Categorical Feature) .
+# - mold-growth: (Categorical Feature) .
+# - seed-discolor: (Categorical Feature) .
+# - seed-size: (Categorical Feature) .
+# - shriveling: (Categorical Feature) .
+# - roots: (Categorical Feature) .
+#
+################################################################################
+
+@dataset CategoricalDataSet SoybeanLarge datasetdir("soybean_large", "soybean-large.data") [
+    :Class, :Date, :PlantStand, :Precip, :Temp, :Hail, :CropHist, :AreaDamaged, :Severity, :SeedTmt, :Germination, :PlantGrowth, :Leaves, :LeafspotsHalo, :LeafspotsMarg, :LeafspotSize, :LeafShread, :LeafMalf, :LeafMild, :Stem, :Lodging, :StemCankers, :CankerLesion, :FruitingBodies, :ExternalDecay, :Mycelium, :IntDiscolor, :Sclerotia, :FruitPods, :FruitSpots, :Seed, :MoldGrowth, :SeedDiscolor, :SeedSize, :Shriveling, :Roots,
+] :Class
+
+preprocess(::SoybeanLarge) = X -> coerce(X,
+    :Class => Multiclass,
+    :Date => Multiclass,
+    :PlantStand => Multiclass,
+    :Precip => Multiclass,
+    :Temp => Multiclass,
+    :Hail => Multiclass,
+    :CropHist => Multiclass,
+    :AreaDamaged => Multiclass,
+    :Severity => Multiclass,
+    :SeedTmt => Multiclass,
+    :Germination => Multiclass,
+    :PlantGrowth => Multiclass,
+    :Leaves => Multiclass,
+    :LeafspotsHalo => Multiclass,
+    :LeafspotsMarg => Multiclass,
+    :LeafspotSize => Multiclass,
+    :LeafShread => Multiclass,
+    :LeafMalf => Multiclass,
+    :LeafMild => Multiclass,
+    :Stem => Multiclass,
+    :Lodging => Multiclass,
+    :StemCankers => Multiclass,
+    :CankerLesion => Multiclass,
+    :FruitingBodies => Multiclass,
+    :ExternalDecay => Multiclass,
+    :Mycelium => Multiclass,
+    :IntDiscolor => Multiclass,
+    :Sclerotia => Multiclass,
+    :FruitPods => Multiclass,
+    :FruitSpots => Multiclass,
+    :Seed => Multiclass,
+    :MoldGrowth => Multiclass,
+    :SeedDiscolor => Multiclass,
+    :SeedSize => Multiclass,
+    :Shriveling => Multiclass,
+    :Roots => Multiclass,
+)
+
+url(::SoybeanLarge) = "https://archive.ics.uci.edu/dataset/90/soybean+large"
+doi(::SoybeanLarge) = "10.24432/C5JG6Z"
+
+################################################################################
+# Auto MPG (ID=9) 1993
+#-------------------------------------------------------------------------------
+# - 398 instances
+# - 7 attributes
+#-------------------------------------------------------------------------------
+# Revised from CMU StatLib library, data concerns city-cycle fuel consumption
+#-------------------------------------------------------------------------------
+# # Creators
+#
+#  - R. Quinlan ()
+# 
+#-------------------------------------------------------------------------------
+# # Attribute Information
+# 
+# - displacement: (Continuous Feature) .
+# - mpg: (Continuous Target) .
+# - cylinders: (Integer Feature) .
+# - horsepower: (Continuous Feature) .
+# - weight: (Continuous Feature) .
+# - acceleration: (Continuous Feature) .
+# - model_year: (Integer Feature) .
+# - origin: (Integer Feature) .
+# - car_name: (Categorical ID) .
+#
+################################################################################
+
+@dataset RegressionDataSet AutoMpg datasetdir("auto_mpg", "auto-mpg.data") [
+    :Displacement, :Mpg, :Cylinders, :Horsepower, :Weight, :Acceleration, :ModelYear, :Origin, :CarName,
+] :Mpg
+
+preprocess(::AutoMpg) = X -> coerce(X,
+    :Cylinders => Count,
+    :ModelYear => Count,
+    :Origin => Count,
+    :CarName => Multiclass,
+)
+
+drop_colums(::AutoMpg) = [:CarName,]
+
+url(::AutoMpg) = "https://archive.ics.uci.edu/dataset/9/auto+mpg"
+doi(::AutoMpg) = "10.24432/C5859H"
+
+################################################################################
+# Glass Identification (ID=42) 1987
+#-------------------------------------------------------------------------------
+# - 214 instances
+# - 9 attributes
+#-------------------------------------------------------------------------------
+# From USA Forensic Science Service; 6 types of glass; defined in terms of their oxide content (i.e. Na, Fe, K, etc)
+#-------------------------------------------------------------------------------
+# # Creators
+#
+#  - B. German ()
+# 
+#-------------------------------------------------------------------------------
+# # Attribute Information
+# 
+# - Id_number: (Integer ID) .
+# - RI: (Continuous Feature) refractive index.
+# - Na: (Continuous Feature) Sodium.
+# - Mg: (Continuous Feature) Magnesium.
+# - Al: (Continuous Feature) Aluminum.
+# - Si: (Continuous Feature) Silicon.
+# - K: (Continuous Feature) Potassium.
+# - Ca: (Continuous Feature) Calcium.
+# - Ba: (Continuous Feature) Barium.
+# - Fe: (Continuous Feature) Iron.
+# - Type_of_glass: (Categorical Target) .
+#
+################################################################################
+
+@dataset CategoricalDataSet GlassIdentification datasetdir("glass_identification", "glass.data") [
+    :IdNumber, :Ri, :Na, :Mg, :Al, :Si, :K, :Ca, :Ba, :Fe, :TypeOfGlass,
+] :TypeOfGlass
+
+preprocess(::GlassIdentification) = X -> coerce(X,
+    :IdNumber => Count,
+    :TypeOfGlass => Multiclass,
+)
+
+drop_colums(::GlassIdentification) = [:IdNumber,]
+
+url(::GlassIdentification) = "https://archive.ics.uci.edu/dataset/42/glass+identification"
+doi(::GlassIdentification) = "10.24432/C5WW2P"
+
+################################################################################
+# Hepatitis (ID=46) 1983
+#-------------------------------------------------------------------------------
+# - 155 instances
+# - 19 attributes
+#-------------------------------------------------------------------------------
+# From G.Gong: CMU; Mostly Boolean or numeric-valued attribute types; Includes cost data (donated by Peter Turney)
+#-------------------------------------------------------------------------------
+# # Creators
+#
+# 
+#-------------------------------------------------------------------------------
+# # Attribute Information
+# 
+# - Class: (Categorical Target) .
+# - Age: (Integer Feature) .
+# - Sex: (Categorical Feature) .
+# - Steroid: (Categorical Feature) .
+# - Antivirals: (Categorical Feature) .
+# - Fatigue: (Categorical Feature) .
+# - Malaise: (Categorical Feature) .
+# - Anorexia: (Categorical Feature) .
+# - Liver Big: (Categorical Feature) .
+# - Liver Firm: (Categorical Feature) .
+# - Spleen Palpable: (Categorical Feature) .
+# - Spiders: (Categorical Feature) .
+# - Ascites: (Categorical Feature) .
+# - Varices: (Categorical Feature) .
+# - Bilirubin: (Continuous Feature) .
+# - Alk Phosphate: (Integer Feature) .
+# - Sgot: (Integer Feature) .
+# - Albumin: (Integer Feature) .
+# - Protime: (Integer Feature) .
+# - Histology: (Integer Feature) .
+#
+################################################################################
+
+@dataset CategoricalDataSet Hepatitis datasetdir("hepatitis", "hepatitis.data") [
+    :Class, :Age, :Sex, :Steroid, :Antivirals, :Fatigue, :Malaise, :Anorexia, :LiverBig, :LiverFirm, :SpleenPalpable, :Spiders, :Ascites, :Varices, :Bilirubin, :AlkPhosphate, :Sgot, :Albumin, :Protime, :Histology,
+] :Class
+
+preprocess(::Hepatitis) = X -> coerce(X,
+    :Class => Multiclass,
+    :Age => Count,
+    :Sex => Multiclass,
+    :Steroid => Multiclass,
+    :Antivirals => Multiclass,
+    :Fatigue => Multiclass,
+    :Malaise => Multiclass,
+    :Anorexia => Multiclass,
+    :LiverBig => Multiclass,
+    :LiverFirm => Multiclass,
+    :SpleenPalpable => Multiclass,
+    :Spiders => Multiclass,
+    :Ascites => Multiclass,
+    :Varices => Multiclass,
+    :AlkPhosphate => Count,
+    :Sgot => Count,
+    :Albumin => Count,
+    :Protime => Count,
+    :Histology => Count,
+)
+
+url(::Hepatitis) = "https://archive.ics.uci.edu/dataset/46/hepatitis"
+doi(::Hepatitis) = "10.24432/C5Q59J"
+
 
 end

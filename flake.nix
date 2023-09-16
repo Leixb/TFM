@@ -30,6 +30,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-utils.follows = "flake-utils";
     };
+
+    uciml = {
+      url = "github:leixb/UCI-ML-Repository-dataset-metadata/b6bd87b19c6c2d9aec5ca8a82961888685450d3c";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.follows = "flake-utils";
+    };
   };
 
   outputs = { self, nixpkgs, flake-utils, devenv, ... } @ inputs:
@@ -67,6 +73,27 @@
                 document-split
               ];
             };
+          };
+        apps.prefetch_datasets =
+          let
+            prefetcher = pkgs.writeShellApplication {
+              name = "prefetch_datasets";
+              runtimeInputs = with pkgs; [ git jq yq nix-prefetch ];
+              text = ''
+                OPTS=("fetchzip" "--stripRoot" "--expr" "false" "--url")
+                GIT_ROOT="$(git rev-parse --show-toplevel)"
+
+                FILE="''${1:-"$GIT_ROOT/datasets.toml"}"
+
+                tomlq <"$FILE" | \
+                    jq -r '.[] | select(.sha256 == "") | .url' | \
+                    xargs -I{} nix-prefetch "''${OPTS[@]}" {}
+              '';
+            };
+          in
+          {
+            type = "app";
+            program = pkgs.lib.getExe prefetcher;
           };
       }
     );

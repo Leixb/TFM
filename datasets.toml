@@ -408,24 +408,6 @@ ninst = 1000
 creators = ["Hans Hofmann"]
 
 ################################################################################
-[bank_marketing]
-url = "https://archive.ics.uci.edu/static/public/222/bank+marketing.zip"
-stripRoot = false
-sha256 = "sha256-+myYl/cDZ73d3tTZkdcUa4MoxlZkyvlaPqExha84Vs4="
-[bank_marketing.meta]
-title = "Bank Marketing"
-description = "The data is related with direct marketing campaigns (phone calls) of a Portuguese banking institution. The classification goal is to predict if the client will subscribe a term deposit (variable y)."
-doi = "10.24432/C5K306"
-kind = "Classification"
-year = 2014
-home = "https://archive.ics.uci.edu/dataset/222/bank+marketing"
-family = "UCI"
-field = "Business"
-nattr = 17
-ninst = 45211
-creators = ["S. Moro", "P. Rita", "P. Cortez"]
-
-################################################################################
 [glass_identification]
 url = "https://archive.ics.uci.edu/static/public/42/glass+identification.zip"
 stripRoot = false
@@ -462,6 +444,24 @@ ninst = 205
 creators = ["Jeffrey Schlimmer"]
 
 ################################################################################
+[soybean_large]
+url = "https://archive.ics.uci.edu/static/public/90/soybean+large.zip"
+stripRoot = false
+sha256 = "sha256-hE4UyaqsjOKxXCFRv5gtuogJHrH1n4WcknNrKp3yuuo="
+[soybean_large.meta]
+title = "Soybean (Large)"
+description = "Michalski's famous soybean disease database"
+doi = "10.24432/C5JG6Z"
+kind = "Classification"
+year = 1980
+home = "https://archive.ics.uci.edu/dataset/90/soybean+large"
+family = "UCI"
+field = "Life Science"
+nattr = 35
+ninst = 307
+creators = ["R.S. Michalski", "R.L. Chilausky"]
+
+################################################################################
 [auto_mpg]
 url = "https://archive.ics.uci.edu/static/public/9/auto+mpg.zip"
 stripRoot = false
@@ -480,19 +480,20 @@ ninst = 398
 creators = ["R. Quinlan"]
 
 ################################################################################
-[student_performance]
-url = "https://archive.ics.uci.edu/static/public/320/student+performance.zip"
+[hepatitis]
+url = "https://archive.ics.uci.edu/static/public/46/hepatitis.zip"
 stripRoot = false
-sha256 = "sha256-y45XjAPXZJi2E1/hmQcU6d1F6SM5X39xEDICjVamWcU="
-[student_performance.meta]
-title = "Student Performance"
-description = "Predict student performance in secondary education (high school). "
-doi = "10.24432/C5TG7T"
-kind = "Classification, Regression"
-year = 2008
-home = "https://archive.ics.uci.edu/dataset/320/student+performance"
+sha256 = "sha256-GjL0bby/tQ88XCwT1pevWOAv4igFDW+WK/906iWH6Fc="
+[hepatitis.meta]
+title = "Hepatitis"
+description = "From G.Gong: CMU; Mostly Boolean or numeric-valued attribute types; Includes cost data (donated by Peter Turney)"
+doi = "10.24432/C5Q59J"
+kind = "Classification"
+year = 1983
+home = "https://archive.ics.uci.edu/dataset/46/hepatitis"
 family = "UCI"
-field = "Social Science"
-nattr = 33
-ninst = 649
-creators = ["Paulo Cortez"]
+field = "Life Science"
+nattr = 19
+ninst = 155
+creators = []
+

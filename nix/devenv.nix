@@ -92,6 +92,8 @@ in
     imagemagick
     inputs.poetry2nix.packages.${system}.poetry
     inputs.libsvm.packages.${system}.libsvm
+    inputs.uciml.packages.${system}.uciml
+    inputs.uciml.packages.${system}.uciml-gen
     pyenv
     python3.pkgs.pygments
     nixpkgs-fmt

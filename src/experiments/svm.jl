@@ -211,7 +211,7 @@ function svm_parameter_grid(; step::Float64=1.0, datasets=nothing, acos=false, r
         push!(kernels, LIBSVM.Kernel.Acos0, LIBSVM.Kernel.Acos1, LIBSVM.Kernel.Acos2)
     end
 
-    sigma_asin = 10 .^ (-3:step:8)
+    sigma_asin = 10 .^ (-3:step:6)
 
     # INFO: We avoid using @onlyif since it is quite slow
     # Instead, we just do each dataset separately
