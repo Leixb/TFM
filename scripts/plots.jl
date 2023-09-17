@@ -89,7 +89,7 @@ let
     @saveplot nRMSE_acos_delve_pumadyn_8_scaled = Plots.plot_delve(nrmse_s, DataSets.Pumadyn, 8, kernels; opts...)
 
     local nrmse_s = @chain Plots.experiment_data("svms3", scan_dirs) begin
-        Plots.summarize_best([:kernel_cat, :dataset_cat, :sigma])
+        Plots.summarize_best([:kernel_cat, :dataset_cat, :sigma]; by=:measurement, maximum=true)
         Plots.classification()
     end
 
