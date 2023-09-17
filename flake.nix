@@ -32,7 +32,7 @@
     };
 
     uciml = {
-      url = "github:leixb/UCI-ML-Repository-dataset-metadata/b6bd87b19c6c2d9aec5ca8a82961888685450d3c";
+      url = "github:leixb/UCI-ML-Repository-dataset-metadata/f9bbaee85d035976f975c50be6e20a6f9965fe74";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-utils.follows = "flake-utils";
     };

@@ -9,7 +9,7 @@ pre-processing. For models, see `models.jl`.
 module DataSets
 
 import CSV
-import DataFrames.DataFrame
+using DataFrames
 using LIBSVM: Kernel
 using CategoricalArrays: CategoricalArray
 using Random
@@ -607,44 +607,48 @@ doi(::StatlogGermanCreditData) = "10.24432/C5NC77"
     :Class, :Date, :PlantStand, :Precip, :Temp, :Hail, :CropHist, :AreaDamaged, :Severity, :SeedTmt, :Germination, :PlantGrowth, :Leaves, :LeafspotsHalo, :LeafspotsMarg, :LeafspotSize, :LeafShread, :LeafMalf, :LeafMild, :Stem, :Lodging, :StemCankers, :CankerLesion, :FruitingBodies, :ExternalDecay, :Mycelium, :IntDiscolor, :Sclerotia, :FruitPods, :FruitSpots, :Seed, :MoldGrowth, :SeedDiscolor, :SeedSize, :Shriveling, :Roots,
 ] :Class
 
-preprocess(::SoybeanLarge) = X -> coerce(X,
-    :Class => Multiclass,
-    :Date => Multiclass,
-    :PlantStand => Multiclass,
-    :Precip => Multiclass,
-    :Temp => Multiclass,
-    :Hail => Multiclass,
-    :CropHist => Multiclass,
-    :AreaDamaged => Multiclass,
-    :Severity => Multiclass,
-    :SeedTmt => Multiclass,
-    :Germination => Multiclass,
-    :PlantGrowth => Multiclass,
-    :Leaves => Multiclass,
-    :LeafspotsHalo => Multiclass,
-    :LeafspotsMarg => Multiclass,
-    :LeafspotSize => Multiclass,
-    :LeafShread => Multiclass,
-    :LeafMalf => Multiclass,
-    :LeafMild => Multiclass,
-    :Stem => Multiclass,
-    :Lodging => Multiclass,
-    :StemCankers => Multiclass,
-    :CankerLesion => Multiclass,
-    :FruitingBodies => Multiclass,
-    :ExternalDecay => Multiclass,
-    :Mycelium => Multiclass,
-    :IntDiscolor => Multiclass,
-    :Sclerotia => Multiclass,
-    :FruitPods => Multiclass,
-    :FruitSpots => Multiclass,
-    :Seed => Multiclass,
-    :MoldGrowth => Multiclass,
-    :SeedDiscolor => Multiclass,
-    :SeedSize => Multiclass,
-    :Shriveling => Multiclass,
-    :Roots => Multiclass,
-)
+preprocess(::SoybeanLarge) = X -> let
+    dropmissing!(X)
+    mapcols!(collect, X)
+    coerce(X,
+        :Class => Multiclass,
+        :Date => Multiclass,
+        :PlantStand => Multiclass,
+        :Precip => Multiclass,
+        :Temp => Multiclass,
+        :Hail => Multiclass,
+        :CropHist => Multiclass,
+        :AreaDamaged => Multiclass,
+        :Severity => Multiclass,
+        :SeedTmt => Multiclass,
+        :Germination => Multiclass,
+        :PlantGrowth => Multiclass,
+        :Leaves => Multiclass,
+        :LeafspotsHalo => Multiclass,
+        :LeafspotsMarg => Multiclass,
+        :LeafspotSize => Multiclass,
+        :LeafShread => Multiclass,
+        :LeafMalf => Multiclass,
+        :LeafMild => Multiclass,
+        :Stem => Multiclass,
+        :Lodging => Multiclass,
+        :StemCankers => Multiclass,
+        :CankerLesion => Multiclass,
+        :FruitingBodies => Multiclass,
+        :ExternalDecay => Multiclass,
+        :Mycelium => Multiclass,
+        :IntDiscolor => Multiclass,
+        :Sclerotia => Multiclass,
+        :FruitPods => Multiclass,
+        :FruitSpots => Multiclass,
+        :Seed => Multiclass,
+        :MoldGrowth => Multiclass,
+        :SeedDiscolor => Multiclass,
+        :SeedSize => Multiclass,
+        :Shriveling => Multiclass,
+        :Roots => Multiclass,
+    )
+end
 
 url(::SoybeanLarge) = "https://archive.ics.uci.edu/dataset/90/soybean+large"
 doi(::SoybeanLarge) = "10.24432/C5JG6Z"
@@ -677,17 +681,23 @@ doi(::SoybeanLarge) = "10.24432/C5JG6Z"
 ################################################################################
 
 @dataset RegressionDataSet AutoMpg datasetdir("auto_mpg", "auto-mpg.data") [
-    :Displacement, :Mpg, :Cylinders, :Horsepower, :Weight, :Acceleration, :ModelYear, :Origin, :CarName,
+    :Mpg, :Cylinders, :Displacement, :Horsepower, :Weight, :Acceleration, :ModelYear, :Origin, :CarName,
 ] :Mpg
 
-preprocess(::AutoMpg) = X -> coerce(X,
-    :Cylinders => Count,
-    :ModelYear => Count,
-    :Origin => Count,
-    :CarName => Multiclass,
-)
+read_data(ds::AutoMpg; kwargs...) = CSV.read(path(ds), DataFrame; header=header(ds), ignorerepeated=true, delim="  ", missingstring="?", drop=[:CarName], silencewarnings=true, kwargs...)
+preprocess(::AutoMpg) = X -> let
+    X[!, :Origin] = map(x -> parse(Int, x[1]), X[!, :Origin])
+    dropmissing!(X)
+    mapcols!(collect, X)
+    coerce(X,
+        :Cylinders => Count,
+        :ModelYear => Count,
+        :Origin => Count,
+        :CarName => Multiclass,
+    )
+end
 
-drop_colums(::AutoMpg) = [:CarName,]
+select_columns(::AutoMpg) = [:Displacement, :Cylinders, :Horsepower, :Weight, :Acceleration, :ModelYear, :Origin, :Mpg]
 
 url(::AutoMpg) = "https://archive.ics.uci.edu/dataset/9/auto+mpg"
 doi(::AutoMpg) = "10.24432/C5859H"
@@ -776,27 +786,32 @@ doi(::GlassIdentification) = "10.24432/C5WW2P"
     :Class, :Age, :Sex, :Steroid, :Antivirals, :Fatigue, :Malaise, :Anorexia, :LiverBig, :LiverFirm, :SpleenPalpable, :Spiders, :Ascites, :Varices, :Bilirubin, :AlkPhosphate, :Sgot, :Albumin, :Protime, :Histology,
 ] :Class
 
-preprocess(::Hepatitis) = X -> coerce(X,
-    :Class => Multiclass,
-    :Age => Count,
-    :Sex => Multiclass,
-    :Steroid => Multiclass,
-    :Antivirals => Multiclass,
-    :Fatigue => Multiclass,
-    :Malaise => Multiclass,
-    :Anorexia => Multiclass,
-    :LiverBig => Multiclass,
-    :LiverFirm => Multiclass,
-    :SpleenPalpable => Multiclass,
-    :Spiders => Multiclass,
-    :Ascites => Multiclass,
-    :Varices => Multiclass,
-    :AlkPhosphate => Count,
-    :Sgot => Count,
-    :Albumin => Count,
-    :Protime => Count,
-    :Histology => Count,
-)
+read_data(ds::Hepatitis; kwargs...) = CSV.read(path(ds), DataFrame; header=header(ds), missingstring="?", kwargs...)
+
+preprocess(::Hepatitis) = X -> let
+    dropmissing!(X)
+    mapcols!(collect, X)
+    coerce(X,
+        :Class => Multiclass,
+        :Age => Count,
+        :Sex => Multiclass,
+        :Steroid => Multiclass,
+        :Antivirals => Multiclass,
+        :Fatigue => Multiclass,
+        :Malaise => Multiclass,
+        :Anorexia => Multiclass,
+        :LiverBig => Multiclass,
+        :LiverFirm => Multiclass,
+        :SpleenPalpable => Multiclass,
+        :Spiders => Multiclass,
+        :Ascites => Multiclass,
+        :Varices => Multiclass,
+        :AlkPhosphate => Count,
+        :Sgot => Count,
+        :Protime => Count,
+        :Histology => Finite{2},
+    )
+end
 
 url(::Hepatitis) = "https://archive.ics.uci.edu/dataset/46/hepatitis"
 doi(::Hepatitis) = "10.24432/C5Q59J"
