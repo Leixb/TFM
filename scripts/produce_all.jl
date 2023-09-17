@@ -11,7 +11,10 @@ using Dates
 
 folder = get(ARGS, 1, "svms3")
 
-PROCS = parse(Int, get(ENV, "PROCS", max(1, nprocs() - 1)))
+PROCS = get(ENV, "PROCS", max(1, nprocs() - 1))
+if PROCS isa String
+    PROCS = parse(Int, PROCS)
+end
 
 @info "Using $PROCS processes"
 
