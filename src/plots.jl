@@ -328,6 +328,12 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
 
     fig = Figure(args...; kwargs...)
 
+    # Remove kernels that we won't show, so that we don't run into
+    # issues with empty plots.
+    df = filter(df) do row
+        row.kernel_cat in show_kernels
+    end
+
     datasets = unique(df.dataset_cat)
     kernels = unique(df.kernel_cat)
 
