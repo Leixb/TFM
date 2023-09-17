@@ -56,7 +56,9 @@ end
 
 @info "Experiment run 3 (svms3/) nRMSE with scaled sigma"
 let
-    local nrmse_s = @chain Plots.experiment_data("svms3", scan_dirs) begin
+    local data_ex3 = Plots.experiment_data("svms3", scan_dirs)
+
+    local nrmse_s = @chain data_ex3 begin
         Plots.summarize_best([:kernel_cat, :dataset_cat, :sigma])
         Plots.regression()
     end
@@ -65,6 +67,8 @@ let
         sigma=:sigma_scaled,
         show_rbf=true
     )
+
+    @info "Experiment run 3 (smvs3/) - part 1: Regression plots"
 
     @saveplot nRMSE_all_scaled = Plots.plot_sigma(nrmse_s; opts..., show_bands, resolution)
     @saveplot nRMSE_frenay_scaled = Plots.plot_sigma(@rsubset(nrmse_s, :dataset isa DataSets.Frenay); opts..., show_bands)
@@ -88,16 +92,18 @@ let
     @saveplot nRMSE_acos_delve_pumadyn_32_scaled = Plots.plot_delve(nrmse_s, DataSets.Pumadyn, 32, kernels; opts...)
     @saveplot nRMSE_acos_delve_pumadyn_8_scaled = Plots.plot_delve(nrmse_s, DataSets.Pumadyn, 8, kernels; opts...)
 
-    local nrmse_s = @chain Plots.experiment_data("svms3", scan_dirs) begin
+    @info "Experiment run 3 (smvs3/) - part 2: Classification plots"
+
+    local acc_s = @chain data_ex3 begin
         Plots.summarize_best([:kernel_cat, :dataset_cat, :sigma]; by=:measurement, maximum=true)
         Plots.classification()
     end
 
-    @saveplot nRMSE_class_all_scaled = Plots.plot_sigma(nrmse_s; opts..., show_bands, resolution)
+    @saveplot accuracy_class_all_scaled = Plots.plot_sigma(acc_s; opts..., show_bands, resolution)
 
     local kernels = ["Acos0", "Acos1", "Acos2"]
 
-    @saveplot nRMSE_class_acos_all_scaled = Plots.plot_sigma(nrmse_s, kernels; opts..., resolution)
+    @saveplot accuracy_class_acos_all_scaled = Plots.plot_sigma(acc_s, kernels; opts..., resolution)
 end
 
 @info "Kernel plots"
