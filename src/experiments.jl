@@ -59,7 +59,7 @@ using LIBSVM
 using DrWatson
 import DrWatson: allaccess, default_prefix, default_allowed, produce_or_load
 
-import ..DataSets: DataSet, CategoricalDataSet, RegressionDataSet, MNIST, DelveRegressionDataSet
+import ..DataSets: DataSet, CategoricalDataSet, RegressionDataSet, MNIST, DelveRegressionDataSet, SolarFlare, ForestFires
 import ..DataSets
 import ..Measures: MeanSquaredError, NormalizedRootMeanSquaredError
 import ..Models
@@ -102,6 +102,7 @@ end
 Set the default resampling method to use for the datasets
 """
 default_resampling(::DataSet) = Resampling.FiveTwo(1234)
+default_resampling(::Union{SolarFlare,ForestFires}) = Resampling.FiveTwoZeroStratified(1234)
 
 """
     default_measure(::DataSet)

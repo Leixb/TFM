@@ -8,7 +8,7 @@ using Memoization
 
 import MLJ: partition
 
-using ..DataSets: DataSet, data, target, CategoricalDataSet, RegressionDataSet, MNIST, DelveRegressionDataSet
+using ..DataSets: DataSet, data, target, CategoricalDataSet, RegressionDataSet, MNIST, DelveRegressionDataSet, SolarFlare, ForestFires
 import ..Transformers
 import ..Utils
 import ..Measures: mse
@@ -26,6 +26,14 @@ ds = TFM.DataSets.CPU()
 """
 @memoize partition(ds::DataSet; ratio=0.8, shuffle=true, rng=1234, args...) =
     partition(unpack(ds), ratio; shuffle, rng, multi=true, args...)
+
+# ForestFires and SolarFlare have too much zeroes in the target variable,
+# so we need to stratify the partition to make sure we have some non-zero
+# values in the training and test sets.
+@memoize function partition(ds::Union{SolarFlare,ForestFires}; ratio=0.8, shuffle=true, rng=1234, args...)
+    X, y = unpack(ds)
+    partition((X, y), ratio; shuffle, rng, multi=true, stratify=y, args...)
+end
 
 
 """
