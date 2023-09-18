@@ -497,3 +497,41 @@ nattr = 19
 ninst = 155
 creators = []
 
+#!!! This file was auto-generated.
+
+################################################################################
+[forest_fires]
+url = "https://archive.ics.uci.edu/static/public/162/forest+fires.zip"
+stripRoot = false
+sha256 = "sha256-rVGQxaDc1YenBHby5+LPfiOAxyhkdb8olMZhyPgN2fc="
+[forest_fires.meta]
+title = "Forest Fires"
+description = "This is a difficult regression task, where the aim is to predict the burned area of forest fires, in the northeast region of Portugal, by using meteorological and other data (see details at: http://www.dsi.uminho.pt/~pcortez/forestfires)."
+doi = "10.24432/C5D88D"
+kind = "Regression"
+year = 2007
+home = "https://archive.ics.uci.edu/dataset/162/forest+fires"
+family = "UCI"
+field = "Physical Science"
+nattr = 13
+ninst = 517
+creators = ["Paulo Cortez", "Anbal Morais"]
+
+################################################################################
+[solar_flare]
+url = "https://archive.ics.uci.edu/static/public/89/solar+flare.zip"
+stripRoot = false
+sha256 = "sha256-73CpItnmen30uU9/P30TedAsPzVeGo9e49IYn5gI+Yg="
+[solar_flare.meta]
+title = "Solar Flare"
+description = "Each class attribute counts the number of solar flares of a certain class that occur in a 24 hour period"
+doi = "10.24432/C5530G"
+kind = "Regression"
+year = 1989
+home = "https://archive.ics.uci.edu/dataset/89/solar+flare"
+family = "UCI"
+field = "Physical Science"
+nattr = 10
+ninst = 1389
+creators = []
+

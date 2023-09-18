@@ -817,4 +817,95 @@ url(::Hepatitis) = "https://archive.ics.uci.edu/dataset/46/hepatitis"
 doi(::Hepatitis) = "10.24432/C5Q59J"
 
 
+################################################################################
+# Forest Fires (ID=162) 2007
+#-------------------------------------------------------------------------------
+# - 517 instances
+# - 13 attributes
+#-------------------------------------------------------------------------------
+# This is a difficult regression task, where the aim is to predict the burned area of forest fires, in the northeast region of Portugal, by using meteorological and other data (see details at: http://www.dsi.uminho.pt/~pcortez/forestfires).
+#-------------------------------------------------------------------------------
+# # Creators
+#
+#  - Paulo Cortez ()
+#  - Anbal Morais ()
+# 
+#-------------------------------------------------------------------------------
+# # Attribute Information
+# 
+#
+################################################################################
+
+@dataset RegressionDataSet ForestFires datasetdir("forest_fires", "forestfires.csv") 1 :area
+
+url(::ForestFires) = "https://archive.ics.uci.edu/dataset/162/forest+fires"
+doi(::ForestFires) = "10.24432/C5D88D"
+
+preprocess(::ForestFires) = X -> let
+    X[!, :area] = log.(X[!, :area] .+ 1)
+    coerce(X,
+        :X => Count,
+        :Y => Count,
+        :month => Multiclass,
+        :day => Multiclass,
+        :FFMC => Continuous,
+        :DMC => Continuous,
+        :DC => Continuous,
+        :ISI => Continuous,
+        :temp => Continuous,
+        :RH => Continuous,
+        :wind => Continuous,
+        :rain => Continuous,
+        :area => Continuous,
+    )
+end
+
+################################################################################
+# Solar Flare (ID=89) 1989
+#-------------------------------------------------------------------------------
+# - 1389 instances
+# - 10 attributes
+#-------------------------------------------------------------------------------
+# Each class attribute counts the number of solar flares of a certain class that occur in a 24 hour period
+#-------------------------------------------------------------------------------
+# # Creators
+#
+# 
+#-------------------------------------------------------------------------------
+# # Attribute Information
+# 
+#
+################################################################################
+
+abstract type SolarFlare <: RegressionDataSet end
+
+const _columns_solar_flare = [:Class, :Size, :Distribution, :Activity, :Evolution, :Previous24HourActivity, :HistoricallyComplex, :HistoricallyComplexOnThisPass, :Area, :AreaOfLargestSpot, :CClassFlares, :MClassFlares, :XClassFlares]
+
+@dataset SolarFlare SolarFlare1 datasetdir("solar_flare", "flare.data1") _columns_solar_flare :CClassFlares
+@dataset SolarFlare SolarFlare2 datasetdir("solar_flare", "flare.data2") _columns_solar_flare :CClassFlares
+
+read_data(ds::SolarFlare; kwargs...) = CSV.read(path(ds), DataFrame; header=header(ds), skipto=2, delim=" ", kwargs...)
+
+# WARN: There are 3 target columns, but we only use one of them.
+select_columns(::SolarFlare) = setdiff(_columns_solar_flare, [:MClassFlares, :XClassFlares])
+
+preprocess(::SolarFlare) = X -> coerce(X,
+    :Class => Multiclass,
+    :Size => Multiclass,
+    :Distribution => Multiclass,
+    :Activity => Multiclass,
+    :Evolution => Multiclass,
+    :Previous24HourActivity => Multiclass,
+    :HistoricallyComplex => Multiclass,
+    :HistoricallyComplexOnThisPass => Multiclass,
+    :Area => Multiclass,
+    :AreaOfLargestSpot => Multiclass,
+    :CClassFlares => Count,
+    :MClassFlares => Count,
+    :XClassFlares => Count,
+)
+
+url(::SolarFlare) = "https://archive.ics.uci.edu/dataset/89/solar+flare"
+doi(::SolarFlare) = "10.24432/C5530G"
+
 end
