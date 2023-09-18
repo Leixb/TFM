@@ -330,12 +330,19 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
 
     # Remove kernels that we won't show, so that we don't run into
     # issues with empty plots.
-    df = filter(df) do row
+    df_filtered = filter(df) do row
         row.kernel_cat in show_kernels
     end
 
-    datasets = unique(df.dataset_cat)
+    datasets = unique(df_filtered.dataset_cat)
     kernels = unique(df.kernel_cat)
+
+    # HACK: this is awful, but it works.
+    # We need this to have the datasets with the kernels we want but, without
+    # ones which only have radial basis.
+    df = filter(df) do row
+        row.dataset_cat in datasets
+    end
 
     # force order: asin..., acos..., rbf
     sort!(kernels, by=x -> (startswith(x, "Asin") ? "A$x" : "B$x"))
