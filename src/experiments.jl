@@ -56,7 +56,7 @@ using Dates
 using MLJ, MLJBase
 using LIBSVM
 
-using DrWatson
+using DataFrames, DataFramesMeta, DrWatson, Printf
 import DrWatson: allaccess, default_prefix, default_allowed, produce_or_load
 
 import ..DataSets: DataSet, CategoricalDataSet, RegressionDataSet, MNIST, DelveRegressionDataSet
@@ -135,6 +135,32 @@ default_allowed(::ExperimentParameters) = (
 function load(ex::ExperimentParameters; filename::String=default_savefile(ex))
     @info "Loading $(filename)"
     wload(filename)
+end
+
+export experiment_data
+
+function experiment_data(folder="svms", scan=true; kwargs...)
+    if scan
+        df = collect_results!(
+            datadir(folder);
+            black_list=Experiments.SVMExperiment.default_ignore_results(),
+            kwargs...
+        )
+    else
+        df = wload(datadir("results_$folder.jld2"))["df"]
+    end
+    df.kernel_cat = categorical(string.(df.kernel))
+    df.dataset_cat = categorical(string.(df.dataset))
+    df.sigma = Utils.gamma2sigma.(df.gamma)
+    df.kernel_family = map(x -> string(x)[1:4], df.kernel_cat)
+    df.cost = round.(df.cost, sigdigits=2)
+    df.cost_cat = map(df.cost) do cost
+        @sprintf("%.0E", cost)
+    end
+    df.measure_cv = df.measurement
+    df.ms = @. Dates.value(df.duration)
+    df.ms_per_iter = @. df.ms / df.n_iter / 5
+    @rsubset(df, !(:dataset isa DataSets.Servo))
 end
 
 # Specific experiment configurations

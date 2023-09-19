@@ -1,6 +1,7 @@
 #!/usr/bin/env julia
 
 using TFM, TFM.Plots
+using TFM.Experiments: experiment_data
 
 using DataFramesMeta
 using DrWatson
@@ -26,7 +27,7 @@ let
         linkxaxes=true, linkyaxes=false,
         show_rbf=true
     )
-    local mse = @chain Plots.experiment_data("svms", false) begin
+    local mse = @chain experiment_data("svms", false) begin
         @rsubset(:dataset isa DataSets.DataSet)
         Plots.summarize_best([:kernel_cat, :dataset_cat, :sigma])
         @rename(:measure_test = :measurement)
@@ -42,7 +43,7 @@ let
         linkxaxes=true, linkyaxes=false,
         show_rbf=true
     )
-    local nrmse = @chain Plots.experiment_data("svms_2", false) begin
+    local nrmse = @chain experiment_data("svms_2", false) begin
         Plots.summarize_best([:kernel_cat, :dataset_cat, :sigma], by=:measurement)
         Plots.regression()
     end
@@ -56,7 +57,7 @@ end
 
 @info "Experiment run 3 (svms3/) nRMSE with scaled sigma"
 let
-    local data_ex3 = Plots.experiment_data("svms3", scan_dirs)
+    local data_ex3 = experiment_data("svms3", scan_dirs)
 
     local nrmse_s = @chain data_ex3 begin
         Plots.summarize_best([:kernel_cat, :dataset_cat, :sigma])
