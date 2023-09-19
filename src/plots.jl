@@ -131,11 +131,12 @@ plot_kernel_3d(args...; interactive=is_interactive(), kwargs...) =
     end
 
 
-function experiment_data(folder="svms", scan=true)
+function experiment_data(folder="svms", scan=true; kwargs...)
     if scan
         df = collect_results!(
             datadir(folder);
-            black_list=Experiments.SVMExperiment.default_ignore_results()
+            black_list=Experiments.SVMExperiment.default_ignore_results(),
+            kwargs...
         )
     else
         df = wload(datadir("results_$folder.jld2"))["df"]
