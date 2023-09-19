@@ -32,7 +32,7 @@
     };
 
     uciml = {
-      url = "github:leixb/UCI-ML-Repository-dataset-metadata";
+      url = "github:leixb/UCI-ML-Repository-dataset-metadata/master";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-utils.follows = "flake-utils";
     };
