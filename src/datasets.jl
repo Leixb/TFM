@@ -817,4 +817,56 @@ url(::Hepatitis) = "https://archive.ics.uci.edu/dataset/46/hepatitis"
 doi(::Hepatitis) = "10.24432/C5Q59J"
 
 
+################################################################################
+# Bike Sharing Dataset (ID=275) 2013
+#-------------------------------------------------------------------------------
+# - 17389 instances
+# - 16 attributes
+#-------------------------------------------------------------------------------
+# This dataset contains the hourly and daily count of rental bikes between years 2011 and 2012 in Capital bikeshare system with the corresponding weather and seasonal information.
+#-------------------------------------------------------------------------------
+# # Creators
+#
+#  - Hadi Fanaee-T ()
+# 
+#-------------------------------------------------------------------------------
+# # Attribute Information
+# 
+#
+################################################################################
+
+abstract type BikeSharingDataset <: RegressionDataSet end
+
+@dataset BikeSharingDataset BikeSharingDatasetDay datasetdir("bike_sharing_dataset/day.csv") 1 :cnt
+@dataset BikeSharingDataset BikeSharingDatasetHour datasetdir("bike_sharing_dataset/hour.csv") 1 :cnt
+
+
+url(::BikeSharingDataset) = "https://archive.ics.uci.edu/dataset/275/bike+sharing+dataset"
+doi(::BikeSharingDataset) = "10.24432/C5W894"
+
+################################################################################
+# Communities and Crime (ID=183) 2002
+#-------------------------------------------------------------------------------
+# - 1994 instances
+# - 128 attributes
+#-------------------------------------------------------------------------------
+# Communities within the United States. The data combines socio-economic data from the 1990 US Census, law enforcement data from the 1990 US LEMAS survey, and crime data from the 1995 FBI UCR.
+#-------------------------------------------------------------------------------
+# # Creators
+#
+#  - Michael Redmond ()
+# 
+#-------------------------------------------------------------------------------
+# # Attribute Information
+# 
+#
+################################################################################
+
+@dataset RegressionDataSet CommunitiesAndCrime datasetdir("communities_and_crime/communities.data") false :Column128
+
+read_data(ds::CommunitiesAndCrime; kwargs...) = CSV.read(path(ds), DataFrame; header=header(ds), missingstring="?", kwargs...) |> dropmissing
+
+url(::CommunitiesAndCrime) = "https://archive.ics.uci.edu/dataset/183/communities+and+crime"
+doi(::CommunitiesAndCrime) = "10.24432/C53W3X"
+
 end

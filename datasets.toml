@@ -497,3 +497,38 @@ nattr = 19
 ninst = 155
 creators = []
 
+################################################################################
+[bike_sharing_dataset]
+url = "https://archive.ics.uci.edu/static/public/275/bike+sharing+dataset.zip"
+stripRoot = false
+sha256 = "sha256-ACBH9qF7M3R7VG8Mxb0ZTFh1RJS/WlW3rAQjxqjBUiE="
+[bike_sharing_dataset.meta]
+title = "Bike Sharing Dataset"
+description = "This dataset contains the hourly and daily count of rental bikes between years 2011 and 2012 in Capital bikeshare system with the corresponding weather and seasonal information."
+doi = "10.24432/C5W894"
+kind = "Regression"
+year = 2013
+home = "https://archive.ics.uci.edu/dataset/275/bike+sharing+dataset"
+family = "UCI"
+field = "Social Science"
+nattr = 16
+ninst = 17389
+creators = ["Hadi Fanaee-T"]
+
+################################################################################
+[communities_and_crime]
+url = "https://archive.ics.uci.edu/static/public/183/communities+and+crime.zip"
+stripRoot = false
+sha256 = "sha256-Q6SGij7j8beRS8axEFmMZtnRfngAPPsFWCM6pR44W6o="
+[communities_and_crime.meta]
+title = "Communities and Crime"
+description = "Communities within the United States. The data combines socio-economic data from the 1990 US Census, law enforcement data from the 1990 US LEMAS survey, and crime data from the 1995 FBI UCR."
+doi = "10.24432/C53W3X"
+kind = "Regression"
+year = 2002
+home = "https://archive.ics.uci.edu/dataset/183/communities+and+crime"
+family = "UCI"
+field = "Social Science"
+nattr = 128
+ninst = 1994
+creators = ["Michael Redmond"]
