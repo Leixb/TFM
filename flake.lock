@@ -397,17 +397,16 @@
         "pre-commit-hooks": "pre-commit-hooks_2"
       },
       "locked": {
-        "lastModified": 1694901205,
-        "narHash": "sha256-wfzNACkMdPBt+DmDZdBn+Sq56OBjqLhEPzq8+UoWC2c=",
+        "lastModified": 1695121349,
+        "narHash": "sha256-rxrXK8qZtUgYrEFY/OgQHWf6uoYJ8Lw8++CUrG0QAdc=",
         "owner": "leixb",
         "repo": "UCI-ML-Repository-dataset-metadata",
-        "rev": "f9bbaee85d035976f975c50be6e20a6f9965fe74",
+        "rev": "101a4beda7738f9c1098e1b68d0fcaa0d6c89d0d",
         "type": "github"
       },
       "original": {
         "owner": "leixb",
         "repo": "UCI-ML-Repository-dataset-metadata",
-        "rev": "f9bbaee85d035976f975c50be6e20a6f9965fe74",
         "type": "github"
       }
     }
