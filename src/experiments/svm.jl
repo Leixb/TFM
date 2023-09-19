@@ -208,7 +208,8 @@ function svm_parameter_grid(; step::Float64=1.0, datasets=nothing, acos=false, r
 
     kernels = [LIBSVM.Kernel.Asin, LIBSVM.Kernel.AsinNorm]
     if acos
-        push!(kernels, LIBSVM.Kernel.Acos0, LIBSVM.Kernel.Acos1, LIBSVM.Kernel.Acos2)
+        push!(kernels, LIBSVM.Kernel.Acos1)
+        # push!(kernels, LIBSVM.Kernel.Acos0, LIBSVM.Kernel.Acos1, LIBSVM.Kernel.Acos2)
     end
 
     sigma_asin = 10 .^ (-3:step:6)
@@ -232,7 +233,7 @@ function svm_parameter_grid(; step::Float64=1.0, datasets=nothing, acos=false, r
 
         parameters_rbf = Dict(
             :kernel => LIBSVM.Kernel.RadialBasis,
-            :gamma => 10 .^ (-3:step:0), parameters_common...
+            :gamma => 10 .^ (-3:step:3), parameters_common...
         )
 
         parameters_asin = Dict(

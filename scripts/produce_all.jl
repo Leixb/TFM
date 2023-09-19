@@ -24,7 +24,7 @@ datasets = DataSets.all |> filter(ds -> !(ds isa DataSets.MNIST))
 start = Dates.now()
 @info "Generating parameters ..."
 
-const parameters_all = Experiments.svm_parameter_grid(; datasets, acos=false, rbf=true, step=1.0, folder, scale_sigma=true)
+const parameters_all = Experiments.svm_parameter_grid(; datasets, acos=true, rbf=true, step=1.0, folder, scale_sigma=true)
 
 @info "dict_list Done in $(Dates.now() - start)"
 
