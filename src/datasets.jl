@@ -735,6 +735,8 @@ abstract type BikeSharingDataset <: RegressionDataSet end
 @dataset BikeSharingDataset BikeSharingDatasetDay datasetdir("bike_sharing_dataset/day.csv") 1 :cnt
 @dataset BikeSharingDataset BikeSharingDatasetHour datasetdir("bike_sharing_dataset/hour.csv") 1 :cnt
 
+Base.string(::BikeSharingDatasetHour) = "BikeSharingHour"
+Base.string(::BikeSharingDatasetDay) = "BikeSharingDay"
 
 url(::BikeSharingDataset) = "https://archive.ics.uci.edu/dataset/275/bike+sharing+dataset"
 doi(::BikeSharingDataset) = "10.24432/C5W894"
