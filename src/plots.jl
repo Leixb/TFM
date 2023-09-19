@@ -341,6 +341,12 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
         end
                         for k in kernels)
 
+    if is_regression(df.dataset[1])
+        summarizer = minimum
+    else
+        summarizer = maximum
+    end
+
     if interactive && haskey(toggles_dict, "RadialBasis")
         toggles_dict["RadialBasis"].active = show_rbf
     end
@@ -398,7 +404,7 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
 
             if kernel == "RadialBasis"
                 if show_rbf || interactive
-                    hline = hlines!(ax, [minimum(val_measure)], color=:red, linewidth=2, label="RBF (best)", linestyle=:dot)
+                    hline = hlines!(ax, [summarizer(val_measure)], color=:red, linewidth=2, label="RBF (best)", linestyle=:dot)
                     interactive && connect!(hline.visible, toggles_dict[kernel].active)
                 end
 
