@@ -378,7 +378,7 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
         m = Int(ceil(length(datasets) / n))
     end
 
-    axes = [Axis(gr[i, j]) for j in 1:m, i in 1:n if (i - 1) * n + j <= length(datasets)]
+    axes = [Axis(gr[i, j]) for j in 1:m, i in 1:n if (i - 1) * m + j <= length(datasets)]
 
     df_groups = @chain df begin
         sort(:sigma)
