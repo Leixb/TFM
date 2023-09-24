@@ -8,6 +8,8 @@ using DrWatson
 
 using CairoMakie
 
+start_time = time()
+
 @info "Activating CairoMakie with LaTeX theme"
 CairoMakie.activate!()
 Plots.tex_theme!()
@@ -107,6 +109,21 @@ let
     @saveplot accuracy_class_acos_all_scaled = Plots.plot_sigma(acc_s, kernels; opts..., resolution)
 end
 
+@info "Experiment run 4 (svms4_inc) - Increasing subsample"
+let
+    df_sum_best_b32fm = let
+        df = experiment_data("svms4_inc", scan_dirs)
+        df.subsample = (df.subsample .|> a -> isnothing(a) ? 1.0 : a)
+        Plots.summarize_best(df, [:kernel_cat, :dataset_cat, :subsample, :sigma_scaled], by=:measure_test)
+    end
+
+    sort!(df_sum_best_b32fm, order(:sigma_scaled))
+
+    # df_sum_best_b32fm.subsample
+
+    @saveplot nRMSE_bank32fm_sampling = Plots.plot_sigma_subsample(df_sum_best_b32fm; measure=:measurement, linkyaxes=false)
+end
+
 @info "Kernel plots"
 let
     @saveplot kernel_asin = Plots.plot_kernel(
@@ -122,3 +139,5 @@ let
     @saveplot kernel_acos1_3d = Plots.plot_kernel_3d(Utils.kernel_acos, 1, 1)
     @saveplot kernel_acos2_3d = Plots.plot_kernel_3d(Utils.kernel_acos, 1, 2)
 end
+
+@info "DONE in $(time() - start_time) seconds"

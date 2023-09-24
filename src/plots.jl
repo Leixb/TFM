@@ -130,7 +130,7 @@ plot_kernel_3d(args...; interactive=is_interactive(), kwargs...) =
         plot_kernel_3d_grid(args...; kwargs...)
     end
 
-function summarize_best(df, grouping::AbstractArray=[:dataset_cat, :kernel_cat]; by=:measurement, maximum=false)
+function summarize_best(df::DataFrame, grouping::Array{Symbol}=[:dataset_cat, :kernel_cat]; by::Symbol=:measurement, maximum=false)
     # If maximum, we reverse the order
     @chain df begin
         sort(by, rev=maximum)
@@ -285,11 +285,13 @@ function plot_sigma_subsample(df, show_kernels=["Asin", "AsinNorm"]; linkyaxes=t
     cols = mapping(
         :sigma_scaled,
         measure => "nRMSE",
+        lower=(measure, :std) => +,
+        upper=(measure, :std) => -,
         color=:subsample => nonnumeric => "Subsample",
         marker=:subsample => nonnumeric => "Subsample",
     )
     grp = mapping(layout=:kernel_cat => "Kernel")
-    geom = visual(Scatter)
+    geom = visual(LinesFill)
     plt = data(df) * cols * grp * geom
     fg = draw(plt, facet=(; linkyaxes), axis=(; xscale=log10, xticklabelrotation=pi / 4))
 
