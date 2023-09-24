@@ -349,11 +349,11 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
 
     gr = GridLayout(fig[1, 1])
 
-    if !(dims isa Nothing)
-        (m, n) = dims
-    else
+    if isnothing(dims)
         n = Int(ceil(sqrt(length(datasets))))
         m = Int(ceil(length(datasets) / n))
+    else
+        (m, n) = dims
     end
 
     axes = [Axis(gr[i, j]) for j in 1:m, i in 1:n if (i - 1) * m + j <= length(datasets)]
