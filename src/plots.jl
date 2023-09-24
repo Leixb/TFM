@@ -599,9 +599,12 @@ does not change when the plot is saved again.
 WARNING: It is important that timestamp is a string of length 20, otherwise
 the pdf metadata will be corrupted.
 
-WARNING: This modified the file in-place, use with caution.
+WARNING: This modifies the file in-place, use with caution.
 """
-__strip_metadata(filename::String, timestamp="00000000000000+00'00") = run(`sed -i "s/CreationDate.*$/CreationDate (D:$timestamp)/" $filename`)
+function __strip_metadata(filename::String, timestamp::String="00000000000000+00'00")
+    @assert length(timestamp) == 20 "Timestamp must be a string of length exactly 20"
+    run(`sed -i "s/CreationDate.*$/CreationDate (D:$timestamp)/" $filename`, wait=true)
+end
 
 plotsdocdir(args...) = projectdir("document", "figures", "plots", args...)
 
