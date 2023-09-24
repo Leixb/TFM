@@ -180,8 +180,6 @@ function plot_delve(df, dataset::Type{<:DataSets.Delve}, size=32,
         "nh" => Axis(fig[2, 2], xscale=log10, yaxisposition=:right),
     )
 
-    kernel_num = Dict(k => i for (i, k) in enumerate(show_kernels))
-
     do_plot = (name) -> begin
         df_sub = @rsubset(df, :dataset.linearity == name[1], :dataset.noise == name[2])
 
@@ -197,7 +195,7 @@ function plot_delve(df, dataset::Type{<:DataSets.Delve}, size=32,
                     ax[name],
                     val_sigma, val_lower, val_upper,
                     label=kernel, visible=true,
-                    color=(Cycled(kernel_num[kernel]), 0.3)
+                    color=(kernel_color(kernel), 0.3)
                 )
             end
         end
@@ -206,9 +204,9 @@ function plot_delve(df, dataset::Type{<:DataSets.Delve}, size=32,
             df_sub_kern = @rsubset(df_sub, :kernel_cat == kernel)
 
             scatterlines!(ax[name], getproperty(df_sub_kern, sigma), getproperty(df_sub_kern, measure),
-                color=Cycled(kernel_num[kernel]),
-                marker=Cycled(kernel_num[kernel]),
-                linestyle=Cycled(kernel_num[kernel]),
+                color=kernel_color(kernel),
+                marker=Cycled(kernel_idx(kernel)),
+                linestyle=Cycled(kernel_idx(kernel)),
                 label=kernel
             )
         end
@@ -324,10 +322,6 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
 
     # force order: asin..., acos..., rbf
     sort!(kernels, by=x -> (startswith(x, "Asin") ? "A$x" : "B$x"))
-    wcolors = Makie.wong_colors()
-
-    kernel_idx = Dict(k => i for (i, k) in enumerate(kernels))
-    kernel_colors = Dict(k => wcolors[kernel_idx[k]] for k in kernels)
 
     # We only add std bands toggle if they are requested
     # initially since they may not be valid
@@ -337,7 +331,7 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
 
     toggles_dict = Dict(k =>
         if interactive
-            Toggle(fig, active=k in show_kernels, buttoncolor=Cycled(kernel_idx[k]))
+            Toggle(fig, active=k in show_kernels, buttoncolor=Cycled(kernel_color(k)))
         else
             (; active=k in show_kernels)
         end
@@ -389,7 +383,7 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
                     ax,
                     val_sigma, val_lower, val_upper,
                     label=string(kernel), visible=true,
-                    color=(kernel_colors[kernel], 0.3)
+                    color=(kernel_color(kernel), 0.3)
                 )
 
                 if interactive
@@ -421,8 +415,8 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
 
             slines = scatterlines!(ax, val_sigma, val_measure,
                 linestyle=df_kernel.kernel_family[1] == "Acos" ? :dash : :solid,
-                marker=Cycled(kernel_idx[kernel]),
-                label=string(kernel), visible=true, color=Cycled(kernel_idx[kernel]),
+                marker=Cycled(kernel_idx(kernel)),
+                label=string(kernel), visible=true, color=kernel_color(kernel),
             )
 
             if interactive
@@ -544,6 +538,40 @@ function exec_time(df::DataFrame, show_kernels=["Asin", "AsinNorm"];
     )
     plt, fg
 end
+
+function kernel_idx(kernel::String)
+    if kernel == "Asin"
+        return 1
+    end
+    if kernel == "AsinNorm"
+        return 2
+    end
+    if kernel == "Acos0"
+        return 3
+    end
+    if kernel == "Acos1"
+        return 4
+    end
+    if kernel == "Acos2"
+        return 5
+    end
+    if kernel == "RadialBasis"
+        return 6
+    end
+    @warn "Unknown kernel: $kernel"
+    return 0
+end
+
+function kernel_color(kernel::String; colors=Makie.wong_colors())
+    # if kernel == "RadialBasis" return :red end
+    return colors[kernel_idx(kernel)]
+end
+
+kernel_idx(kernel) = kernel_idx(string(kernel))
+kernel_color(kernel; kwargs...) = kernel_color(string(kernel); kwargs...)
+
+getindex(::typeof(kernel_idx), kernel::String) = kernel_idx(kernel)
+getindex(::typeof(kernel_color), kernel::String) = kernel_color(kernel)
 
 """
 Reverse the effects of `linkaxes!` on the given axes.
