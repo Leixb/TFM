@@ -145,8 +145,8 @@ function plot_sigma_subsample(df, show_kernels=["Asin", "AsinNorm"]; linkyaxes=t
     cols = mapping(
         :sigma_scaled,
         measure => "nRMSE",
-        lower=(measure, :std) => +,
-        upper=(measure, :std) => -,
+        lower=(measure, :std) => -,
+        upper=(measure, :std) => +,
         color=:subsample => nonnumeric => "Subsample",
         marker=:subsample => nonnumeric => "Subsample",
     )
