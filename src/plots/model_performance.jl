@@ -179,7 +179,7 @@ function plot_sigma_subsample(df, show_kernels=["Asin", "AsinNorm"]; linkyaxes=t
     fg
 end
 
-function build_grid(pos::GridPosition, len::Int, dims::Union{Nothing,Tuple{Int,Int}}=nothing)
+function build_grid(pos::GridPosition, len::Int, dims::Union{Nothing,Tuple{Int,Int}}=nothing; kwargs...)
     gr = GridLayout(pos)
 
     if isnothing(dims)
@@ -189,7 +189,7 @@ function build_grid(pos::GridPosition, len::Int, dims::Union{Nothing,Tuple{Int,I
         (m, n) = dims
     end
 
-    axes = [Axis(gr[i, j]) for j in 1:m, i in 1:n if (i - 1) * m + j <= len]
+    axes = [Axis(gr[i, j]; kwargs...) for j in 1:m, i in 1:n if (i - 1) * m + j <= len]
 
     return gr, axes, (m, n)
 end
@@ -208,6 +208,7 @@ function plot_sigma(
     std::Symbol=:std,
     show_bands::Bool=(measure == :measure_cv),
     interactive::Bool=is_interactive(),
+    ax_opts::NamedTuple=(; xscale=log10),
     kwargs...
 )
 
@@ -257,54 +258,54 @@ function plot_sigma(
         toggles_dict["RadialBasis"].active = show_rbf
     end
 
-    gr, axes, (m, _) = build_grid(fig[1, 1], length(datasets), dims)
+    gr, axes, (m, _) = build_grid(fig[1, 1], length(datasets), dims; ax_opts...)
 
     df_groups = @chain df begin
         sort(:sigma)
         groupby(:dataset_cat)
+        zip(axes)
     end
 
-    for (ax, df_group) in zip(axes, df_groups)
+    plots_kernels = Iterators.flatmap(df_groups) do (df_group, ax)
+        zip(Iterators.repeated(ax), groupby(df_group, :kernel_cat))
+    end
+
+    plots_kernels = map(plots_kernels) do (ax, df_subgroup)
+        ax, df_subgroup, df_subgroup.kernel_cat[1]
+    end
+
+    plots_kernels = filter(plots_kernels) do (_, _, kernel)
+        kernel in show_kernels
+    end
+
+    plot_band = wrap_tuple((ax, df_sub_kern, kernel) -> plot_sigma_band(ax, df_sub_kern, kernel; sigma, measure, std))
+    plot_kernel = wrap_tuple((ax, df_sub_kern, kernel) -> plot_sigma_kernel(ax, df_sub_kern, kernel; sigma, measure))
+
+    if show_bands
+        bands = map(plot_band, plots_kernels)
+    end
+    slines = map(plot_kernel, plots_kernels)
+
+    foreach(df_groups) do (df_group, ax)
         dataset = df_group.dataset_cat[1]
-        df_subgroup = groupby(df_group, :kernel_cat)
-
-        # First we plot bands so they are on bottom
-        if show_bands
-            for df_kernel in df_subgroup
-                kernel = df_kernel.kernel_cat[1]
-                if !(kernel in show_kernels)
-                    continue
-                end
-
-                bands = plot_sigma_band(ax, df_kernel, kernel; sigma, measure, std)
-
-                if interactive
-                    connect!(bands.visible, bands_toggle.active)
-                end
-            end
-        end
-
-        for df_kernel in df_subgroup
-            kernel = df_kernel.kernel_cat[1]
-
-            if kernel == "RadialBasis"
-                if show_rbf || interactive
-                    hline = plot_rbf(ax, df_kernel, measure, measure_type)
-                    interactive && connect!(hline.visible, toggles_dict[kernel].active)
-                end
-                continue
-            elseif !(kernel in show_kernels || interactive)
-                continue
-            end
-
-            slines = plot_sigma_kernel(ax, df_kernel, kernel; sigma, measure)
-
-            if interactive
-                connect!(slines.visible, toggles_dict[kernel].active)
+        if show_rbf
+            df_rbf = @rsubset(df_group, :kernel_cat == "RadialBasis")
+            if !isempty(df_rbf)
+                hline = plot_rbf(ax, df_rbf, measure, measure_type)
+                interactive && connect!(hline.visible, toggles_dict["RadialBasis"].active)
             end
         end
         ax.title = string(dataset)
-        ax.xscale = log10
+    end
+
+    if interactive
+        foreach(zip(slines, plots_kernels)) do (sline, (_, _, kernel))
+            connect!(sline.visible, toggles_dict[kernel].active)
+        end
+
+        foreach(bands) do band
+            connect!(band.visible, bands_toggle.active)
+        end
     end
 
     # Get string representation of measure and resampling for the labels
