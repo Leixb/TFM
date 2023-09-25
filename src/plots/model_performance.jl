@@ -23,7 +23,7 @@ function plot_rbf(ax::Axis, df_rbf::AbstractDataFrame, measure::Symbol, measurem
     @assert df_rbf.kernel[1] |> string == "RadialBasis"
 
     best = summarizer(measurement_type)(getproperty(df_rbf, measure))
-    hlines!(ax, [best], label="RBF (best)", color=:red, linestyle=:dot, linewidth=2)
+    hlines!(ax, [best], label="RBF (best)", color=options.rbf_color, linestyle=options.rbf_linestyle, linewidth=options.rbf_linewidth)
 end
 
 
@@ -36,7 +36,7 @@ function plot_sigma_band(ax, df_sub_kern, kernel; sigma::Symbol, measure::Symbol
         ax,
         val_sigma, val_lower, val_upper,
         label=kernel |> string, visible=true,
-        color=(kernel_color(kernel), 0.3)
+        color=(kernel_color(kernel), options.band_opacity)
     )
 end
 

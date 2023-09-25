@@ -13,6 +13,13 @@ For other purposed, we can use GLMakie of WGLMakie to quickly visualize and iter
 """
 module Plots
 
+const options = (;
+    band_opacity=0.3,
+    rbf_color=:red,
+    rbf_linestyle=:dot,
+    rbf_linewidth=2
+)
+
 include("./plots/helpers.jl")
 export @saveplot
 
