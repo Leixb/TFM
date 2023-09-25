@@ -72,11 +72,7 @@ function plot_delve(df::DataFrame, dataset::Type{<:DataSets.Delve},
         sort(:sigma)
     end
 
-    measure_type = typeof(df.measure[1])
-
-    # Make sure we are not mixing measures
-    @assert allequal(df.measure)
-    @assert measure_type <: MLJBase.Measure
+    measure_type = get_measure_type(df)
 
     # Grid layout 2x2:
     #
@@ -212,7 +208,6 @@ function plot_sigma(
     kwargs...
 )
 
-    # TODO: pass as parameter?
     fig = Figure(args...; kwargs...)
 
     # Remove kernels that we won't show, so that we don't run into
@@ -221,11 +216,7 @@ function plot_sigma(
         row.kernel_cat in show_kernels
     end
 
-    measure_type = typeof(df_filtered.measure[1])
-
-    # Make sure we are not mixing measures
-    @assert allequal(df_filtered.measure)
-    @assert measure_type <: MLJBase.Measure
+    measure_type = get_measure_type(df_filtered)
 
     datasets = unique(df_filtered.dataset_cat)
     kernels = unique(df.kernel_cat)

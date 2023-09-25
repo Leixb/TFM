@@ -2,10 +2,11 @@
 
 using DrWatson: projectdir
 using Makie, MathTeXEngine
-using MLJBase
+using MLJBase, MLJ
 using DataFrames, DataFramesMeta
 
 import ..DataSets: is_regression
+import ..Measures, ..DataSets
 
 # NOTE: We convert the backend to a string to avoid loading GLMakie just to check the backend
 is_interactive() = string(Makie.current_backend()) == "GLMakie"
@@ -61,6 +62,16 @@ kernel_color(kernel; kwargs...) = kernel_color(string(kernel); kwargs...)
 
 getindex(::typeof(kernel_idx), kernel::String) = kernel_idx(kernel)
 getindex(::typeof(kernel_color), kernel::String) = kernel_color(kernel)
+
+function get_measure_type(df::AbstractDataFrame)::Type{<:MLJBase.Measure}
+    measure_type = typeof(df.measure[1])
+
+    # Make sure we are not mixing measures
+    @assert allequal(df.measure)
+    @assert measure_type <: MLJBase.Measure
+
+    measure_type
+end
 
 """
 Reverse the effects of `linkaxes!` on the given axes.
