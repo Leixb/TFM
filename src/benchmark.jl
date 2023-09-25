@@ -6,7 +6,7 @@ using StructTypes
 using JSON3
 using LIBSVM.Kernel: KERNEL
 using Tables
-using DataFrames
+using DataFrames, DataFramesMeta
 
 """
 # Result of a Benchmark execution using `hyperfine` utility.
@@ -67,10 +67,21 @@ function __Results(filename::String)
     JSON3.read(data, __Results)
 end
 
-function Results(filename::String)
-    res = __Results(filename).results
-    @info typeof(res)
-    res |> DataFrame
+Results(filename::String) = __Results(filename).results |> DataFrame
+
+function Flattened(filename::String)::DataFrame
+    df = Results(filename)
+
+    # We remove the mean, stddev... columns since they are confusing
+    # once the data is flattened.
+    cols = names(df)
+    sel_cols = setdiff(cols, ["mean", "stddev", "median", "user", "system", "min", "max"])
+
+    @chain df begin
+        flatten([:times, :exit_codes])
+        select(sel_cols...)
+        rename(:times => :time, :exit_codes => :exit_code)
+    end
 end
 
 # Tables.jl interface

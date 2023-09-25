@@ -41,6 +41,8 @@ export Experiments
 # only if we are in an interactive session
 include("./plots.jl")
 
+include("./benchmark.jl")
+
 # HACK: Export `mse` like this so that deserialization works with machines
 # that were saved before the Measures module was created.
 import .Measures

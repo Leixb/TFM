@@ -1,0 +1,145 @@
+# Helper functions for plotting
+
+using DrWatson: projectdir
+using Makie, MathTeXEngine
+using DataFrames, DataFramesMeta
+import ..DataSets: is_regression
+
+# NOTE: We convert the backend to a string to avoid loading GLMakie just to check the backend
+is_interactive() = string(Makie.current_backend()) == "GLMakie"
+
+"Makie theme with LaTeX fonts"
+function tex_theme!()
+    Makie.update_theme!(fonts=(regular=texfont(), bold=texfont(:bold), italic=texfont(:italic)))
+end
+
+function no_color_cycle!()
+    Makie.update_theme!(
+        ScatterLines=(cycle=Cycle([:color, :marker, :linestyle], covary=true),),
+        Lines=(cycle=Cycle([:color, :linestyle], covary=true),),
+        Scatter=(cycle=Cycle([:color, :marker], covary=true),),
+    )
+end
+
+"Get a DataFrame with the best result for the given grouping and measurement"
+function summarize_best(df::DataFrame, grouping::Array{Symbol}=[:dataset_cat, :kernel_cat]; by::Symbol=:measurement, maximum=false)
+    # To get the best result, we first sort by the measurement and then
+    # take the first row of each group
+    # If maximum, we reverse the order of the sort
+    @chain df begin
+        sort(by, rev=maximum)
+        groupby(grouping)
+        combine(first, nrow)
+    end
+end
+
+"Filter the DataFrame to get only the regression datasets"
+regression(df::DataFrame) = @rsubset(df, is_regression(:dataset))
+
+"Filter the DataFrame to get only the classification datasets"
+classification(df::DataFrame) = @rsubset(df, !is_regression(:dataset))
+
+function kernel_idx(kernel::String)
+    kernels = ["Asin", "AsinNorm", "Acos0", "Acos1", "Acos2", "RadialBasis"]
+    idx = findfirst(kernels .== kernel)
+    if isnothing(idx)
+        @warn "Unknown kernel: $kernel"
+        return 0
+    end
+    return idx
+end
+
+function kernel_color(kernel::String; colors=Makie.wong_colors())
+    # if kernel == "RadialBasis" return :red end
+    return colors[kernel_idx(kernel)]
+end
+
+kernel_idx(kernel) = kernel_idx(string(kernel))
+kernel_color(kernel; kwargs...) = kernel_color(string(kernel); kwargs...)
+
+getindex(::typeof(kernel_idx), kernel::String) = kernel_idx(kernel)
+getindex(::typeof(kernel_color), kernel::String) = kernel_color(kernel)
+
+"""
+Reverse the effects of `linkaxes!` on the given axes.
+"""
+function unlinkaxes!(dir::Union{Val{:x},Val{:y}}, a::Axis, others...)
+    axes = Axis[a; others...]
+    for ax in axes
+        setproperty!(ax, dir isa Val{:x} ? :xaxislinks : :yaxislinks, Vector{Axis}())
+        reset_limits!(ax)
+    end
+end
+
+function unlinkaxes!(a::Axis, others...)
+    unlinkxaxes!(a, others...)
+    unlinkyaxes!(a, others...)
+end
+
+unlinkxaxes!(a::Axis, others...) = unlinkaxes!(Val(:x), a, others...)
+unlinkyaxes!(a::Axis, others...) = unlinkaxes!(Val(:y), a, others...)
+
+"""
+Sets the CreationDate of the pdf metadata to zero, so that the file
+does not change when the plot is saved again.
+
+WARNING: It is important that timestamp is a string of length 20, otherwise
+the pdf metadata will be corrupted.
+
+WARNING: This modifies the file in-place, use with caution.
+"""
+function __strip_metadata(filename::String, timestamp::String="00000000000000+00'00")
+    @assert length(timestamp) == 20 "Timestamp must be a string of length exactly 20"
+    run(`sed -i "s/CreationDate.*$/CreationDate (D:$timestamp)/" $filename`, wait=true)
+end
+
+plotsdocdir(args...) = projectdir("document", "figures", "plots", args...)
+
+"""
+# Helper macro to save plots quickly.
+
+It saves the plot in the document/figures/plots folder with the name of
+the variable given to the plot
+
+## Example
+
+```julia
+using Plots
+
+x = 1:10
+y = rand(10)
+
+@saveplot myscatter = scatter(x, y)
+```
+
+This will save the plot in document/figures/plots/myscatter.pdf
+"""
+macro saveplot(name, args...)
+    if name isa Expr
+        args = [name.args[2]; args...]
+        name = name.args[1]
+    end
+
+    str_name = string(name) * ".pdf"
+
+    declaration = esc(quote
+        $name = $(args...)
+    end)
+
+    saving = esc(quote
+        @info("Saving " * $str_name)
+        save($plotsdocdir($str_name), $name)
+        $__strip_metadata($plotsdocdir($str_name))
+    end)
+
+    if isempty(args)
+        return esc(quote
+            $saving
+        end)
+    end
+
+    quote
+        $declaration
+        $saving
+    end
+end

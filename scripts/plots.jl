@@ -23,6 +23,11 @@ scan_dirs = "--scan" in ARGS
 
 @info scan_dirs ? "Scanning directories" : "Not scanning directories (pass --scan to scan for new data)"
 
+@info "Benchmarks"
+let
+    @saveplot benchmark_time_inst = Plots.plot_benchmark_time_instances()
+end
+
 @info "Experiment run 1 (svms/) MSE (Frenay grid)"
 let
     local opts = (;
