@@ -2,7 +2,9 @@
 
 using DrWatson: projectdir
 using Makie, MathTeXEngine
+using MLJBase
 using DataFrames, DataFramesMeta
+
 import ..DataSets: is_regression
 
 # NOTE: We convert the backend to a string to avoid loading GLMakie just to check the backend
@@ -78,6 +80,34 @@ end
 
 unlinkxaxes!(a::Axis, others...) = unlinkaxes!(Val(:x), a, others...)
 unlinkyaxes!(a::Axis, others...) = unlinkaxes!(Val(:y), a, others...)
+
+# return the method to use for getting the best value of a measure
+# Basically, we want to minimize MSE and maximize Accuracy
+summarizer(::Type{<:MLJBase.Measure}) = minimum
+summarizer(::Type{MLJ.Accuracy}) = maximum
+
+# Convenience functions to Name different types consistently
+name(m::Type{<:MLJBase.Measure}) = m |> string |> titlecase
+name(::Type{Measures.MSE}) = "MSE"
+name(::Type{Measures.nRMSE}) = "nRMSE"
+name(ds::Type{<:DataSets.DataSet}) = split(string(ds), '.') |> last
+
+"""
+Convenience function to wrap a function so that it can be used with
+map and foreach tuples.
+
+It takes a function of the form `fn(x, y, z...)` and returns a function
+of the form `fn((x, y, z...))`. Notice that the function returned takes
+a single argument, a tuple, which is then unpacked and passed to the original
+function.
+"""
+wrap_tuple = fn -> (x -> fn(x...))
+
+"""Useful for faceting, allows to create a box with a label inside"""
+function BoxLabel(fig::GridPosition, args...; kwargs...)
+    Box(fig)
+    Label(fig, args...; kwargs...)
+end
 
 """
 Sets the CreationDate of the pdf metadata to zero, so that the file

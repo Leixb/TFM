@@ -17,123 +17,134 @@ function plot_best(df)
     fg
 end
 
-function plot_delve(df, dataset::Type{<:DataSets.Delve}, size=32,
-    show_kernels=["Asin", "AsinNorm"],
-    ; fig=Figure(), linkxaxes=true, linkyaxes=false, show_rbf=false,
-    sigma=:sigma, measure=:measure_test, std=:std, show_bands=(measure == :measure_cv),
-    interactive=is_interactive()
+function plot_rbf(ax::Axis, df_rbf::DataFrame, measure::Symbol, measurement_type::Type{<:MLJBase.Measure})
+    best = summarizer(measurement_type)(getproperty(df_rbf, measure))
+    hlines!(ax, [best], label="RBF (best)", color=:red, linestyle=:dot, linewidth=2)
+end
+
+function plot_delve(df::DataFrame, dataset::Type{<:DataSets.Delve},
+    size::Integer=32,
+    show_kernels::AbstractArray{String}=["Asin", "AsinNorm"],
+    ; # Keyword arguments
+    fig::Figure=Figure(),
+    linkxaxes::Bool=true,
+    linkyaxes::Bool=false,
+    show_rbf::Bool=false,
+    sigma::Symbol=:sigma,
+    measure::Symbol=:measure_test,
+    std::Symbol=:std,
+    show_bands::Bool=(measure == :measure_cv),
+    ax_opts::NamedTuple=(; xscale=log10)
 )
+    # Filter the correct rows and sort by sigma so lines are drawn in order
     df = @chain df begin
-        @rsubset(:dataset isa dataset)
-        @rsubset!(:dataset.size == size)
+        @rsubset(:dataset isa dataset && :dataset.size == size)
         sort(:sigma)
     end
 
-    # linearity: fn     fairly / non         X
-    # noise: mh         moderate / hight     Y
+    measure_type = typeof(df.measure[1])
 
+    # Make sure we are not mixing measures
+    @assert allequal(df.measure)
+    @assert measure_type <: MLJBase.Measure
+
+    # Grid layout 2x2:
+    #
     # fm   nm
     # fh   nh
-
-    ax = Dict{String,Axis}(
-        "fm" => Axis(fig[1, 1], xscale=log10),
-        "nm" => Axis(fig[1, 2], xscale=log10, yaxisposition=:right),
-        "fh" => Axis(fig[2, 1], xscale=log10),
-        "nh" => Axis(fig[2, 2], xscale=log10, yaxisposition=:right),
+    #
+    # linearity: fn     fairly / non         X
+    # noise: mh         moderate / hight     Y
+    ax = (;
+        fm=Axis(fig[1, 1]; ax_opts...),
+        fh=Axis(fig[2, 1]; ax_opts...),
+        nm=Axis(fig[1, 2]; ax_opts..., yaxisposition=:right),
+        nh=Axis(fig[2, 2]; ax_opts..., yaxisposition=:right)
     )
 
-    do_plot = (name) -> begin
-        df_sub = @rsubset(df, :dataset.linearity == name[1], :dataset.noise == name[2])
+    plot_band = (ax, df_sub_kern, kernel) -> let
+        val_sigma = getproperty(df_sub_kern, sigma)
+        val_lower = getproperty(df_sub_kern, measure) .- getproperty(df_sub_kern, std)
+        val_upper = getproperty(df_sub_kern, measure) .+ getproperty(df_sub_kern, std)
 
-        if show_bands
-            for kernel in show_kernels
-                df_sub_kern = @rsubset(df_sub, :kernel_cat == kernel)
-
-                val_sigma = getproperty(df_sub_kern, sigma)
-                val_lower = getproperty(df_sub_kern, measure) .- getproperty(df_sub_kern, std)
-                val_upper = getproperty(df_sub_kern, measure) .+ getproperty(df_sub_kern, std)
-
-                bands = band!(
-                    ax[name],
-                    val_sigma, val_lower, val_upper,
-                    label=kernel, visible=true,
-                    color=(kernel_color(kernel), 0.3)
-                )
-            end
-        end
-
-        for kernel in show_kernels
-            df_sub_kern = @rsubset(df_sub, :kernel_cat == kernel)
-
-            scatterlines!(ax[name], getproperty(df_sub_kern, sigma), getproperty(df_sub_kern, measure),
-                color=kernel_color(kernel),
-                marker=Cycled(kernel_idx(kernel)),
-                linestyle=Cycled(kernel_idx(kernel)),
-                label=kernel
-            )
-        end
-
-        if !show_rbf
-            return
-        end
-        df_rbf = @rsubset(df_sub, :kernel_cat == "RadialBasis")
-        if !isempty(df_rbf)
-            hlines!(ax[name], [minimum(getproperty(df_rbf, measure))], color=:red, linewidth=2, label="RBF (best)", linestyle=:dot)
-        end
-
-        # text!(ax[name], 1, 1, text=name)
+        band!(
+            ax,
+            val_sigma, val_lower, val_upper,
+            label=kernel, visible=true,
+            color=(kernel_color(kernel), 0.3)
+        )
     end
 
+    plot_kernel = (ax, df_sub_kern, kernel) -> scatterlines!(
+        ax,
+        getproperty(df_sub_kern, sigma),
+        getproperty(df_sub_kern, measure),
+        color=kernel_color(kernel),
+        marker=Cycled(kernel_idx(kernel)),
+        linestyle=Cycled(kernel_idx(kernel)),
+        label=kernel
+    )
+
+    # List of axes and their corresponding dataframes
+    subplots = map(collect(pairs(ax))) do (name, ax)
+        name = string(name)
+        df_sub = @rsubset(df, :dataset.linearity == name[1], :dataset.noise == name[2])
+
+        ax, df_sub
+    end
+
+    # List of axes and their corresponding dataframes by kernel
+    plots_and_kernels = map(Iterators.product(subplots, show_kernels)) do ((ax, df_sub), kernel)
+        df_sub_kern = @rsubset(df_sub, :kernel_cat == kernel)
+
+        ax, df_sub_kern, kernel
+    end
+
+    # Call all the plotting functions
     with_theme(
         ScatterLines=(cycle=Cycle([:color, :marker, :linestyle], covary=true),)
     ) do
-        map(do_plot, collect(keys(ax)))
+        # We plot bands first so they are on bottom
+        show_bands && foreach(wrap_tuple(plot_band), plots_and_kernels)
+
+        foreach(wrap_tuple(plot_kernel), plots_and_kernels)
+
+        show_rbf && foreach(subplots) do (ax, df_sub)
+            df_rbf = @rsubset(df_sub, :kernel_cat == "RadialBasis")
+            if !isempty(df_rbf)
+                plot_rbf(ax, df_rbf, measure, measure_type)
+            end
+        end
     end
 
     if linkyaxes
         linkyaxes!(values(ax)...)
-        hideydecorations!(ax["fm"], grid=false)
-        hideydecorations!(ax["fh"], grid=false)
+        hideydecorations!(ax.fm, grid=false)
+        hideydecorations!(ax.fh, grid=false)
     end
 
     if linkxaxes
-        hidexdecorations!(ax["fm"], grid=false)
-        hidexdecorations!(ax["nm"], grid=false)
+        hidexdecorations!(ax.fm, grid=false)
+        hidexdecorations!(ax.nm, grid=false)
         linkxaxes!(values(ax)...)
     end
 
-    Box(fig[1, 0])
-    Label(fig[1, 0], "Moderate Noise", rotation=pi / 2, tellheight=false)
-    Box(fig[2, 0])
-    Label(fig[2, 0], "High Noise", rotation=pi / 2, tellheight=false)
+    # Facet labels
+    BoxLabel(fig[1, 0], "Moderate Noise", rotation=pi / 2, tellheight=false)
+    BoxLabel(fig[2, 0], "High Noise", rotation=pi / 2, tellheight=false)
+    BoxLabel(fig[1:2, -1], "Noise Level", rotation=pi / 2)
 
-    Box(fig[1:2, -1])
-    Label(fig[1:2, -1], "Noise Level", rotation=pi / 2)
+    BoxLabel(fig[0, 1], "Fairly linear", tellwidth=false)
+    BoxLabel(fig[0, 2], "Non-linear", tellwidth=false)
+    BoxLabel(fig[-1, 1:2], "Linearity")
 
-    Box(fig[0, 1])
-    Label(fig[0, 1], "Fairly linear", tellwidth=false)
-    Box(fig[0, 2])
-    Label(fig[0, 2], "Non-linear", tellwidth=false)
-
-    Box(fig[-1, 1:2])
-    Label(fig[-1, 1:2], "Linearity")
-
-    datasetname = split(string(dataset), '.') |> last
-
+    # Dataset name and size on top left
+    datasetname = name(dataset)
     Label(fig[-1:0, -1:0], "$datasetname\n$size", font=:bold, fontsize=20)
 
-    measure = df.measure[1]
-    measure_name = if measure isa Measures.MSE
-        "MSE"
-    elseif measure isa Measures.nRMSE
-        "nRMSE"
-    else
-        # Fallback to io.show with titlecase applied
-        titlecase(string(measure))
-    end
-
-    Label(fig[1:2, 3], measure_name, rotation=pi / 2, font=:bold)
-    Legend(fig[1:2, 4], ax["fm"], "Kernel", framevisible=false, merge=true)
+    # Axis labels
+    Label(fig[1:2, 3], name(measure_type), rotation=pi / 2, font=:bold)
+    Legend(fig[1:2, 4], ax.fm, "Kernel", framevisible=false, merge=true)
     Label(fig[3, 1:2], L"\sigma_w", font=:bold)
 
     fig
