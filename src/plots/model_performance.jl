@@ -17,9 +17,39 @@ function plot_best(df)
     fg
 end
 
-function plot_rbf(ax::Axis, df_rbf::DataFrame, measure::Symbol, measurement_type::Type{<:MLJBase.Measure})
+function plot_rbf(ax::Axis, df_rbf::AbstractDataFrame, measure::Symbol, measurement_type::Type{<:MLJBase.Measure})
+    # Make sure all rows are "RadialBasis"
+    @assert allequal(df_rbf.kernel)
+    @assert df_rbf.kernel[1] |> string == "RadialBasis"
+
     best = summarizer(measurement_type)(getproperty(df_rbf, measure))
     hlines!(ax, [best], label="RBF (best)", color=:red, linestyle=:dot, linewidth=2)
+end
+
+
+function plot_sigma_band(ax, df_sub_kern, kernel; sigma::Symbol, measure::Symbol, std::Symbol=:std)
+    val_sigma = getproperty(df_sub_kern, sigma)
+    val_lower = getproperty(df_sub_kern, measure) .- getproperty(df_sub_kern, std)
+    val_upper = getproperty(df_sub_kern, measure) .+ getproperty(df_sub_kern, std)
+
+    band!(
+        ax,
+        val_sigma, val_lower, val_upper,
+        label=kernel |> string, visible=true,
+        color=(kernel_color(kernel), 0.3)
+    )
+end
+
+function plot_sigma_kernel(ax, df_sub_kern, kernel; sigma::Symbol, measure::Symbol)
+    scatterlines!(
+        ax,
+        getproperty(df_sub_kern, sigma),
+        getproperty(df_sub_kern, measure),
+        color=kernel_color(kernel),
+        marker=Cycled(kernel_idx(kernel)),
+        linestyle=Cycled(kernel_idx(kernel)),
+        label=kernel |> string,
+    )
 end
 
 function plot_delve(df::DataFrame, dataset::Type{<:DataSets.Delve},
@@ -62,28 +92,8 @@ function plot_delve(df::DataFrame, dataset::Type{<:DataSets.Delve},
         nh=Axis(fig[2, 2]; ax_opts..., yaxisposition=:right)
     )
 
-    plot_band = (ax, df_sub_kern, kernel) -> let
-        val_sigma = getproperty(df_sub_kern, sigma)
-        val_lower = getproperty(df_sub_kern, measure) .- getproperty(df_sub_kern, std)
-        val_upper = getproperty(df_sub_kern, measure) .+ getproperty(df_sub_kern, std)
-
-        band!(
-            ax,
-            val_sigma, val_lower, val_upper,
-            label=kernel, visible=true,
-            color=(kernel_color(kernel), 0.3)
-        )
-    end
-
-    plot_kernel = (ax, df_sub_kern, kernel) -> scatterlines!(
-        ax,
-        getproperty(df_sub_kern, sigma),
-        getproperty(df_sub_kern, measure),
-        color=kernel_color(kernel),
-        marker=Cycled(kernel_idx(kernel)),
-        linestyle=Cycled(kernel_idx(kernel)),
-        label=kernel
-    )
+    plot_band = wrap_tuple((ax, df_sub_kern, kernel) -> plot_sigma_band(ax, df_sub_kern, kernel; sigma, measure, std))
+    plot_kernel = wrap_tuple((ax, df_sub_kern, kernel) -> plot_sigma_kernel(ax, df_sub_kern, kernel; sigma, measure))
 
     # List of axes and their corresponding dataframes
     subplots = map(collect(pairs(ax))) do (name, ax)
@@ -105,9 +115,9 @@ function plot_delve(df::DataFrame, dataset::Type{<:DataSets.Delve},
         ScatterLines=(cycle=Cycle([:color, :marker, :linestyle], covary=true),)
     ) do
         # We plot bands first so they are on bottom
-        show_bands && foreach(wrap_tuple(plot_band), plots_and_kernels)
+        show_bands && foreach(plot_band, plots_and_kernels)
 
-        foreach(wrap_tuple(plot_kernel), plots_and_kernels)
+        foreach(plot_kernel, plots_and_kernels)
 
         show_rbf && foreach(subplots) do (ax, df_sub)
             df_rbf = @rsubset(df_sub, :kernel_cat == "RadialBasis")
@@ -169,12 +179,39 @@ function plot_sigma_subsample(df, show_kernels=["Asin", "AsinNorm"]; linkyaxes=t
     fg
 end
 
-function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
-    ; linkyaxes=false, linkxaxes=false, show_rbf=false,
-    dims=nothing, show_bands=false, sigma=:sigma, measure=:measure_test, std=:std,
-    interactive=is_interactive(), kwargs...
+function build_grid(pos::GridPosition, len::Int, dims::Union{Nothing,Tuple{Int,Int}}=nothing)
+    gr = GridLayout(pos)
+
+    if isnothing(dims)
+        n = Int(ceil(sqrt(len)))
+        m = Int(ceil(len / n))
+    else
+        (m, n) = dims
+    end
+
+    axes = [Axis(gr[i, j]) for j in 1:m, i in 1:n if (i - 1) * m + j <= len]
+
+    return gr, axes, (m, n)
+end
+
+function plot_sigma(
+    df::DataFrame,
+    show_kernels::AbstractArray{String}=["Asin", "AsinNorm"],
+    args...,
+    ; # Keyword arguments
+    linkxaxes::Bool=true,
+    linkyaxes::Bool=false,
+    show_rbf::Bool=false,
+    dims::Union{Nothing,Tuple{Int,Int}}=nothing,
+    sigma::Symbol=:sigma,
+    measure::Symbol=:measure_test,
+    std::Symbol=:std,
+    show_bands::Bool=(measure == :measure_cv),
+    interactive::Bool=is_interactive(),
+    kwargs...
 )
 
+    # TODO: pass as parameter?
     fig = Figure(args...; kwargs...)
 
     # Remove kernels that we won't show, so that we don't run into
@@ -182,6 +219,12 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
     df_filtered = filter(df) do row
         row.kernel_cat in show_kernels
     end
+
+    measure_type = typeof(df_filtered.measure[1])
+
+    # Make sure we are not mixing measures
+    @assert allequal(df_filtered.measure)
+    @assert measure_type <: MLJBase.Measure
 
     datasets = unique(df_filtered.dataset_cat)
     kernels = unique(df.kernel_cat)
@@ -210,26 +253,11 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
         end
                         for k in kernels)
 
-    if is_regression(df.dataset[1])
-        summarizer = minimum
-    else
-        summarizer = maximum
-    end
-
     if interactive && haskey(toggles_dict, "RadialBasis")
         toggles_dict["RadialBasis"].active = show_rbf
     end
 
-    gr = GridLayout(fig[1, 1])
-
-    if isnothing(dims)
-        n = Int(ceil(sqrt(length(datasets))))
-        m = Int(ceil(length(datasets) / n))
-    else
-        (m, n) = dims
-    end
-
-    axes = [Axis(gr[i, j]) for j in 1:m, i in 1:n if (i - 1) * m + j <= length(datasets)]
+    gr, axes, (m, _) = build_grid(fig[1, 1], length(datasets), dims)
 
     df_groups = @chain df begin
         sort(:sigma)
@@ -248,16 +276,7 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
                     continue
                 end
 
-                val_sigma = getproperty(df_kernel, sigma)
-                val_lower = getproperty(df_kernel, measure) .- getproperty(df_kernel, std)
-                val_upper = getproperty(df_kernel, measure) .+ getproperty(df_kernel, std)
-
-                bands = band!(
-                    ax,
-                    val_sigma, val_lower, val_upper,
-                    label=string(kernel), visible=true,
-                    color=(kernel_color(kernel), 0.3)
-                )
+                bands = plot_sigma_band(ax, df_kernel, kernel; sigma, measure, std)
 
                 if interactive
                     connect!(bands.visible, bands_toggle.active)
@@ -268,29 +287,17 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
         for df_kernel in df_subgroup
             kernel = df_kernel.kernel_cat[1]
 
-            val_sigma = getproperty(df_kernel, sigma)
-            val_measure = getproperty(df_kernel, measure)
-
             if kernel == "RadialBasis"
                 if show_rbf || interactive
-                    hline = hlines!(ax, [summarizer(val_measure)], color=:red, linewidth=2, label="RBF (best)", linestyle=:dot)
+                    hline = plot_rbf(ax, df_kernel, measure, measure_type)
                     interactive && connect!(hline.visible, toggles_dict[kernel].active)
                 end
-
-                # lines = lines!(ax, df_kernel.sigma, df_kernel.measure_test,
-                # linestyle = :dot,
-                # label=string(kernel), visible = true, color=kernel_colors[kernel])
-                # connect!(lines.visible, toggles_dict[kernel].active)
                 continue
             elseif !(kernel in show_kernels || interactive)
                 continue
             end
 
-            slines = scatterlines!(ax, val_sigma, val_measure,
-                linestyle=df_kernel.kernel_family[1] == "Acos" ? :dash : :solid,
-                marker=Cycled(kernel_idx(kernel)),
-                label=string(kernel), visible=true, color=kernel_color(kernel),
-            )
+            slines = plot_sigma_kernel(ax, df_kernel, kernel; sigma, measure)
 
             if interactive
                 connect!(slines.visible, toggles_dict[kernel].active)
@@ -301,17 +308,8 @@ function plot_sigma(df, show_kernels=["Asin", "AsinNorm"], args...,
     end
 
     # Get string representation of measure and resampling for the labels
-    measure = df.measure[1]
-    measure_name = if measure isa Measures.MSE
-        "MSE"
-    elseif measure isa Measures.nRMSE
-        "nRMSE"
-    else
-        # Fallback to io.show with titlecase applied
-        titlecase(string(measure))
-    end
-
     resampling = string(df.resampling[1])
+    measure_name = name(measure_type)
 
     Label(fig[1, 0], text=measure_name, font=:bold, fontsize=20, tellheight=false, rotation=pi / 2)
     Label(fig[2, 1], text=L"\sigma_w", font=:bold, fontsize=20, tellwidth=false)
