@@ -107,19 +107,15 @@ function plot_delve(df::DataFrame, dataset::Type{<:DataSets.Delve},
     end
 
     # Call all the plotting functions
-    with_theme(
-        ScatterLines=(cycle=Cycle([:color, :marker, :linestyle], covary=true),)
-    ) do
-        # We plot bands first so they are on bottom
-        show_bands && foreach(plot_band, plots_and_kernels)
+    # We plot bands first so they are on bottom
+    show_bands && foreach(plot_band, plots_and_kernels)
 
-        foreach(plot_kernel, plots_and_kernels)
+    foreach(plot_kernel, plots_and_kernels)
 
-        show_rbf && foreach(subplots) do (ax, df_sub)
-            df_rbf = @rsubset(df_sub, :kernel_cat == "RadialBasis")
-            if !isempty(df_rbf)
-                plot_rbf(ax, df_rbf, measure, measure_type)
-            end
+    show_rbf && foreach(subplots) do (ax, df_sub)
+        df_rbf = @rsubset(df_sub, :kernel_cat == "RadialBasis")
+        if !isempty(df_rbf)
+            plot_rbf(ax, df_rbf, measure, measure_type)
         end
     end
 
