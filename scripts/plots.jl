@@ -17,7 +17,9 @@ Plots.no_color_cycle!()
 
 resolution = (1200, 800) # For big plots
 show_bands = true
-scan_dirs = "--scan" in ARGS
+if !@isdefined scan_dirs
+    scan_dirs = "--scan" in ARGS || "-s" in ARGS
+end
 # WARN: --scan only affects Experiment 3, since 1 and 2 have already been
 # purged.
 
