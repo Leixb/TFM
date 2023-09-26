@@ -39,8 +39,23 @@ Base.show(io::IO, ::MIME"text/plain", ds::DataSet) = print(io, typeof(ds), "()")
 # These methods should only be implemented if the dataset is not
 # in a proper CSV format.
 data(ds::DataSet) = raw_data(ds) |> preprocess(ds)
-raw_data(ds::DataSet) = read_data(ds; select=select_columns(ds), drop=drop_columns(ds))
+raw_data(ds::DataSet) = read_data(ds; __params_read_data(ds)...)
 read_data(ds::DataSet; kwargs...) = CSV.read(path(ds), DataFrame; header=header(ds), kwargs...)
+
+function __params_read_data(ds::DataSet)
+    select = select_columns(ds)
+    drop = drop_columns(ds)
+
+    @assert isnothing(select) || isnothing(drop) "select and drop cannot be both defined"
+
+    if !isnothing(select)
+        return (; select)
+    end
+
+    if !isnothing(drop)
+        return (; drop)
+    end
+end
 
 (ds::DataSet)() = unpack(ds)
 
@@ -635,7 +650,7 @@ preprocess(::GlassIdentification) = X -> coerce(X,
     :TypeOfGlass => Multiclass,
 )
 
-drop_colums(::GlassIdentification) = [:IdNumber,]
+drop_columns(::GlassIdentification) = [:IdNumber,]
 
 url(::GlassIdentification) = "https://archive.ics.uci.edu/dataset/42/glass+identification"
 doi(::GlassIdentification) = "10.24432/C5WW2P"
