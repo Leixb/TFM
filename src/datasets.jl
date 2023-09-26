@@ -8,7 +8,8 @@ pre-processing. For models, see `models.jl`.
 """
 module DataSets
 
-import CSV
+import CSV, XLSX
+
 using DataFrames
 using LIBSVM: Kernel
 using CategoricalArrays: CategoricalArray
@@ -839,5 +840,61 @@ drop_columns(::EstimationOfObesityLevelsBasedOnEatingHabitsAndPhysicalCondition)
 
 url(::EstimationOfObesityLevelsBasedOnEatingHabitsAndPhysicalCondition) = "https://archive.ics.uci.edu/dataset/544/estimation+of+obesity+levels+based+on+eating+habits+and+physical+condition"
 doi(::EstimationOfObesityLevelsBasedOnEatingHabitsAndPhysicalCondition) = "10.24432/C5H31Z"
+
+################################################################################
+# Residential Building Data Set (ID=437) 2015
+#-------------------------------------------------------------------------------
+# - 372 instances
+# - 105 attributes
+#-------------------------------------------------------------------------------
+# Data set includes construction cost, sale prices, project variables, and economic variables corresponding to real estate single-family residential apartments in Tehran, Iran. 
+#-------------------------------------------------------------------------------
+# # Creators
+#
+#  - Mohammad Rafiei ()
+# 
+#-------------------------------------------------------------------------------
+# # Attribute Information
+# 
+#
+################################################################################
+
+@dataset RegressionDataSet ResidentialBuildingDataSet datasetdir("residential_building_data_set", "Residential-Building-Data-Set.xlsx") false Symbol("V-10")
+
+raw_data(ds::ResidentialBuildingDataSet) = select(DataFrame(XLSX.readtable(path(ds), 1; first_row=2)), Not(Symbol("V-9")))
+
+url(::ResidentialBuildingDataSet) = "https://archive.ics.uci.edu/dataset/437/residential+building+data+set"
+doi(::ResidentialBuildingDataSet) = "10.24432/C5S896"
+
+################################################################################
+# Energy efficiency (ID=242) 2012
+#-------------------------------------------------------------------------------
+# - 768 instances
+# - 8 attributes
+#-------------------------------------------------------------------------------
+# This study looked into assessing the heating load and cooling load requirements of buildings (that is, energy efficiency) as a function of building parameters.
+#-------------------------------------------------------------------------------
+# # Creators
+#
+#  - Athanasios Tsanas ()
+#  - Angeliki Xifara ()
+# 
+#-------------------------------------------------------------------------------
+# # Attribute Information
+# 
+#
+################################################################################
+
+abstract type EnergyEfficiency <: RegressionDataSet end
+
+@dataset EnergyEfficiency EnergyEfficiencyCooling datasetdir("energy_efficiency", "ENB2012_data.xlsx") false Symbol("Y2")
+@dataset EnergyEfficiency EnergyEfficiencyHeating datasetdir("energy_efficiency", "ENB2012_data.xlsx") false Symbol("Y1")
+
+__raw_data_energy(ds::EnergyEfficiency) = DataFrame(XLSX.readtable(path(ds), 1))
+raw_data(ds::EnergyEfficiencyCooling) = select(__raw_data_energy(ds), Not(Symbol("Y1")))
+raw_data(ds::EnergyEfficiencyHeating) = select(__raw_data_energy(ds), Not(Symbol("Y2")))
+
+url(::EnergyEfficiency) = "https://archive.ics.uci.edu/dataset/242/energy+efficiency"
+doi(::EnergyEfficiency) = "10.24432/C51307"
 
 end

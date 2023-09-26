@@ -551,3 +551,39 @@ nattr = 17
 ninst = 2111
 creators = []
 
+################################################################################
+[residential_building_data_set]
+url = "https://archive.ics.uci.edu/static/public/437/residential+building+data+set.zip"
+stripRoot = false
+sha256 = "sha256-QNr0gn1Ugsdd03RvKDu4g6goJiWxpzP4WsnnTzHEMSs="
+[residential_building_data_set.meta]
+title = "Residential Building Data Set"
+description = "Data set includes construction cost, sale prices, project variables, and economic variables corresponding to real estate single-family residential apartments in Tehran, Iran. "
+doi = "10.24432/C5S896"
+kind = "Regression"
+year = 2015
+home = "https://archive.ics.uci.edu/dataset/437/residential+building+data+set"
+family = "UCI"
+field = "Computer Science"
+nattr = 105
+ninst = 372
+creators = ["Mohammad Rafiei"]
+
+################################################################################
+[energy_efficiency]
+url = "https://archive.ics.uci.edu/static/public/242/energy+efficiency.zip"
+stripRoot = false
+sha256 = "sha256-jCuyf3c1nviZ3ofEq3ZB9/0s51Mjd5yCsel3Tkryx8I="
+[energy_efficiency.meta]
+title = "Energy efficiency"
+description = "This study looked into assessing the heating load and cooling load requirements of buildings (that is, energy efficiency) as a function of building parameters."
+doi = "10.24432/C51307"
+kind = "Classification, Regression"
+year = 2012
+home = "https://archive.ics.uci.edu/dataset/242/energy+efficiency"
+family = "UCI"
+field = "Computer Science"
+nattr = 8
+ninst = 768
+creators = ["Athanasios Tsanas", "Angeliki Xifara"]
+
