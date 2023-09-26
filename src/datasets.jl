@@ -47,7 +47,9 @@ function __params_read_data(ds::DataSet)
     select = select_columns(ds)
     drop = drop_columns(ds)
 
-    @assert isnothing(select) || isnothing(drop) "select and drop cannot be both defined"
+    if !isnothing(select) && !isnothing(drop)
+        return (; select=setdiff(select, drop))
+    end
 
     if !isnothing(select)
         return (; select)
@@ -56,6 +58,8 @@ function __params_read_data(ds::DataSet)
     if !isnothing(drop)
         return (; drop)
     end
+
+    (;)
 end
 
 (ds::DataSet)() = unpack(ds)
@@ -595,7 +599,7 @@ doi(::StatlogGermanCreditData) = "10.24432/C5NC77"
     :Mpg, :Cylinders, :Displacement, :Horsepower, :Weight, :Acceleration, :ModelYear, :Origin, :CarName,
 ] :Mpg
 
-read_data(ds::AutoMpg; kwargs...) = CSV.read(path(ds), DataFrame; header=header(ds), ignorerepeated=true, delim="  ", missingstring="?", drop=[:CarName], silencewarnings=true, kwargs...)
+read_data(ds::AutoMpg; kwargs...) = CSV.read(path(ds), DataFrame; header=header(ds), ignorerepeated=true, delim="  ", missingstring="?", silencewarnings=true, kwargs...)
 preprocess(::AutoMpg) = X -> let
     X[!, :Origin] = map(x -> parse(Int, x[1]), X[!, :Origin])
     dropmissing!(X)
