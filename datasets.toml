@@ -514,3 +514,40 @@ field = "Social Science"
 nattr = 128
 ninst = 1994
 creators = ["Michael Redmond"]
+
+################################################################################
+[liver_disorders]
+url = "https://archive.ics.uci.edu/static/public/60/liver+disorders.zip"
+stripRoot = false
+sha256 = "sha256-PKBQsC3sZGlVrzdRDVjfhX3JBG8ao5nyUsmCkmrlpog="
+[liver_disorders.meta]
+title = "Liver Disorders"
+description = "BUPA Medical Research Ltd. database donated by Richard S. Forsyth"
+doi = "10.24432/C54G67"
+kind = ""
+year = 2016
+home = "https://archive.ics.uci.edu/dataset/60/liver+disorders"
+family = "UCI"
+field = "Life Science"
+nattr = 5
+ninst = 345
+creators = []
+
+################################################################################
+[estimation_of_obesity_levels_based_on_eating_habits_and_physical_condition]
+url = "https://archive.ics.uci.edu/static/public/544/estimation+of+obesity+levels+based+on+eating+habits+and+physical+condition.zip"
+stripRoot = false
+sha256 = "sha256-q12LqzHNqODtNiQvN7e8ErCVhWhxU5N4SDwxPRtBB30="
+[estimation_of_obesity_levels_based_on_eating_habits_and_physical_condition.meta]
+title = "Estimation of obesity levels based on eating habits and physical condition "
+description = "This dataset include data for the estimation of obesity levels in individuals from the countries of Mexico, Peru and Colombia, based on their eating habits and physical condition. "
+doi = "10.24432/C5H31Z"
+kind = "Classification, Regression, Clustering"
+year = 2019
+home = "https://archive.ics.uci.edu/dataset/544/estimation+of+obesity+levels+based+on+eating+habits+and+physical+condition"
+family = "UCI"
+field = "Life Science"
+nattr = 17
+ninst = 2111
+creators = []
+

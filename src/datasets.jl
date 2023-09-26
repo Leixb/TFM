@@ -781,4 +781,63 @@ read_data(ds::CommunitiesAndCrime; kwargs...) = CSV.read(path(ds), DataFrame; he
 url(::CommunitiesAndCrime) = "https://archive.ics.uci.edu/dataset/183/communities+and+crime"
 doi(::CommunitiesAndCrime) = "10.24432/C53W3X"
 
+
+################################################################################
+# Liver Disorders (ID=60) 2016
+#-------------------------------------------------------------------------------
+# - 345 instances
+# - 5 attributes
+#-------------------------------------------------------------------------------
+# BUPA Medical Research Ltd. database donated by Richard S. Forsyth
+#-------------------------------------------------------------------------------
+# # Creators
+#
+# 
+#-------------------------------------------------------------------------------
+# # Attribute Information
+# 
+# - mcv: (Continuous Feature) mean corpuscular volume.
+# - alkphos: (Continuous Feature) alkaline phosphotase.
+# - sgpt: (Continuous Feature) alanine aminotransferase.
+# - sgot: (Continuous Feature) aspartate aminotransferase.
+# - gammagt: (Continuous Feature) gamma-glutamyl transpeptidase.
+# - drinks: (Continuous Target) number of half-pint equivalents of alcoholic beverages drunk per day.
+# - selector: (Categorical Other) field created by the BUPA researchers to split the data into train/test sets.
+#
+################################################################################
+
+@dataset RegressionDataSet LiverDisorders datasetdir("liver_disorders", "bupa.data") [
+    :Mcv, :Alkphos, :Sgpt, :Sgot, :Gammagt, :Drinks, :Selector,
+] :Drinks
+
+drop_columns(::LiverDisorders) = [:Selector]
+
+url(::LiverDisorders) = "https://archive.ics.uci.edu/dataset/60/liver+disorders"
+doi(::LiverDisorders) = "10.24432/C54G67"
+
+################################################################################
+# Estimation of obesity levels based on eating habits and physical condition  (ID=544) 2019
+#-------------------------------------------------------------------------------
+# - 2111 instances
+# - 17 attributes
+#-------------------------------------------------------------------------------
+# This dataset include data for the estimation of obesity levels in individuals from the countries of Mexico, Peru and Colombia, based on their eating habits and physical condition. 
+#-------------------------------------------------------------------------------
+# # Creators
+#
+# 
+#-------------------------------------------------------------------------------
+# # Attribute Information
+# 
+#
+################################################################################
+
+# We do regression on the weight column and drop the NObeyesdad column (categorical level of obesity)
+@dataset RegressionDataSet EstimationOfObesityLevelsBasedOnEatingHabitsAndPhysicalCondition datasetdir("estimation_of_obesity_levels_based_on_eating_habits_and_physical_condition", "ObesityDataSet_raw_and_data_sinthetic.csv") 1 :Weight
+
+drop_columns(::EstimationOfObesityLevelsBasedOnEatingHabitsAndPhysicalCondition) = [:NObeyesdad]
+
+url(::EstimationOfObesityLevelsBasedOnEatingHabitsAndPhysicalCondition) = "https://archive.ics.uci.edu/dataset/544/estimation+of+obesity+levels+based+on+eating+habits+and+physical+condition"
+doi(::EstimationOfObesityLevelsBasedOnEatingHabitsAndPhysicalCondition) = "10.24432/C5H31Z"
+
 end
