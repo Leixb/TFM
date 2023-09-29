@@ -2,7 +2,7 @@
 
 julia_version = "1.9.3"
 manifest_format = "2.0"
-project_hash = "0734f6ca5bc382623c8f91b805ac467ab3de37a6"
+project_hash = "68ae03b11985e621fce6c3c0bfb8eadd2f406da5"
 
 [[deps.ARFFFiles]]
 deps = ["CategoricalArrays", "Dates", "Parsers", "Tables"]
@@ -1440,6 +1440,12 @@ deps = ["CategoricalArrays", "CategoricalDistributions", "Combinatorics", "Dates
 git-tree-sha1 = "2b49f04f70266a2b040eb46ece157c4f5c1b0c13"
 uuid = "d491faf4-2d78-11e9-2867-c94bc002c0b7"
 version = "0.16.10"
+
+[[deps.MLJMultivariateStatsInterface]]
+deps = ["CategoricalDistributions", "Distances", "LinearAlgebra", "MLJModelInterface", "MultivariateStats", "StatsBase"]
+git-tree-sha1 = "0d76e36bf83926235dcd3eaeafa7f47d3e7f32ea"
+uuid = "1b6a4a23-ba22-4f51-9698-8599985d3728"
+version = "0.5.3"
 
 [[deps.MLJTuning]]
 deps = ["ComputationalResources", "Distributed", "Distributions", "LatinHypercubeSampling", "MLJBase", "ProgressMeter", "Random", "RecipesBase"]

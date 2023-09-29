@@ -845,6 +845,8 @@ drop_columns(::EstimationOfObesityLevelsBasedOnEatingHabitsAndPhysicalCondition)
 url(::EstimationOfObesityLevelsBasedOnEatingHabitsAndPhysicalCondition) = "https://archive.ics.uci.edu/dataset/544/estimation+of+obesity+levels+based+on+eating+habits+and+physical+condition"
 doi(::EstimationOfObesityLevelsBasedOnEatingHabitsAndPhysicalCondition) = "10.24432/C5H31Z"
 
+Base.string(::EstimationOfObesityLevelsBasedOnEatingHabitsAndPhysicalCondition) = "EatingHabits"
+
 ################################################################################
 # Residential Building Data Set (ID=437) 2015
 #-------------------------------------------------------------------------------
@@ -863,12 +865,13 @@ doi(::EstimationOfObesityLevelsBasedOnEatingHabitsAndPhysicalCondition) = "10.24
 #
 ################################################################################
 
-@dataset RegressionDataSet ResidentialBuildingDataSet datasetdir("residential_building_data_set", "Residential-Building-Data-Set.xlsx") false Symbol("V-10")
-
-raw_data(ds::ResidentialBuildingDataSet) = select(DataFrame(XLSX.readtable(path(ds), 1; first_row=2)), Not(Symbol("V-9")))
-
-url(::ResidentialBuildingDataSet) = "https://archive.ics.uci.edu/dataset/437/residential+building+data+set"
-doi(::ResidentialBuildingDataSet) = "10.24432/C5S896"
+# @dataset RegressionDataSet ResidentialBuildingDataSet datasetdir("residential_building_data_set", "Residential-Building-Data-Set.xlsx") false Symbol("V-10")
+#
+# raw_data(ds::ResidentialBuildingDataSet) = select(DataFrame(XLSX.readtable(path(ds), 1; infer_eltypes=true, first_row=2)), Not(Symbol("V-9")))
+# preprocess(::ResidentialBuildingDataSet) = X -> coerce(dropmissing(X), Count => Continuous)
+#
+# url(::ResidentialBuildingDataSet) = "https://archive.ics.uci.edu/dataset/437/residential+building+data+set"
+# doi(::ResidentialBuildingDataSet) = "10.24432/C5S896"
 
 ################################################################################
 # Energy efficiency (ID=242) 2012
@@ -894,9 +897,11 @@ abstract type EnergyEfficiency <: RegressionDataSet end
 @dataset EnergyEfficiency EnergyEfficiencyCooling datasetdir("energy_efficiency", "ENB2012_data.xlsx") false Symbol("Y2")
 @dataset EnergyEfficiency EnergyEfficiencyHeating datasetdir("energy_efficiency", "ENB2012_data.xlsx") false Symbol("Y1")
 
-__raw_data_energy(ds::EnergyEfficiency) = DataFrame(XLSX.readtable(path(ds), 1))
+__raw_data_energy(ds::EnergyEfficiency) = DataFrame(XLSX.readtable(path(ds), 1; infer_eltypes=true))
 raw_data(ds::EnergyEfficiencyCooling) = select(__raw_data_energy(ds), Not(Symbol("Y1")))
 raw_data(ds::EnergyEfficiencyHeating) = select(__raw_data_energy(ds), Not(Symbol("Y2")))
+
+preprocess(::EnergyEfficiency) = dropmissing
 
 url(::EnergyEfficiency) = "https://archive.ics.uci.edu/dataset/242/energy+efficiency"
 doi(::EnergyEfficiency) = "10.24432/C51307"
