@@ -44,15 +44,16 @@ measures were implemented:
     \item Variables (including target) are standardized
     \item We use normalized root-mean-square error as our performance
           measure.
-    \item The kernel itself is normalized.
-    \item The hyperparameter $\sigma_w$ is divided by the number of samples in
-          the training data of each dataset.
+    \item The kernel itself is normalized (\cref{sec:kernel_normalization})
+    \item The hyperparameter $\sigma_w$ is normalized by dividing it by the
+          number of attributes of each dataset. This makes the hyperparameter
+          comparable between different datasets.
 \end{enumerate}
 
 In the next paragraphs we clarify how each of these steps are implemented and
 what is their effect.
 
-\paragraph{Variable Standardization} this is implemented by taking the mean and
+\paragraph{Variable Standardization} is implemented by taking the mean and
 standard derivation of each column of the training set and using it to normalize
 the columns ($z_i = (x_i - \mu_i)/\sigma_i$). These values are saved as part of
 the model and used again when running on the test set. This process is also
@@ -68,12 +69,28 @@ normalized root-mean-square error (\emph{nRMSE}) as follows:
     nRMSE = \frac{RMSE}{\sigma_{obs}}
 \end{equation}
 
+\paragraph{Kernel Normalization} for a given kernel $K$, we define the
+normalized kernel $\hat{K}$ as follows:
+\begin{equation}
+    \hat{K}(x, y) = \frac{K(x, y)}{\sqrt{K(x, x)K(y, y)}}
+\end{equation}
+By normalizing the kernel, we mitigate the effect of the scale of the
+input variables. % TODO: Rewrite this
+
+\paragraph{Sigma Normalization} We define the normalized sigma $\hat{\sigma}$
+as follows:
+\begin{equation}
+    \hat{\sigma} = \frac{\sigma}{n}
+\end{equation}
+where $n$ is the number of attributes of the dataset. By doing so, the
+hyperparameter $\sigma$ is comparable between datasets.
+
 \subsection{Parameter grid}
 
 For the parameter search, we tried all the combinations of values in the bounds
 show in \cref{tab:paramgrid} in a $\log 10$ scale with spacing of factor of $10$
 between values. For example, for $\sigma_w$ the values were
-$10^{-3},\,10^{-2},\,\dots,\,10^{3}$
+$10^{-3},\,10^{-2},\,\dots,\,10^{3}$.
 % TODO: write this part so that it is more clear?
 
 \begin{table}[H]

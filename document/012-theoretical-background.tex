@@ -315,8 +315,8 @@ part of the expression:
 \end{equation}
 For $n = 0,\,1,\,2$, the expression for $J_n(\theta)$ is:
 \begin{align}
-    J_0(\theta) & = \pi - \theta                                                                    \\
-    J_1(\theta) & = \sin\theta + \left(\pi - \theta\right)\cos\theta                                \\
+    J_0(\theta) & = \pi - \theta                                                                     \\
+    J_1(\theta) & = \sin\theta + \left(\pi - \theta\right)\cos\theta               \label{eq:cho_j1} \\
     J_2(\theta) & = 3\sin\theta\cos\theta + \left(\pi - \theta\right)\left(1 + 2\cos^2\theta\right)
 \end{align}
 
@@ -334,7 +334,8 @@ three kernels:
     \Bigl( 3\sin\theta\cos\theta + \left(\pi - \theta\right)\left(1 + 2\cos^2\theta\right) \Bigr)
 \end{align}
 
-\subsection{Covariance arc cosine kernel}
+\subsection{Covariance arc cosine kernel}%
+\label{sub:covariance_acos}
 
 The formulation from \textcite{choLargemarginClassificationInfinite2010} is
 derived from a standard normal distribution (i.e. mean 0 and variance 1).
@@ -351,8 +352,11 @@ $K_{\Sigma,\,n}$ is related to the original kernel $K_{n}$ as follows:
 \end{cnote}
 
 \section{Kernel normalization}%
-% TODO: why is this usefull? the original kernel seems to work fine in practice
+\label{sec:kernel_normalization}
+% TODO: why is this useful? the original kernel seems to work fine in practice
 % and a priori seems already normalized?
+
+\subsubsection{Definition}
 
 \Textcite{frenayParameterinsensitiveKernelExtreme2011} do not use the expression
 of the arc-sine kernel from \cref{eq:kernel_asin} directly. Instead, they use
@@ -361,3 +365,52 @@ the normalized version. The normalization of a kernel is defined as follows:
     K'(\x,\,\y) = \frac{K(\x,\,\y)}{\sqrt{K(\x,\,\x)K(\y,\,\y)}}
 \end{equation}
 
+\subsection{Arc sine kernel}
+
+For the arc sine kernel, the normalization has can not be simplified analytically,
+it's just the application of \cref{eq:kernel_normalization} to the kernel expression.
+
+\subsection{Arc cosine family}
+
+If we apply the normalization from \cref{eq:kernel_normalization} to the
+general expression for the arc cosine family of kernels $k_n$ from
+\cref{eq:kernel_cho}, we get the following:
+\begin{align}
+    \hat{K}_n(\x,\,\y) & = \frac{
+        \frac{1}{\pi} \left\lVert \x \right\rVert^n \left\lVert \y \right\rVert^n J_n(\theta_{xy})
+    }{\sqrt{
+            \frac{1}{\pi} \left\lVert \x \right\rVert^{2n} J_n(\theta_{xx})
+            \frac{1}{\pi} \left\lVert \y \right\rVert^{2n} J_n(\theta_{yy})
+    }}                                                                                        \\
+                       & = \frac{ J_n(\theta_{xy}) }{\sqrt{ J_n(\theta_{xx}) J_n(\theta_{yy})
+    }}                                                                                        \\
+                       & = \frac{ J_n(\theta) }{J_n(0)}
+\end{align}
+
+From this result, we can see that the normalization of the arc cosine family of kernels
+completely removes the dependence on the magnitude of the input vectors $\x$ and $\y$, and
+we are left with a kernel that only depends on the angle between them.
+
+For $n = 0,\,1,\,2$, the expression for $J_n(0)$ is:
+\begin{align}
+    J_0(0) & = \pi - 0 = \pi                                                          \\
+    J_1(0) & = \sin(0) + (\pi - 0)\cos(0) = 0 + \pi = \pi                             \\
+    J_2(0) & = 3\sin(0)\cos(0) + (\pi - 0)\left(1 + 2\cos^2(0)\right) = 0 + \pi = \pi
+\end{align}
+There seems to be a pattern where $J_n(0) = \pi$, but it cannot be proved. For
+now, we can only say that the normalized form of the arc cosine kernels
+for $n \in \left\{ 0,\,1,\,2 \right\}$ is:
+\begin{equation}
+    \hat{K}_n(\x,\,\y) = \frac{J_n(\theta)}{\pi}, \quad \forall n \in \left\{ 0,\,1,\,2 \right\}.
+\end{equation}
+
+% TODO: explore if this is generalizable to other values of n?
+
+% TODO: What do we do then?
+The normalization of the arc cosine kernel introduces an issue with the
+covariance definition from \cref{sub:covariance_acos}. The covariance matrix
+$\Sigma$ will be cancels out in the normalization, since in the expression
+for the angle $\theta$ the covariance matrix appears in both the numerator and
+denominator. Therefore, the normalized covariance arc cosine kernel does
+not have this hyperparameter. This issue is also present in the non-normalized
+version of the kernel when $n = 0$.
