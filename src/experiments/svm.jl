@@ -198,7 +198,7 @@ function frenay_parameter_grid(; step::Float64=1.0, datasets=nothing)::Vector{Di
     [dict_list(parameters_asin); dict_list(parameters_rbf)]
 end
 
-function svm_parameter_grid(; step::Float64=1.0, datasets=nothing, acos=false, rbf=true, kwargs...)::Vector{Dict{Symbol,Any}}
+function svm_parameter_grid(; step::Float64=1.0, datasets=nothing, acos=false, rbf=true, nosigma=true, kwargs...)::Vector{Dict{Symbol,Any}}
     # Blacklist MNIST since it takes too long to run
     if datasets isa Nothing
         datasets = filter(DataSets.all) do d
@@ -209,8 +209,10 @@ function svm_parameter_grid(; step::Float64=1.0, datasets=nothing, acos=false, r
     kernels = [LIBSVM.Kernel.Asin, LIBSVM.Kernel.AsinNorm]
     if acos
         push!(kernels, LIBSVM.Kernel.Acos1)
-        # push!(kernels, LIBSVM.Kernel.Acos0, LIBSVM.Kernel.Acos1, LIBSVM.Kernel.Acos2)
     end
+
+    # These kernels cannot be scaled by sigma (they are insensitive to it)
+    kernels_nosigma = [LIBSVM.Kernel.Acos0, LIBSVM.Kernel.Acos1Norm, LIBSVM.Kernel.Acos2Norm]
 
     sigma_asin = 10 .^ (-3:step:6)
 
@@ -242,11 +244,22 @@ function svm_parameter_grid(; step::Float64=1.0, datasets=nothing, acos=false, r
             parameters_common...
         )
 
+        parameters_nosigma = Dict(
+            :kernel => kernels_nosigma,
+            parameters_common...
+        )
+
+        params = dict_list(parameters_asin)
+
         if rbf
-            [dict_list(parameters_rbf); dict_list(parameters_asin)]
-        else
-            dict_list(parameters_asin)
+            append!(params, dict_list(parameters_rbf))
         end
+
+        if nosigma
+            append!(params, dict_list(parameters_nosigma))
+        end
+
+        params
     end
 
     vcat(all_params...)
