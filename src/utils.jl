@@ -65,4 +65,14 @@ kernel_acos_2(x, y) =
         1 / π * (x ⋅ x) * (y ⋅ y) * (3 * sin(θ) * cos(θ) + (π - θ) * (1 + 2 * cos(θ)^2))
     end
 
+kernel_acos_1_norm(x, y) =
+    let θ = theta(x, y)
+        1 / π * (sin(θ) + (π - θ) * cos(θ))
+    end
+
+kernel_acos_2_norm(x, y) =
+    let θ = theta(x, y)
+        1 / π * (3 * sin(θ) * cos(θ) + (π - θ) * (1 + 2 * cos(θ)^2))
+    end
+
 end

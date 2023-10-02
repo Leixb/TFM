@@ -556,6 +556,12 @@ git-tree-sha1 = "98fdf08b707aaf69f524a6cd0a67858cefe0cfb6"
 uuid = "792122b4-ca99-40de-a6bc-6742525f08b6"
 version = "0.3.0"
 
+[[deps.EpollShim_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "8e9441ee83492030ace98f9789a654a6d0b1f643"
+uuid = "2702e6a9-849d-5ed8-8c21-79e8b8f9ee43"
+version = "0.0.20230411+0"
+
 [[deps.ExceptionUnwrapping]]
 deps = ["Test"]
 git-tree-sha1 = "e90caa41f5a86296e014e148ee061bd6c3edec96"
@@ -1155,7 +1161,7 @@ version = "0.6.0"
 
 [[deps.LIBSVM]]
 deps = ["BinaryBuilder", "FileIO", "JLD2", "LIBLINEAR", "LinearAlgebra", "Preferences", "RDatasets", "ScikitLearnBase", "Serialization", "SparseArrays", "Statistics", "Test", "libsvm_jll"]
-git-tree-sha1 = "3d56f40406f567d6a757664c005750676bc6d598"
+git-tree-sha1 = "4f9d32b5b46f7400e5e6772f0497e19c3917aa73"
 repo-rev = "master"
 repo-url = "https://github.com/Leixb/LIBSVM.jl"
 uuid = "b1bec4e5-fd48-53fe-b0cb-9723c09d164b"
@@ -2618,7 +2624,7 @@ uuid = "276b4fcb-3e11-5398-bf8b-a0c2d153d008"
 version = "0.8.9"
 
 [[deps.Wayland_jll]]
-deps = ["Artifacts", "Expat_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Pkg", "XML2_jll"]
+deps = ["Artifacts", "EpollShim_jll", "Expat_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Pkg", "XML2_jll"]
 git-tree-sha1 = "ed8d92d9774b077c53e1da50fd81a36af3744c1c"
 uuid = "a2964d1f-97da-50d4-b82a-358c7fce9d89"
 version = "1.21.0+0"
@@ -2921,11 +2927,11 @@ version = "1.0.20+0"
 
 [[deps.libsvm_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "LLVMOpenMP_jll", "Libdl", "Pkg"]
-git-tree-sha1 = "080709f338a53d9b041a51b81bb05bcf04a93d0d"
+git-tree-sha1 = "542abb1014d7800de3f8ec843280e311544cc21c"
 repo-rev = "main"
 repo-url = "https://github.com/Leixb/libsvm_jll.jl"
 uuid = "08558c22-525a-5d2a-acf6-0ac6658ffce4"
-version = "3.31.4+0"
+version = "3.31.7+0"
 
 [[deps.libvorbis_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Ogg_jll", "Pkg"]
