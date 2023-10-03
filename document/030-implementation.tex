@@ -199,13 +199,17 @@ operations is reduced from $3n$ to $2n$. This same optimization can be applied
 to our kernels. \Cref{fig:c_improvement} shows the improvement in performance
 when using this optimization.
 
-\begin{cnote}
-    The plot probably should be improved:
-    Better legend, change labels and remove RBF since it is not relevant.
-    Also, add error bars?
-\end{cnote}
+% \begin{cnote}
+%     The plot probably should be improved:
+%     Better legend, change labels and remove RBF since it is not relevant.
+%     Also, add error bars?
+% \end{cnote}
+% TODO: Improve plot and explain better what is shown:
+% - Better legend
+% - Consistent colors with other kernel plots
+% - probably make height smaller
 \begin{figure}[H]
-    \includegraphics{plots/c_improvement}
+    \includegraphics{plots/benchmark_time_improvement_old}
     \caption{Comparison between kernels on the training phase with and without
         pre-computation when training the Adult dataset}%
     \label{fig:c_improvement}
@@ -491,6 +495,19 @@ plots).
     Also, they look like their activation functions when plotted as done
     with asin.
 \end{cnote}
+
+% TODO: maybe add this?
+% \subsection{Passing the kernel as a function pointer}
+%
+% One of the ideas explored was to instead of hard-coding the kernels in the
+% library, set the kernel as a function pointer in libsvm. This would allow
+% to define a function in Julia, get it's pointer and pass it to libsvm. This
+% approach was evaluated and discarded since it would require a major
+% refactor of the libsvm library and the divergence from the original library
+% would make further updates more difficult.
+%
+% It is technically possible and worth exploring in the future, but the
+% architecture of the libsvm library is quite constricted.
 
 
 \section{Meta learning}

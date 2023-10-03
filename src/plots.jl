@@ -29,5 +29,6 @@ using DataFrames, DataFramesMeta, MLJ, DrWatson
 include("./plots/kernels.jl")
 include("./plots/model_performance.jl")
 include("./plots/execution_times.jl")
+include("./plots/heatmap.jl")
 
 end

@@ -3,24 +3,37 @@
 
 \section{Summary of results}
 
-\begin{marker}
-    Write this as a text, not just bullet points.
-\end{marker}
+% TODO: Write this as a text, not just bullet points.
 
 \begin{itemize}
-    \item The performance of the asin kernels does stabilize with larger
-          $\sigma_w$ (>10).
-    \item However, this is may not be optimal for all datasets, in some cases
-          there are values of $\sigma_w$ that perform better than the ones
-          above the stabilization point.
-    \item The arc cosine kernels do not seem to have the same parameter
-          insensitivity property as the arc sine kernels, at least not for
-          $\sigma_w \to +\infty$.
+    \item Arc sine \begin{itemize}
+              \item The performance of the asin kernels does stabilize with larger
+                    $\sigma_w$ (>10).
+              \item However, this is may not be optimal for all datasets, in some cases
+                    there are values of $\sigma_w$ that perform better than the ones
+                    above the stabilization point.
+              \item The normalized arc sine kernel generally performs better than the
+                    non-normalized one, however for $\sigma_w > 10$ there is no
+                    appreciable difference in any of the datasets tested if the
+                    data has been standardized.
+          \end{itemize}
+    \item Arc cosine \begin{itemize}
+              \item The covariance arc cosine kernels, when normalized, cancel out the effect
+                    of the $\sigma_w$ parameter.
+              \item The arc cosine kernels (not normalized) do not seem to have the same parameter
+                    insensitivity property as the arc sine kernels, at least not for
+                    $\sigma_w \to +\infty$.
+          \end{itemize}
 \end{itemize}
 
-\section{Further work}
+The arc sine kernel may be a viable alternative to the RBF Kernel that provides
+similar results without the need to tune its hyperparameter. Additionally, there
+is no need to normalize the kernel is the data is standardized.
 
-\begin{itemize}
-    \item Study the behaviour of the arc cosine kernels in more detail.
-    \item \dots
-\end{itemize}
+% TODO:
+% \section{Further work}
+%
+% \begin{itemize}
+%     \item Study the behaviour of the arc cosine kernels in more detail.
+%     \item \dots
+% \end{itemize}

@@ -28,6 +28,7 @@ end
 @info "Benchmarks"
 let
     @saveplot benchmark_time_inst = Plots.plot_benchmark_time_instances()
+    @saveplot benchmark_time_improvement_old = Plots.exec_improvement()
 end
 
 @info "Experiment run 1 (svms/) MSE (Frenay grid)"
@@ -145,6 +146,29 @@ let
     @saveplot kernel_acos0_3d = Plots.plot_kernel_3d(Utils.kernel_acos, 1, 0)
     @saveplot kernel_acos1_3d = Plots.plot_kernel_3d(Utils.kernel_acos, 1, 1)
     @saveplot kernel_acos2_3d = Plots.plot_kernel_3d(Utils.kernel_acos, 1, 2)
+end
+
+@info "Heatmaps"
+let
+    heatmap_df = Plots.data_nrmse_s()
+    @saveplot heatmaps_rbf_asinnorm = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:RadialBasis, kernel_r=:AsinNorm, resolution=(2200, 1700))
+    @saveplot heatmaps_rbf_asin = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:RadialBasis, kernel_r=:Asin, resolution=(2200, 1700))
+    @saveplot heatmaps_asin_asinnorm = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:Asin, kernel_r=:AsinNorm, resolution=(2200, 1700))
+    @saveplot heatmaps_rbf_acos1 = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:RadialBasis, kernel_r=:Acos1, resolution=(2200, 1700))
+
+    # FIX: asinnorm against acos does not work.
+    # @saveplot heatmaps_asinnorm_acos1 = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:Acos1, kernel_r=:AsinNorm, resolution=(2200, 1700))
+
+    # TODO: acos0 and acos2 do not have data for this. Acos0 since it does not
+    # have different values for sigma, and acos2 because it is too slow and many
+    # executions are missing.
+    # @saveplot heatmaps_rbf_acos0 = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:RadialBasis, kernel_r=:Acos0, resolution=(2200, 1700))
+    # @saveplot heatmaps_rbf_acos2 = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:RadialBasis, kernel_r=:Acos2, resolution=(2200, 1700))
+
+    @saveplot heatmaps_rbf_asinnorm_s = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:RadialBasis, kernel_r=:AsinNorm, sigma=:sigma_scaled, resolution=(2200, 1700))
+    @saveplot heatmaps_rbf_asin_s = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:RadialBasis, kernel_r=:Asin, sigma=:sigma_scaled, resolution=(2200, 1700))
+    @saveplot heatmaps_asin_asinnorm_s = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:Asin, kernel_r=:AsinNorm, sigma=:sigma_scaled, resolution=(2200, 1700))
+    @saveplot heatmaps_rbf_acos1_s = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:RadialBasis, kernel_r=:Acos1, sigma=:sigma_scaled, resolution=(2200, 1700))
 end
 
 @info "DONE in $(time() - start_time) seconds"
