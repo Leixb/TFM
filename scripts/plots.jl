@@ -156,6 +156,8 @@ let
     @saveplot heatmaps_asin_asinnorm = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:Asin, kernel_r=:AsinNorm, resolution=(2200, 1700))
     @saveplot heatmaps_rbf_acos1 = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:RadialBasis, kernel_r=:Acos1, resolution=(2200, 1700))
 
+    @saveplot heatmaps_rbf_asinnorm_pvalues = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:RadialBasis, kernel_r=:AsinNorm, measure=:per_fold, resolution=(2200, 1700))
+
     # FIX: asinnorm against acos does not work.
     # @saveplot heatmaps_asinnorm_acos1 = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:Acos1, kernel_r=:AsinNorm, resolution=(2200, 1700))
 

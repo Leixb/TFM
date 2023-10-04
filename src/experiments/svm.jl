@@ -128,7 +128,7 @@ inner_model(machine::Machine, ::DelveRegressionDataSet) = fitted_params(machine)
 
 # Fields in results that we don't want to collect in the final DataFrame
 # since they are not relevant for the analysis and they take up a lot of space
-default_ignore_results() = string.([:machine, :result, :per_fold])
+default_ignore_results() = string.([:machine, :result])
 
 # struct2dict from DrWatson but with string as the dictionary key
 function struct2strdict(s)

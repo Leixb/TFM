@@ -36,21 +36,25 @@ function build_matrix(df1::AbstractDataFrame, df2::AbstractDataFrame; col=:value
 
     for (i, row1) in enumerate(eachrow(df1))
         for (j, row2) in enumerate(eachrow(df2))
-            mat[i, j] = row1[col] - row2[col]
+            if row1[col] isa AbstractArray
+                mat[i, j] = Experiments.paired_ttest_5x2cv(row1[col], row2[col])[2] # (t-stat, p-value)[1] -> t-stat
+            else
+                mat[i, j] = row1[col] - row2[col]
+            end
         end
     end
 
     xs, ys, mat
 end
 
-function build_matrices_by_dataset(df=data_nrmse_s(); kernel_l=:RadialBasis, kernel_r=:AsinNorm, kwargs...)
+function build_matrices_by_dataset(df=data_nrmse_s(); kernel_l=:RadialBasis, kernel_r=:AsinNorm, measure=:measurement, kwargs...)
     groups = groupby(df, :dataset_cat)
 
     matrices = []
     labels = []
 
     foreach(groups) do group
-        df1, df2 = data_heatmap(group; kernel_l, kernel_r)
+        df1, df2 = data_heatmap(group; kernel_l, kernel_r, measure)
         xs, ys, m = build_matrix(df1, df2; kernel_l, kernel_r, kwargs...)
         push!(matrices, m)
         push!(labels, (xs, ys))
@@ -59,7 +63,7 @@ function build_matrices_by_dataset(df=data_nrmse_s(); kernel_l=:RadialBasis, ker
     zip(keys(groups), labels, matrices)
 end
 
-function plot_all_heatmaps(df=data_nrmse_s(); kernel_l=:RadialBasis, kernel_r=:AsinNorm, sigma=:sigma,
+function plot_all_heatmaps(df=data_nrmse_s(); kernel_l=:RadialBasis, kernel_r=:AsinNorm, sigma=:sigma, measure=:measurement,
     dims::Union{Nothing,Tuple{Int,Int}}=nothing,
     linkxaxes=true,
     linkyaxes=true,
@@ -67,7 +71,7 @@ function plot_all_heatmaps(df=data_nrmse_s(); kernel_l=:RadialBasis, kernel_r=:A
 
     fig = Figure(; kwargs...)
     ax_opts = ()
-    mm = build_matrices_by_dataset(df; kernel_l, kernel_r, sigma)
+    mm = build_matrices_by_dataset(df; kernel_l, kernel_r, sigma, measure)
 
     extremas = map(mm) do (_, _, mat)
         extrema(mat)
@@ -102,11 +106,11 @@ function plot_all_heatmaps(df=data_nrmse_s(); kernel_l=:RadialBasis, kernel_r=:A
     fig
 end
 
-function plot_heatmap(mat, args...)
+function plot_heatmap(mat, args...; kernel_l=:RadialBasis, kernel_r=:AsinNorm, kwargs...)
     title = mat[1][1] |> string
     matrix = mat[3]
     labels = mat[2]
-    plot_heatmap(title, matrix, labels, args...)
+    plot_heatmap(title, matrix, labels, args...; kernel_l, kernel_r, kwargs...)
 end
 
 # WARN: this is a mess of x and y. Pretty sure it is correct. But should not

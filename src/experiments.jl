@@ -171,4 +171,6 @@ using .SVMExperiment
 include("./experiments/precomputed_vs_native.jl")
 using .PrecomputedVsNativeExperiment
 
+include("./experiments/paired_ttest_5x2.jl")
+
 end # module Experiments
