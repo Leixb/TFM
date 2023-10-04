@@ -15,7 +15,15 @@ CairoMakie.activate!()
 Plots.tex_theme!()
 Plots.no_color_cycle!()
 
-resolution = (1200, 800) # For big plots
+opts_big = (;
+    resolution=(1100, 800),
+    dims=(8, 4)
+)
+
+opts_big_vert = (;
+    resolution=(800, 1100),
+    dims=(4, 8)
+)
 show_bands = true
 if !@isdefined scan_dirs
     scan_dirs = "--scan" in ARGS || "-s" in ARGS
@@ -43,7 +51,7 @@ let
         @rename(:measure_test = :measurement)
         Plots.regression
     end
-    @saveplot MSE_all = Plots.plot_sigma(mse; opts..., show_bands, resolution)
+    @saveplot MSE_all = Plots.plot_sigma(mse; opts..., show_bands)
     @saveplot MSE_frenay = Plots.plot_sigma(@rsubset(mse, :dataset isa DataSets.Frenay); opts..., show_bands)
 end
 
@@ -57,7 +65,7 @@ let
         Plots.summarize_best([:kernel_cat, :dataset_cat, :sigma], by=:measurement)
         Plots.regression()
     end
-    @saveplot nRMSE_all = Plots.plot_sigma(nrmse; opts..., resolution)
+    @saveplot nRMSE_all = Plots.plot_sigma(nrmse; opts..., opts_big_vert..., vertical=true)
     @saveplot nRMSE_frenay = Plots.plot_sigma(@rsubset(nrmse, :dataset isa DataSets.Frenay); opts...)
     @saveplot nRMSE_frenay_s = Plots.plot_sigma(@rsubset(nrmse, :dataset isa DataSets.Small); opts...)
     @saveplot nRMSE_frenay_l = Plots.plot_sigma(@rsubset(nrmse, :dataset isa DataSets.Large); opts...)
@@ -81,7 +89,7 @@ let
 
     @info "Experiment run 3 (smvs3/) - part 1: Regression plots"
 
-    @saveplot nRMSE_all_scaled = Plots.plot_sigma(nrmse_s; opts..., show_bands, resolution)
+    @saveplot nRMSE_all_scaled = Plots.plot_sigma(nrmse_s; opts..., show_bands, opts_big_vert..., vertical=true)
     @saveplot nRMSE_frenay_scaled = Plots.plot_sigma(@rsubset(nrmse_s, :dataset isa DataSets.Frenay); opts..., show_bands)
     @saveplot nRMSE_frenay_s_scaled = Plots.plot_sigma(@rsubset(nrmse_s, :dataset isa DataSets.Small); opts..., show_bands)
     @saveplot nRMSE_frenay_l_scaled = Plots.plot_sigma(@rsubset(nrmse_s, :dataset isa DataSets.Large); opts..., show_bands)
@@ -93,7 +101,7 @@ let
 
     local kernels = ["Acos0", "Acos1", "Acos2"]
 
-    @saveplot nRMSE_acos_all_scaled = Plots.plot_sigma(nrmse_s, kernels; opts..., resolution)
+    @saveplot nRMSE_acos_all_scaled = Plots.plot_sigma(nrmse_s, kernels; opts..., opts_big_vert..., vertical=true)
     @saveplot nRMSE_acos_frenay_scaled = Plots.plot_sigma(@rsubset(nrmse_s, :dataset isa DataSets.Frenay), kernels; opts...)
     @saveplot nRMSE_acos_frenay_s_scaled = Plots.plot_sigma(@rsubset(nrmse_s, :dataset isa DataSets.Small), kernels; opts...)
     @saveplot nRMSE_acos_frenay_l_scaled = Plots.plot_sigma(@rsubset(nrmse_s, :dataset isa DataSets.Large), kernels; opts...)
@@ -110,11 +118,11 @@ let
         Plots.classification()
     end
 
-    @saveplot accuracy_class_all_scaled = Plots.plot_sigma(acc_s; opts..., show_bands, resolution)
+    @saveplot accuracy_class_all_scaled = Plots.plot_sigma(acc_s; opts..., show_bands, resolution=opts_big.resolution)
 
     local kernels = ["Acos0", "Acos1", "Acos2"]
 
-    @saveplot accuracy_class_acos_all_scaled = Plots.plot_sigma(acc_s, kernels; opts..., resolution)
+    @saveplot accuracy_class_acos_all_scaled = Plots.plot_sigma(acc_s, kernels; opts..., resolution=opts_big.resolution)
 end
 
 @info "Experiment run 4 (svms4_inc) - Increasing subsample"
@@ -151,12 +159,22 @@ end
 @info "Heatmaps"
 let
     heatmap_df = Plots.data_nrmse_s()
-    @saveplot heatmaps_rbf_asinnorm = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:RadialBasis, kernel_r=:AsinNorm, resolution=(2200, 1700))
-    @saveplot heatmaps_rbf_asin = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:RadialBasis, kernel_r=:Asin, resolution=(2200, 1700))
-    @saveplot heatmaps_asin_asinnorm = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:Asin, kernel_r=:AsinNorm, resolution=(2200, 1700))
-    @saveplot heatmaps_rbf_acos1 = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:RadialBasis, kernel_r=:Acos1, resolution=(2200, 1700))
+    local opts = (;
+        alpha=0.0001,
+        opts_big_vert...
+    )
+    @saveplot heatmaps_rbf_asinnorm = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:RadialBasis, kernel_r=:AsinNorm, opts...)
+    @saveplot heatmaps_rbf_asin = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:RadialBasis, kernel_r=:Asin, opts...)
+    @saveplot heatmaps_asin_asinnorm = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:Asin, kernel_r=:AsinNorm, opts...)
+    @saveplot heatmaps_rbf_acos1 = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:RadialBasis, kernel_r=:Acos1, opts...)
 
-    @saveplot heatmaps_rbf_asinnorm_pvalues = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:RadialBasis, kernel_r=:AsinNorm, measure=:per_fold, resolution=(2200, 1700))
+    @saveplot heatmaps_rbf_asinnorm_pvalues = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:RadialBasis, kernel_r=:AsinNorm, measure=:per_fold, opts...)
+    @saveplot heatmaps_rbf_asin_pvalues = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:RadialBasis, kernel_r=:Asin, measure=:per_fold, opts...)
+    @saveplot heatmaps_asin_asinnorm_pvalues = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:Asin, kernel_r=:AsinNorm, measure=:per_fold, opts...)
+    # @saveplot heatmaps_rbf_acos1_pvalues = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:RadialBasis, kernel_r=:Acos1, measure=:per_fold, opts...)
+
+    @saveplot heatmaps_asinnorm_asinnorm_ = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:AsinNorm, kernel_r=:AsinNorm, opts...)
+    @saveplot heatmaps_asinnorm_asinnorm_pvalues = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:AsinNorm, kernel_r=:AsinNorm, measure=:per_fold, opts...)
 
     # FIX: asinnorm against acos does not work.
     # @saveplot heatmaps_asinnorm_acos1 = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:Acos1, kernel_r=:AsinNorm, resolution=(2200, 1700))
@@ -167,10 +185,10 @@ let
     # @saveplot heatmaps_rbf_acos0 = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:RadialBasis, kernel_r=:Acos0, resolution=(2200, 1700))
     # @saveplot heatmaps_rbf_acos2 = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:RadialBasis, kernel_r=:Acos2, resolution=(2200, 1700))
 
-    @saveplot heatmaps_rbf_asinnorm_s = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:RadialBasis, kernel_r=:AsinNorm, sigma=:sigma_scaled, resolution=(2200, 1700))
-    @saveplot heatmaps_rbf_asin_s = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:RadialBasis, kernel_r=:Asin, sigma=:sigma_scaled, resolution=(2200, 1700))
-    @saveplot heatmaps_asin_asinnorm_s = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:Asin, kernel_r=:AsinNorm, sigma=:sigma_scaled, resolution=(2200, 1700))
-    @saveplot heatmaps_rbf_acos1_s = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:RadialBasis, kernel_r=:Acos1, sigma=:sigma_scaled, resolution=(2200, 1700))
+    @saveplot heatmaps_rbf_asinnorm_s = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:RadialBasis, kernel_r=:AsinNorm, sigma=:sigma_scaled, opts...)
+    @saveplot heatmaps_rbf_asin_s = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:RadialBasis, kernel_r=:Asin, sigma=:sigma_scaled, opts...)
+    @saveplot heatmaps_asin_asinnorm_s = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:Asin, kernel_r=:AsinNorm, sigma=:sigma_scaled, opts...)
+    @saveplot heatmaps_rbf_acos1_s = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:RadialBasis, kernel_r=:Acos1, sigma=:sigma_scaled, opts...)
 end
 
 @info "DONE in $(time() - start_time) seconds"

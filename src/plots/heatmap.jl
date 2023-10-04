@@ -1,5 +1,6 @@
 import ..Utils
 import ..Experiments
+import ..DataSets
 
 using DataFramesMeta
 using CategoricalArrays
@@ -51,7 +52,10 @@ function build_matrix(df1::AbstractDataFrame, df2::AbstractDataFrame; col=:value
 end
 
 function build_matrices_by_dataset(df=data_nrmse_s(); kernel_l=:RadialBasis, kernel_r=:AsinNorm, measure=:measurement, kwargs...)
-    groups = groupby(df, :dataset_cat)
+    groups = @chain df begin
+        @orderby(:is_delve, :dataset_cat)
+        groupby(:dataset_cat, sort=false)
+    end
 
     matrices = []
     labels = []
@@ -68,11 +72,13 @@ end
 
 function plot_all_heatmaps(df=data_nrmse_s(); kernel_l=:RadialBasis, kernel_r=:AsinNorm, sigma=:sigma, measure=:measurement,
     dims::Union{Nothing,Tuple{Int,Int}}=nothing,
-    breaks::Union{Nothing,Int}=nothing,
     linkxaxes=true,
     linkyaxes=true,
     show_grid=true,
     show_text=false,
+    show_labels=false,
+    num_breaks=5,
+    alpha=nothing,
     categorical=false,
     kwargs...)
 
@@ -80,28 +86,55 @@ function plot_all_heatmaps(df=data_nrmse_s(); kernel_l=:RadialBasis, kernel_r=:A
     ax_opts = ()
     mm = build_matrices_by_dataset(df; kernel_l, kernel_r, sigma, measure)
 
-    extremas = map(mm) do (_, _, mat)
-        extrema(mat)
+    if !isnothing(alpha)
+        # Remove non statistically significant values
+        if measure == :per_fold
+            @warn "Alpha is ignored when measure is :per_fold"
+            alpha = nothing
+        else
+            pmatrices = build_matrices_by_dataset(df; kernel_l, kernel_r, sigma, measure=:per_fold)
+
+            foreach(zip(mm, pmatrices)) do ((_, _, mat), (_, _, pmat))
+                for i in eachindex(mat)
+                    if pmat[i] > alpha
+                        mat[i] = NaN
+                    end
+                end
+            end
+        end
     end
-    vmax = max(abs.(minimum(first.(extremas))), maximum(last.(extremas)))
+
+    extremas = map(mm) do (_, _, mat)
+        nonnan_ = skipnan(mat)
+        if isempty(nonnan_)
+            @warn "Empty matrix"
+            (0, 0)
+        else
+            extrema(nonnan_)
+        end
+    end
+    vmax = round(max(abs.(minimum(first.(extremas))), maximum(last.(extremas))), sigdigits=1)
 
     if measure == :per_fold # we are ploting p-values
         colorrange = (0, 1)
         colormap = :devon
-        cb_label = L"p-value"
+        cb_label = L"$p$-value"
         categorical = true
     else
         colorrange = (-vmax, vmax)
+        if isnan(vmax)
+            @warn "Empty colorrange"
+            colorrange = (-1, 1)
+        end
         colormap = Reverse(:vik)
-        cb_label = L"\Delta nRMSE (%$(kernel_l) - %$(kernel_r))"
+        cb_label = L"$\Delta$nRMSE (%$(kernel_l) - %$(kernel_r))"
     end
-
 
     gr, axes, (m, _) = build_grid(fig[1, 1], length(mm), dims; ax_opts...)
 
     foreach(zip(axes, mm)) do (ax, (key, labels, matrix))
         ax.title = key[1] |> string
-        plot_heatmap(key, matrix, labels; kernel_l, kernel_r, fig, ax, colorrange, colormap, categorical, show_grid, show_text)
+        plot_heatmap(key, matrix, labels; kernel_l, kernel_r, fig, ax, colorrange, colormap, categorical, show_grid, show_text, show_labels, num_breaks)
     end
 
     if linkxaxes
@@ -118,16 +151,27 @@ function plot_all_heatmaps(df=data_nrmse_s(); kernel_l=:RadialBasis, kernel_r=:A
         end
     end
 
+    colgap!(gr, 10)
+    rowgap!(gr, 10)
+
+    variable_l = ifelse(kernel_l == :RadialBasis, "gamma", "sigma")
+    variable_r = ifelse(kernel_r == :RadialBasis, "gamma", "sigma")
+    BoxLabel(fig[1:end, 0], L"%$(kernel_l) ($\%$variable_l$)", rotation=pi / 2, tellheight=false, fontsize=21, padding=(5, 5, 5, 5))
+    BoxLabel(fig[end+1, 1:end], L"%$(kernel_r) ($\%$variable_r$)", tellwidth=false, fontsize=21, padding=(5, 5, 5, 5))
+
     if measure == :per_fold
-        breaks = [0, 0.001, 0.01, 0.1, 1]
-        n_categories = length(breaks) - 1
+        _, break_labels = p_breaks(num_breaks)
+        n_categories = length(break_labels)
         colormap = cgrad(colormap, n_categories, categorical=true)
-        break_labels = ["<0.001", "<0.01", "<0.1", ">0.1"]
-        label_pos = [0.5, 1.5, 2.5, 3.5] ./ n_categories
-        Colorbar(fig[:, end+1], limits=colorrange, colormap=colormap, label=cb_label, ticks=(label_pos, break_labels))
+        # label_pos = ([1 .. n_categories] .- 0.5) ./ n_categories
+        @info n_categories
+        label_pos = (range(1, n_categories, step=1) .- 0.5) ./ n_categories
+        Colorbar(fig[end+1, 1:end], limits=colorrange, colormap=colormap, label=cb_label, vertical=false, ticks=(label_pos, break_labels), flipaxis=false, labelsize=21)
     else
-        Colorbar(fig[:, end+1], limits=colorrange, colormap=colormap, label=cb_label)
+        @info colorrange, colormap, cb_label
+        Colorbar(fig[end+1, 1:end], limits=colorrange, colormap=colormap, label=cb_label, vertical=false, flipaxis=false, labelsize=21)
     end
+
 
     fig
 end
@@ -139,6 +183,26 @@ function plot_heatmap(mat, args...; kernel_l=:RadialBasis, kernel_r=:AsinNorm, k
     plot_heatmap(title, matrix, labels, args...; kernel_l, kernel_r, kwargs...)
 end
 
+function ten_exp_to_string(n)
+    if n < 0
+        return "0." * repeat("0", abs(n) - 1) * "1"
+    end
+    return "1" * repeat("0", n)
+end
+
+function p_breaks(n)
+    # breaks = [0, 0.001, 0.01, 0.1, 1]
+    exps = range(-n, 0)
+    breaks = 10.0 .^ exps
+    breaks = [0, breaks...]
+
+    breaks_str = ten_exp_to_string.(exps)
+    labels = [L"<%$(x)" for x in breaks_str[2:end-1]]
+    labels = append!(labels, [L"\geq%$(breaks_str[end-1])"])
+
+    breaks, labels
+end
+
 # WARN: this is a mess of x and y. Pretty sure it is correct. But should not
 # mess with it.
 function plot_heatmap(title, matrix, labels, args...; kernel_l, kernel_r, fig=Figure(),
@@ -148,6 +212,8 @@ function plot_heatmap(title, matrix, labels, args...; kernel_l, kernel_r, fig=Fi
     categorical=false,
     show_grid=true,
     show_text=!categorical,
+    show_labels=true,
+    num_breaks=5,
     kwargs...)
     ylabel = ifelse(kernel_l == :RadialBasis, "gamma", "sigma")
     ylabel = "$kernel_l ($ylabel)"
@@ -156,6 +222,9 @@ function plot_heatmap(title, matrix, labels, args...; kernel_l, kernel_r, fig=Fi
 
     ax.ylabel = ylabel
     ax.xlabel = xlabel
+
+    ax.xlabelvisible = show_labels
+    ax.ylabelvisible = show_labels
 
     doColorbar = isnothing(colorrange)
 
@@ -176,9 +245,10 @@ function plot_heatmap(title, matrix, labels, args...; kernel_l, kernel_r, fig=Fi
     end
 
     if categorical
-        breaks = [0, 0.001, 0.01, 0.1, 1]
-        mat_cat_s = cut(matrix, breaks)
-        n_categories = length(breaks) - 1
+        breaks, break_labels = p_breaks(num_breaks)
+        @info "Doing cuts on", title
+        mat_cat_s = cut(replace(matrix, NaN => 1), breaks, extend=true)
+        n_categories = length(break_labels)
         mat_cat = (levelcode.(mat_cat_s) .- 0.5) ./ n_categories
         colorrange = (0, 1)
         colormap = cgrad(colormap, n_categories, categorical=true)
@@ -196,8 +266,8 @@ function plot_heatmap(title, matrix, labels, args...; kernel_l, kernel_r, fig=Fi
     x_ticks = exp_x
     y_ticks = exp_y
 
-    ax.yticks = (x_ticks[1:2:end], x_labels[1:2:end])
-    ax.xticks = (y_ticks[1:2:end], y_labels[1:2:end])
+    ax.yticks = (x_ticks[1:3:end], x_labels[1:3:end])
+    ax.xticks = (y_ticks[1:3:end], y_labels[1:3:end])
 
     n = length(xs)
     m = length(ys)
@@ -214,8 +284,15 @@ function plot_heatmap(title, matrix, labels, args...; kernel_l, kernel_r, fig=Fi
         # Move heatmap to the back so that the grid is visible
         translate!(hm, 0, 0, -100)
 
-        ax.xminorticks = exp_y .+ 0.5
-        ax.yminorticks = exp_x .+ 0.5
+        yticks = exp_y .+ 0.5
+        xticks = exp_x .+ 0.5
+
+        append!(yticks, minimum(exp_y) - 0.5)
+        append!(xticks, minimum(exp_x) - 0.5)
+
+        ax.xminorticks = yticks
+        ax.yminorticks = xticks
+
         ax.xminorgridvisible = true
         ax.xgridcolor = :transparent
         ax.xminorgridcolor = RGBAf(0.5, 0.5, 0.5, 0.5)

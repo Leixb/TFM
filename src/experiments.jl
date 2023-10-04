@@ -160,6 +160,7 @@ function experiment_data(folder="svms", scan=true; kwargs...)
     df.measure_cv = df.measurement
     df.ms = @. Dates.value(df.duration)
     df.ms_per_iter = @. df.ms / df.n_iter / 5
+    @transform!(df, :is_delve = startswith.(string.(:dataset_cat), "Bank") .|| startswith.(string.(:dataset_cat), "Pumadyn"))
     @rsubset(df, !(:dataset isa DataSets.Servo))
 end
 

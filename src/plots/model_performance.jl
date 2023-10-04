@@ -178,6 +178,7 @@ function build_grid(pos::GridPosition, len::Int, dims::Union{Nothing,Tuple{Int,I
         n = Int(ceil(sqrt(len)))
         m = Int(ceil(len / n))
     else
+        @assert len <= prod(dims)
         (m, n) = dims
     end
 
@@ -201,6 +202,7 @@ function plot_sigma(
     show_bands::Bool=(measure == :measure_cv),
     interactive::Bool=is_interactive(),
     ax_opts::NamedTuple=(; xscale=log10),
+    vertical::Bool=false,
     kwargs...
 )
 
@@ -245,11 +247,11 @@ function plot_sigma(
         toggles_dict["RadialBasis"].active = show_rbf
     end
 
-    gr, axes, (m, _) = build_grid(fig[1, 1], length(datasets), dims; ax_opts...)
+    gr, axes, (m, n) = build_grid(fig[1, 1], length(datasets), dims; ax_opts...)
 
     df_groups = @chain df begin
-        sort(:sigma)
-        groupby(:dataset_cat)
+        @orderby(:is_delve, :dataset_cat, :sigma)
+        groupby(:dataset_cat, sort=false)
         zip(axes)
     end
 
@@ -301,7 +303,7 @@ function plot_sigma(
 
     Label(fig[1, 0], text=measure_name, font=:bold, fontsize=20, tellheight=false, rotation=pi / 2)
     Label(fig[2, 1], text=L"\sigma_w", font=:bold, fontsize=20, tellwidth=false)
-    Label(fig[0, 1:2], text="Sigma vs $measure_name by Dataset ($resampling)", font=:bold, fontsize=20, tellwidth=false)
+    Label(fig[0, 1], text="Sigma vs $measure_name by Dataset ($resampling)", font=:bold, fontsize=20, tellwidth=false)
 
     if linkxaxes && !interactive
         linkxaxes!(axes...)
@@ -318,9 +320,30 @@ function plot_sigma(
     end
 
     trim!(gr)
+    rowgap!(gr, 10)
+    colgap!(gr, 10)
 
     if !interactive
-        Legend(fig[1, 2], axes[1], "Kernels", merge=true, framevisible=false)
+        tellwidth = !vertical
+        tellheight = vertical
+
+        (n, m) = size(gr)
+
+        pos = if n * m > length(datasets) # if there is a cell available, use that
+            vertical = false
+            tellwidth = false
+            tellheight = false
+
+            gr[n, m]
+        elseif vertical
+            fig[end+1, 1]
+        else
+            fig[1, 2]
+        end
+        @info vertical, tellwidth, tellheight
+        Legend(pos, axes[1], "Kernels"; merge=true, framevisible=false,
+            orientation=ifelse(vertical, :horizontal, :vertical),
+            tellwidth, tellheight)
         return fig
     end
 
