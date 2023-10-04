@@ -2,6 +2,9 @@ import ..Utils
 import ..Experiments
 
 using DataFramesMeta
+using CategoricalArrays
+
+import MLJBase: skipnan
 
 # FIX: move this to a more sensible place and use it in the other files
 function data_nrmse_s()
@@ -65,8 +68,12 @@ end
 
 function plot_all_heatmaps(df=data_nrmse_s(); kernel_l=:RadialBasis, kernel_r=:AsinNorm, sigma=:sigma, measure=:measurement,
     dims::Union{Nothing,Tuple{Int,Int}}=nothing,
+    breaks::Union{Nothing,Int}=nothing,
     linkxaxes=true,
     linkyaxes=true,
+    show_grid=true,
+    show_text=false,
+    categorical=false,
     kwargs...)
 
     fig = Figure(; kwargs...)
@@ -80,11 +87,12 @@ function plot_all_heatmaps(df=data_nrmse_s(); kernel_l=:RadialBasis, kernel_r=:A
 
     if measure == :per_fold # we are ploting p-values
         colorrange = (0, 1)
-        colormap = :Blues
+        colormap = :devon
         cb_label = L"p-value"
+        categorical = true
     else
         colorrange = (-vmax, vmax)
-        colormap = :RdBu
+        colormap = Reverse(:vik)
         cb_label = L"\Delta nRMSE (%$(kernel_l) - %$(kernel_r))"
     end
 
@@ -93,7 +101,7 @@ function plot_all_heatmaps(df=data_nrmse_s(); kernel_l=:RadialBasis, kernel_r=:A
 
     foreach(zip(axes, mm)) do (ax, (key, labels, matrix))
         ax.title = key[1] |> string
-        plot_heatmap(key, matrix, labels; kernel_l, kernel_r, fig, ax, colorrange, colormap)
+        plot_heatmap(key, matrix, labels; kernel_l, kernel_r, fig, ax, colorrange, colormap, categorical, show_grid, show_text)
     end
 
     if linkxaxes
@@ -110,7 +118,16 @@ function plot_all_heatmaps(df=data_nrmse_s(); kernel_l=:RadialBasis, kernel_r=:A
         end
     end
 
-    Colorbar(fig[:, end+1], limits=colorrange, colormap=colormap, label=cb_label)
+    if measure == :per_fold
+        breaks = [0, 0.001, 0.01, 0.1, 1]
+        n_categories = length(breaks) - 1
+        colormap = cgrad(colormap, n_categories, categorical=true)
+        break_labels = ["<0.001", "<0.01", "<0.1", ">0.1"]
+        label_pos = [0.5, 1.5, 2.5, 3.5] ./ n_categories
+        Colorbar(fig[:, end+1], limits=colorrange, colormap=colormap, label=cb_label, ticks=(label_pos, break_labels))
+    else
+        Colorbar(fig[:, end+1], limits=colorrange, colormap=colormap, label=cb_label)
+    end
 
     fig
 end
@@ -127,7 +144,10 @@ end
 function plot_heatmap(title, matrix, labels, args...; kernel_l, kernel_r, fig=Figure(),
     ax=Axis(fig[1, 1]; title),
     colorrange=nothing,
-    colormap=:RdBu,
+    colormap=Reverse(:vik),
+    categorical=false,
+    show_grid=true,
+    show_text=!categorical,
     kwargs...)
     ylabel = ifelse(kernel_l == :RadialBasis, "gamma", "sigma")
     ylabel = "$kernel_l ($ylabel)"
@@ -140,7 +160,7 @@ function plot_heatmap(title, matrix, labels, args...; kernel_l, kernel_r, fig=Fi
     doColorbar = isnothing(colorrange)
 
     if doColorbar
-        valmax = maximum(abs.(matrix))
+        valmax = maximum(abs.(skipnan(matrix)))
         colorrange = (-valmax, valmax)
     else
         valmax = maximum(abs.(colorrange))
@@ -153,6 +173,15 @@ function plot_heatmap(title, matrix, labels, args...; kernel_l, kernel_r, fig=Fi
     if kernel_l == :RadialBasis
         matrix = reverse(matrix, dims=2)
         xs = reverse(xs)
+    end
+
+    if categorical
+        breaks = [0, 0.001, 0.01, 0.1, 1]
+        mat_cat_s = cut(matrix, breaks)
+        n_categories = length(breaks) - 1
+        mat_cat = (levelcode.(mat_cat_s) .- 0.5) ./ n_categories
+        colorrange = (0, 1)
+        colormap = cgrad(colormap, n_categories, categorical=true)
     end
 
     exp_x = round.(Int, log10.(xs))
@@ -175,11 +204,35 @@ function plot_heatmap(title, matrix, labels, args...; kernel_l, kernel_r, fig=Fi
 
     # ax2 = Axis(fig[1, 2], title="sigma", xlabel="gamma", ylabel="sigma")
     # hm = heatmap!(ax, 1:7, 1:11, matrix, colormap=:RdBu, colorrange=colorrange)
-    hm = heatmap!(ax, exp_y, exp_x, matrix; colormap, colorrange)
+    if categorical
+        hm = heatmap!(ax, exp_y, exp_x, mat_cat; colormap, colorrange)
+    else
+        hm = heatmap!(ax, exp_y, exp_x, matrix; colormap, colorrange)
+    end
 
-    values = string.(round.(matrix, digits=2))
+    if show_grid
+        # Move heatmap to the back so that the grid is visible
+        translate!(hm, 0, 0, -100)
 
-    text!(ax, values[:],
+        ax.xminorticks = exp_y .+ 0.5
+        ax.yminorticks = exp_x .+ 0.5
+        ax.xminorgridvisible = true
+        ax.xgridcolor = :transparent
+        ax.xminorgridcolor = RGBAf(0.5, 0.5, 0.5, 0.5)
+        ax.yminorgridvisible = true
+        ax.ygridcolor = :transparent
+        ax.yminorgridcolor = RGBAf(0.5, 0.5, 0.5, 0.5)
+    end
+
+    values = map(string.(round.(matrix, digits=2))) do x
+        if x == "NaN"
+            ""
+        else
+            x
+        end
+    end
+
+    show_text && text!(ax, values[:],
         # position=[Point2f(y, x) for x in 1:n for y in 1:m],
         position=[Point2f(y, x) for x in exp_x for y in exp_y],
         color=ifelse.(matrix .> valmax / 1.5, :white, :black),
