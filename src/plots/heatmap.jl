@@ -78,13 +78,22 @@ function plot_all_heatmaps(df=data_nrmse_s(); kernel_l=:RadialBasis, kernel_r=:A
     end
     vmax = max(abs.(minimum(first.(extremas))), maximum(last.(extremas)))
 
-    colorrange = (-vmax, vmax)
+    if measure == :per_fold # we are ploting p-values
+        colorrange = (0, 1)
+        colormap = :Blues
+        cb_label = L"p-value"
+    else
+        colorrange = (-vmax, vmax)
+        colormap = :RdBu
+        cb_label = L"\Delta nRMSE (%$(kernel_l) - %$(kernel_r))"
+    end
+
 
     gr, axes, (m, _) = build_grid(fig[1, 1], length(mm), dims; ax_opts...)
 
     foreach(zip(axes, mm)) do (ax, (key, labels, matrix))
         ax.title = key[1] |> string
-        plot_heatmap(key, matrix, labels; kernel_l, kernel_r, fig, ax, colorrange)
+        plot_heatmap(key, matrix, labels; kernel_l, kernel_r, fig, ax, colorrange, colormap)
     end
 
     if linkxaxes
@@ -101,7 +110,7 @@ function plot_all_heatmaps(df=data_nrmse_s(); kernel_l=:RadialBasis, kernel_r=:A
         end
     end
 
-    Colorbar(fig[:, end+1], limits=colorrange, colormap=:RdBu, label=L"\Delta nRMSE (%$(kernel_l) - %$(kernel_r))")
+    Colorbar(fig[:, end+1], limits=colorrange, colormap=colormap, label=cb_label)
 
     fig
 end
@@ -118,6 +127,7 @@ end
 function plot_heatmap(title, matrix, labels, args...; kernel_l, kernel_r, fig=Figure(),
     ax=Axis(fig[1, 1]; title),
     colorrange=nothing,
+    colormap=:RdBu,
     kwargs...)
     ylabel = ifelse(kernel_l == :RadialBasis, "gamma", "sigma")
     ylabel = "$kernel_l ($ylabel)"
@@ -165,7 +175,7 @@ function plot_heatmap(title, matrix, labels, args...; kernel_l, kernel_r, fig=Fi
 
     # ax2 = Axis(fig[1, 2], title="sigma", xlabel="gamma", ylabel="sigma")
     # hm = heatmap!(ax, 1:7, 1:11, matrix, colormap=:RdBu, colorrange=colorrange)
-    hm = heatmap!(ax, exp_y, exp_x, matrix, colormap=:RdBu, colorrange=colorrange)
+    hm = heatmap!(ax, exp_y, exp_x, matrix; colormap, colorrange)
 
     values = string.(round.(matrix, digits=2))
 
