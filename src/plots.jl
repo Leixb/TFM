@@ -17,7 +17,8 @@ const options = (;
     band_opacity=0.3,
     rbf_color=:red,
     rbf_linestyle=:dot,
-    rbf_linewidth=2
+    rbf_linewidth=2,
+    framevisible=true # Show legend frame
 )
 
 include("./plots/helpers.jl")

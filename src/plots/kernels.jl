@@ -34,7 +34,7 @@ function plot_kernel(kernel=kernel_asin_normalized, args...;
             end
         end
         # axislegend(L"\sigma_w")
-        fig[1, 2] = Legend(fig, ax, L"\sigma_w", framevisible=false)
+        fig[1, 2] = Legend(fig, ax, L"\sigma_w", framevisible=options.framevisible)
     end
 
     ylims!(ax, 0.5, 1)

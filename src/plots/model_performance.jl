@@ -153,7 +153,7 @@ function plot_delve(df::DataFrame, dataset::Type{<:DataSets.Delve},
 
     # Axis labels
     Label(fig[1:2, 3], name(measure_type), rotation=pi / 2, font=:bold)
-    Legend(fig[1:2, 4], ax.fm, "Kernel", framevisible=false, merge=true)
+    Legend(fig[1:2, 4], ax.fm, "Kernel", framevisible=options.framevisible, merge=true)
     Label(fig[3, 1:2], L"\sigma_w", font=:bold)
 
     fig
@@ -308,8 +308,8 @@ function plot_sigma(
     resampling = string(df.resampling[1])
     measure_name = name(measure_type)
 
-    BoxLabel(fig[1, 0], text=measure_name, font=:bold, fontsize=20, tellheight=false, rotation=pi / 2)
-    BoxLabel(fig[2, 1], text=L"\sigma_w", font=:bold, fontsize=20, tellwidth=false)
+    Label(fig[1, 0], text=measure_name, font=:bold, fontsize=17, tellheight=false, rotation=pi / 2)
+    Label(fig[2, 1], text=L"Sigma ($\sigma_w$)", font=:bold, fontsize=17, tellwidth=false)
     Label(fig[0, 1], text="Sigma vs $measure_name by Dataset ($resampling)", font=:bold, fontsize=20, tellwidth=false)
 
     if linkxaxes && !interactive
@@ -347,7 +347,7 @@ function plot_sigma(
         else
             fig[1, 2]
         end
-        Legend(pos, axes[1], "Kernels"; merge=true, framevisible=false,
+        Legend(pos, axes[1], "Kernels"; merge=true, framevisible=options.framevisible,
             orientation=ifelse(vertical, :horizontal, :vertical),
             tellwidth, tellheight)
         return fig
@@ -439,9 +439,9 @@ function plot_frenay()
         LineElement(color=options.rbf_color, linestyle=options.rbf_linestyle, points=Point2f[(0, 0.25), (1, 0.25)])
     ]
 
-    Legend(fig[3, 3], [entry1, entry2], ["AsinNorm", "RBF"], "Kernel", tellwidth=false, tellheight=false)
+    Legend(fig[3, 3], [entry1, entry2], ["AsinNorm", "RBF"], "Kernel", tellwidth=false, tellheight=false, framevisible=options.framevisible)
 
-    Label(fig[end+1, :], "Sigma")
+    Label(fig[end+1, :], L"Sigma ($\sigma$)", fontsize=17)
 
     fig
 end

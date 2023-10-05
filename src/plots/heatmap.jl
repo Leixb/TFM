@@ -156,19 +156,17 @@ function plot_all_heatmaps(df=data_nrmse_s(); kernel_l=:RadialBasis, kernel_r=:A
 
     variable_l = ifelse(kernel_l == :RadialBasis, "gamma", "sigma")
     variable_r = ifelse(kernel_r == :RadialBasis, "gamma", "sigma")
-    BoxLabel(fig[1:end, 0], L"%$(kernel_l) ($\%$variable_l$)", rotation=pi / 2, tellheight=false, fontsize=21, padding=(5, 5, 5, 5))
-    BoxLabel(fig[end+1, 1:end], L"%$(kernel_r) ($\%$variable_r$)", tellwidth=false, fontsize=21, padding=(5, 5, 5, 5))
+    Label(fig[1:end, 0], L"%$(kernel_l) ($\%$variable_l$)", rotation=pi / 2, tellheight=false, fontsize=21)
+    Label(fig[end+1, 1:end], L"%$(kernel_r) ($\%$variable_r$)", tellwidth=false, fontsize=21)
 
     if measure == :per_fold
         _, break_labels = p_breaks(num_breaks)
         n_categories = length(break_labels)
         colormap = cgrad(colormap, n_categories, categorical=true)
         # label_pos = ([1 .. n_categories] .- 0.5) ./ n_categories
-        @info n_categories
         label_pos = (range(1, n_categories, step=1) .- 0.5) ./ n_categories
         Colorbar(fig[end+1, 1:end], limits=colorrange, colormap=colormap, label=cb_label, vertical=false, ticks=(label_pos, break_labels), flipaxis=false, labelsize=21)
     else
-        @info colorrange, colormap, cb_label
         Colorbar(fig[end+1, 1:end], limits=colorrange, colormap=colormap, label=cb_label, vertical=false, flipaxis=false, labelsize=21)
     end
 
@@ -246,7 +244,6 @@ function plot_heatmap(title, matrix, labels, args...; kernel_l, kernel_r, fig=Fi
 
     if categorical
         breaks, break_labels = p_breaks(num_breaks)
-        @info "Doing cuts on", title
         mat_cat_s = cut(replace(matrix, NaN => 1), breaks, extend=true)
         n_categories = length(break_labels)
         mat_cat = (levelcode.(mat_cat_s) .- 0.5) ./ n_categories
