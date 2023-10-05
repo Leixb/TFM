@@ -31,7 +31,7 @@ function data_heatmap(df_heat::AbstractDataFrame=data_nrmse_s(); kernel_l=:Radia
     get_df(kernel_l), get_df(kernel_r)
 end
 
-function build_matrix(df1::AbstractDataFrame, df2::AbstractDataFrame; col=:value, kernel_l=:RadialBasis, kernel_r=:AsinNorm, sigma=:sigma, args...)
+function build_matrix(df1::AbstractDataFrame, df2::AbstractDataFrame; col=:value, kernel_l=:RadialBasis, kernel_r=:AsinNorm, sigma=:sigma, calc=:pvalue)
     # combine the two columns and do a matrix with the differences
     mat = zeros(size(df1, 1), size(df2, 1))
 
@@ -41,7 +41,13 @@ function build_matrix(df1::AbstractDataFrame, df2::AbstractDataFrame; col=:value
     for (i, row1) in enumerate(eachrow(df1))
         for (j, row2) in enumerate(eachrow(df2))
             if row1[col] isa AbstractArray
-                mat[i, j] = Experiments.paired_ttest_5x2cv(row1[col], row2[col])[2] # (t-stat, p-value)[1] -> t-stat
+                if calc == :pvalue
+                    mat[i, j] = Experiments.paired_ttest_5x2cv(row1[col], row2[col])[2] # (t-stat, p-value)[1] -> t-stat
+                elseif calc == :tstat
+                    mat[i, j] = Experiments.paired_ttest_5x2cv(row1[col], row2[col])[1] # (t-stat, p-value)[1] -> t-stat
+                else
+                    error("Unknown calculation ($calc) for ttest matrix (only :pvalue and :tstat are supported))")
+                end
             else
                 mat[i, j] = row1[col] - row2[col]
             end
@@ -51,7 +57,7 @@ function build_matrix(df1::AbstractDataFrame, df2::AbstractDataFrame; col=:value
     xs, ys, mat
 end
 
-function build_matrices_by_dataset(df=data_nrmse_s(); kernel_l=:RadialBasis, kernel_r=:AsinNorm, measure=:measurement, kwargs...)
+function build_matrices_by_dataset(df=data_nrmse_s(); kernel_l=:RadialBasis, kernel_r=:AsinNorm, measure=:measurement, calc=:pvalue, kwargs...)
     groups = @chain df begin
         @orderby(:is_delve, :dataset_cat)
         groupby(:dataset_cat, sort=false)
@@ -62,7 +68,7 @@ function build_matrices_by_dataset(df=data_nrmse_s(); kernel_l=:RadialBasis, ker
 
     foreach(groups) do group
         df1, df2 = data_heatmap(group; kernel_l, kernel_r, measure)
-        xs, ys, m = build_matrix(df1, df2; kernel_l, kernel_r, kwargs...)
+        xs, ys, m = build_matrix(df1, df2; kernel_l, kernel_r, calc, kwargs...)
         push!(matrices, m)
         push!(labels, (xs, ys))
     end
