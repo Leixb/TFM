@@ -214,7 +214,7 @@ function svm_parameter_grid(; step::Float64=1.0, datasets=nothing, acos=false, r
     # These kernels cannot be scaled by sigma (they are insensitive to it)
     kernels_nosigma = [LIBSVM.Kernel.Acos0, LIBSVM.Kernel.Acos1Norm, LIBSVM.Kernel.Acos2Norm]
 
-    sigma_asin = 10 .^ (-3:step:6)
+    sigma_asin = 10 .^ (-3:step:8)
 
     # INFO: We avoid using @onlyif since it is quite slow
     # Instead, we just do each dataset separately
