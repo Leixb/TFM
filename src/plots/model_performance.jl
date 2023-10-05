@@ -17,13 +17,20 @@ function plot_best(df)
     fg
 end
 
-function plot_rbf(ax::Axis, df_rbf::AbstractDataFrame, measure::Symbol, measurement_type::Type{<:MLJBase.Measure})
+function plot_rbf(ax::Axis, df_rbf::AbstractDataFrame, measure::Symbol, measurement_type::Type{<:MLJBase.Measure}; show_std=false)
     # Make sure all rows are "RadialBasis"
     @assert allequal(df_rbf.kernel)
     @assert df_rbf.kernel[1] |> string == "RadialBasis"
 
-    best = summarizer(measurement_type)(getproperty(df_rbf, measure))
-    hlines!(ax, [best], label="RBF (best)", color=options.rbf_color, linestyle=options.rbf_linestyle, linewidth=options.rbf_linewidth)
+    select!(df_rbf, Not(:nrow))
+    best = summarize_best(df_rbf, [:kernel_cat], by=measure, maximum=is_maximize(measurement_type))
+
+    hlines!(ax, getproperty(best, measure), label="RBF (best)", color=options.rbf_color, linestyle=ifelse(show_std, :dash, options.rbf_linestyle), linewidth=options.rbf_linewidth)
+
+    if show_std
+        hlines!(ax, getproperty(best, measure) .+ best.std, color=options.rbf_color, linestyle=options.rbf_linestyle, linewidth=options.rbf_linewidth)
+        hlines!(ax, getproperty(best, measure) .- best.std, color=options.rbf_color, linestyle=options.rbf_linestyle, linewidth=options.rbf_linewidth)
+    end
 end
 
 
@@ -280,7 +287,7 @@ function plot_sigma(
         if show_rbf
             df_rbf = @rsubset(df_group, :kernel_cat == "RadialBasis")
             if !isempty(df_rbf)
-                hline = plot_rbf(ax, df_rbf, measure, measure_type)
+                hline = plot_rbf(ax, df_rbf, measure, measure_type, show_std=show_bands)
                 interactive && connect!(hline.visible, toggles_dict["RadialBasis"].active)
             end
         end
@@ -301,8 +308,8 @@ function plot_sigma(
     resampling = string(df.resampling[1])
     measure_name = name(measure_type)
 
-    Label(fig[1, 0], text=measure_name, font=:bold, fontsize=20, tellheight=false, rotation=pi / 2)
-    Label(fig[2, 1], text=L"\sigma_w", font=:bold, fontsize=20, tellwidth=false)
+    BoxLabel(fig[1, 0], text=measure_name, font=:bold, fontsize=20, tellheight=false, rotation=pi / 2)
+    BoxLabel(fig[2, 1], text=L"\sigma_w", font=:bold, fontsize=20, tellwidth=false)
     Label(fig[0, 1], text="Sigma vs $measure_name by Dataset ($resampling)", font=:bold, fontsize=20, tellwidth=false)
 
     if linkxaxes && !interactive
@@ -340,7 +347,6 @@ function plot_sigma(
         else
             fig[1, 2]
         end
-        @info vertical, tellwidth, tellheight
         Legend(pos, axes[1], "Kernels"; merge=true, framevisible=false,
             orientation=ifelse(vertical, :horizontal, :vertical),
             tellwidth, tellheight)
@@ -394,4 +400,48 @@ function plot_sigma(
 
     fig
 
+end
+
+function plot_frenay()
+    fig = Figure()
+
+    frenay_small = sort!(CSV.read(datadir("frenay_table2.csv"), DataFrame), :sigma)
+    frenay_large = sort!(CSV.read(datadir("frenay_table3.csv"), DataFrame), :sigma)
+
+    rbf_large = frenay_large[frenay_large.kernel.=="RBF", :]
+    rbf_small = frenay_small[frenay_small.kernel.=="RBF", :]
+
+    asin = data(vcat(frenay_large, frenay_small) |> dropmissing) *
+           mapping(:sigma, :mse => "MSE", lower=:lower, upper=:upper, color=:kernel) *
+           (visual(LinesFill) + visual(Scatter))
+
+    facet = mapping(layout=:dataset)
+
+    rbf = data(vcat(rbf_large, rbf_small)) * (
+        (mapping(:upper) + mapping(:lower)) *
+        visual(HLines, color=options.rbf_color, linestyle=options.rbf_linestyle) +
+        mapping(:mse => "MSE") * visual(HLines, color=options.rbf_color)
+    )
+
+    plt = (rbf + asin) * facet
+
+    grid = draw!(fig, plt, facet=(; linkyaxes=:none), axis=(; xscale=log10))
+
+    # Work around to put the legend on the bottom right and have a custom
+    # Design for RBF
+    legend = AlgebraOfGraphics.compute_legend(grid)
+
+    entry1 = legend[1][1]
+
+    entry2 = [
+        LineElement(color=options.rbf_color, linestyle=options.rbf_linestyle, points=Point2f[(0, 0.75), (1, 0.75)])
+        LineElement(color=options.rbf_color)
+        LineElement(color=options.rbf_color, linestyle=options.rbf_linestyle, points=Point2f[(0, 0.25), (1, 0.25)])
+    ]
+
+    Legend(fig[3, 3], [entry1, entry2], ["AsinNorm", "RBF"], "Kernel", tellwidth=false, tellheight=false)
+
+    Label(fig[end+1, :], "Sigma")
+
+    fig
 end

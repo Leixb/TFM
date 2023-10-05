@@ -53,6 +53,8 @@ let
     end
     @saveplot MSE_all = Plots.plot_sigma(mse; opts..., show_bands)
     @saveplot MSE_frenay = Plots.plot_sigma(@rsubset(mse, :dataset isa DataSets.Frenay); opts..., show_bands)
+
+    @saveplot MSE_frenay_original = Plots.plot_frenay()
 end
 
 @info "Experiment run 2 (svms_2/) Normalized RMSE"

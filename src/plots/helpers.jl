@@ -92,10 +92,9 @@ end
 unlinkxaxes!(a::Axis, others...) = unlinkaxes!(Val(:x), a, others...)
 unlinkyaxes!(a::Axis, others...) = unlinkaxes!(Val(:y), a, others...)
 
-# return the method to use for getting the best value of a measure
-# Basically, we want to minimize MSE and maximize Accuracy
-summarizer(::Type{<:MLJBase.Measure}) = minimum
-summarizer(::Type{MLJ.Accuracy}) = maximum
+# We want to minimize MSE and maximize Accuracy
+is_maximize(::Type{<:MLJBase.Measure}) = false
+is_maximize(::Type{MLJ.Accuracy}) = true
 
 # Convenience functions to Name different types consistently
 name(m::Type{<:MLJBase.Measure}) = m |> string |> titlecase
@@ -115,9 +114,9 @@ function.
 wrap_tuple = fn -> (x -> fn(x...))
 
 """Useful for faceting, allows to create a box with a label inside"""
-function BoxLabel(fig::GridPosition, args...; kwargs...)
-    Box(fig)
-    Label(fig, args...; kwargs...)
+function BoxLabel(fig::GridPosition, args...; padding=(5, 5, 5, 5), boxopts=(;), kwargs...)
+    Box(fig; boxopts...)
+    Label(fig, args...; padding, kwargs...)
 end
 
 """
