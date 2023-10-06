@@ -87,6 +87,8 @@ url(ds::DataSet) = error("url not implemented for $(typeof(ds))")
 # doi(ds::DataSet) returns the DOI of the relevant paper that uses the dataset.
 doi(::DataSet) = nothing
 
+num_features(ds::DataSet) = size(unpack(ds)[1], 2)
+
 "List of all datasets defined in the module"
 all = Vector{DataSet}()
 
@@ -368,6 +370,8 @@ preprocess(::MNIST) = function (data)
 end
 
 @memoize unpack(ds::MNIST) = data(ds)
+
+num_features(ds::MNIST) = 784
 
 url(::MNIST) = "http://yann.lecun.com/exdb/mnist/"
 

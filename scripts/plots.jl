@@ -52,10 +52,14 @@ let
         Plots.regression
     end
     @saveplot MSE_all = Plots.plot_sigma(mse; opts..., show_bands)
-    @saveplot MSE_frenay = Plots.plot_sigma(@rsubset(mse, :dataset isa DataSets.Frenay); opts..., show_bands)
 
+    @saveplot MSE_frenay = Plots.plot_sigma(@rsubset(mse, :dataset isa DataSets.Frenay), ["AsinNorm"]; opts..., show_bands)
     @saveplot MSE_frenay_original = Plots.plot_frenay()
 end
+
+# measure_test is the result of the evaluation on the test set
+# measurement is the result of the evaluation when doing cross-validation
+# std is the standard deviation of the measurement
 
 @info "Experiment run 2 (svms_2/) Normalized RMSE"
 let
@@ -66,6 +70,8 @@ let
     local nrmse = @chain experiment_data("svms_2", false) begin
         Plots.summarize_best([:kernel_cat, :dataset_cat, :sigma], by=:measurement)
         Plots.regression()
+        @rtransform(:n_feat = Plots.num_features[:dataset_cat])
+        @transform(:corrected_sigma = :sigma .* :n_feat)
     end
     @saveplot nRMSE_all = Plots.plot_sigma(nrmse; opts..., opts_big_vert..., vertical=true)
     @saveplot nRMSE_frenay = Plots.plot_sigma(@rsubset(nrmse, :dataset isa DataSets.Frenay); opts...)
@@ -80,12 +86,17 @@ let
     local data_ex3 = experiment_data("svms3", scan_dirs)
 
     local nrmse_s = @chain data_ex3 begin
-        Plots.summarize_best([:kernel_cat, :dataset_cat, :sigma])
+        Plots.summarize_best([:kernel_cat, :dataset_cat, :sigma], by=:measure_test)
         Plots.regression()
+        @rtransform(:n_feat = Plots.num_features[:dataset_cat])
+        @transform(:corrected_sigma = :sigma .* :n_feat)
     end
     local opts = (;
         linkyaxes=true, linkxaxes=true,
-        sigma=:sigma_scaled,
+        sigma=:corrected_sigma,
+        measure=:measure_cv,
+        std=:measure_std,
+        show_bands=true,
         show_rbf=true
     )
 
@@ -118,6 +129,8 @@ let
     local acc_s = @chain data_ex3 begin
         Plots.summarize_best([:kernel_cat, :dataset_cat, :sigma]; by=:measurement, maximum=true)
         Plots.classification()
+        @rtransform(:n_feat = Plots.num_features[:dataset_cat])
+        @transform(:corrected_sigma = :sigma .* :n_feat)
     end
 
     @saveplot accuracy_class_all_scaled = Plots.plot_sigma(acc_s; opts..., show_bands, resolution=opts_big.resolution)
