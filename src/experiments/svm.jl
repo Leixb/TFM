@@ -94,8 +94,9 @@ function run(svm::SVMConfig)::Tuple{PerformanceEvaluation,ExecutionInfo,Machine}
     end
 
     n = length(ytrain)
+    m = size(Xtrain, 2)
     if svm.scale_sigma && svm.kernel != LIBSVM.Kernel.RadialBasis
-        sigma = Utils.gamma2sigma(svm.gamma) / n
+        sigma = Utils.gamma2sigma(svm.gamma) / m
         gamma = Utils.sigma2gamma(sigma)
     else
         gamma = svm.gamma
