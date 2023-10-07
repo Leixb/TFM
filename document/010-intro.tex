@@ -122,12 +122,25 @@ insights on their limitations.
 
 Due to the nature of the analysis, we need a wide variety of datasets in order
 to observe the behaviour of the kernels in different scenarios. The chosen
-datasets are summarized in \cref{tab:datasets}.
+datasets are summarized in \cref{tab:datasets_regression,tab:datasets_classification}.
 
 \begin{table}[H]
-    \caption{Summary of datasets used in this thesis}
-    \label{tab:datasets}
-    \input{tables/datasets.tex}
+    \begin{threeparttable}
+        \caption{Regression datasets used in this thesis}
+        \label{tab:datasets_regression}
+        \input{tables/datasets.tex}
+        \begin{tablenotes}
+            \item[a] The Bank and Pumadyn consist of 8 synthetic datasets each. With different
+            number of features (8/32), more linearity or less linearity and more or less noise.
+        \end{tablenotes}
+        % INFO: keep this up to date with scripts/tables.jl
+    \end{threeparttable}
+\end{table}
+
+\begin{table}[H]
+    \caption{Classification datasets used in this thesis}
+    \label{tab:datasets_classification}
+    \input{tables/datasets_cat.tex}
     % INFO: keep this up to date with scripts/tables.jl
 \end{table}
 

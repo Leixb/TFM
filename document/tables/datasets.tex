@@ -1,24 +1,26 @@
-\begin{tabular}{lcrrc}
+\begin{tabular}{lcrr}
 	\toprule
-	\textbf{name}      & \textbf{doi}              & \textbf{rows} & \textbf{features} & \textbf{target} \\\midrule
-	Abalone            & 10.24432/C55C7W           & 4177          & 8                 & Regression      \\
-	Adult              & 10.24432/C5XW20           & 48842         & 13                & Classification  \\
-	Ailerons           &                           & 7154          & 7                 & Regression      \\
-	Cancer             & 10.24432/C5GK50           & 198           & 32                & Regression      \\
-	CompActs           &                           & 8192          & 21                & Regression      \\
-	CPU                & 10.24432/C5830D           & 209           & 6                 & Regression      \\
-	Elevators          &                           & 8752          & 6                 & Regression      \\
-	Stock              &                           & 950           & 9                 & Regression      \\
-	Triazines          & 10.1080/08839519508945474 & 186           & 58                & Regression      \\
-	Servo              &                           & 167           & 4                 & Regression      \\
-	Iris               &                           & 150           & 4                 & Classification  \\
-	Wine               &                           & 178           & 13                & Classification  \\
-	CancerDiagnostic   &                           & 569           & 30                & Classification  \\
-	Bank Family$^1$    &                           & 8192          & 32/8              & Regression      \\
-	Pumadyn Family$^1$ &                           & 8192          & 32/8              & Regression      \\
-	Ionosphere         & 10.24432/C5W01B           & 351           & 34                & Classification  \\\bottomrule
+	\textbf{Name}           & \textbf{DOI}                                                                      & \textbf{Rows} & \textbf{Columns} \\\midrule
+	Abalone                 & \href{https://doi.org/10.24432/C55C7W}{10.24432/C55C7W}                           & 4177          & 9                \\
+	Ailerons                & \href{https://doi.org/10.1016/j.neucom.2010.11.037}{10.1016/j.neucom.2010.11.037} & 7154          & 8                \\
+	AutoMpg                 & \href{https://doi.org/10.24432/C5859H}{10.24432/C5859H}                           & 392           & 8                \\
+	BikeSharingDay          & \href{https://doi.org/10.24432/C5W894}{10.24432/C5W894}                           & 731           & 16               \\
+	BikeSharingHour         & \href{https://doi.org/10.24432/C5W894}{10.24432/C5W894}                           & 17379         & 17               \\
+	\addlinespace
+	CPU                     & \href{https://doi.org/10.1016/j.neucom.2010.11.037}{10.1016/j.neucom.2010.11.037} & 209           & 7                \\
+	Cancer                  & \href{https://doi.org/10.24432/C5GK50}{10.24432/C5GK50}                           & 198           & 33               \\
+	CommunitiesAndCrime     & \href{https://doi.org/10.24432/C53W3X}{10.24432/C53W3X}                           & 123           & 128              \\
+	CompActs                & \href{https://doi.org/10.1016/j.neucom.2010.11.037}{10.1016/j.neucom.2010.11.037} & 8192          & 22               \\
+	EatingHabits            & \href{https://doi.org/10.24432/C5H31Z}{10.24432/C5H31Z}                           & 2111          & 16               \\
+	\addlinespace
+	Elevators               & \href{https://doi.org/10.1016/j.neucom.2010.11.037}{10.1016/j.neucom.2010.11.037} & 8752          & 7                \\
+	EnergyEfficiencyCooling & \href{https://doi.org/10.24432/C51307}{10.24432/C51307}                           & 768           & 9                \\
+	EnergyEfficiencyHeating & \href{https://doi.org/10.24432/C51307}{10.24432/C51307}                           & 768           & 9                \\
+	LiverDisorders          & \href{https://doi.org/10.24432/C54G67}{10.24432/C54G67}                           & 345           & 6                \\
+	Stock                   & \href{https://doi.org/10.1016/j.neucom.2010.11.037}{10.1016/j.neucom.2010.11.037} & 950           & 10               \\
+	\addlinespace
+	Triazines               & \href{https://doi.org/10.1016/j.neucom.2010.11.037}{10.1016/j.neucom.2010.11.037} & 186           & 59               \\
+	\addlinespace
+	Bank Family\tnote{a}    &                                                                                   & 8192          & 32/8             \\
+	Pumadyn Family\tnote{a} &                                                                                   & 8192          & 32/8             \\\bottomrule
 \end{tabular}
-
-\footnotesize{$^1$ The Bank and Pumadyn consist of 8 synthetic datasets each. With different
-	number of features (8/32), more linearity or less linearity and more or less noise.
-}
