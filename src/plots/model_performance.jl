@@ -39,6 +39,11 @@ function plot_sigma_band(ax, df_sub_kern, kernel; sigma::Symbol, measure::Symbol
     val_lower = getproperty(df_sub_kern, measure) .- getproperty(df_sub_kern, std)
     val_upper = getproperty(df_sub_kern, measure) .+ getproperty(df_sub_kern, std)
 
+    if length(val_sigma) == 0
+        @warn "(band error) No data for $kernel"
+        return
+    end
+
     band!(
         ax,
         val_sigma, val_lower, val_upper,

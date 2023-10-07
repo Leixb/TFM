@@ -104,7 +104,7 @@ function run(svm::SVMConfig)::Tuple{PerformanceEvaluation,ExecutionInfo,Machine}
     end
 
     pipe = svm.scale_sigma ? model(svm, gamma) : model(svm)
-    if svm.kernel in [LIBSVM.Kernel.Acos0, LIBSVM.Kernel.Acos1, LIBSVM.Kernel.Acos2]
+    if svm.kernel in [LIBSVM.Kernel.Acos1, LIBSVM.Kernel.Acos2]
         pipe.multiplier.factor = sqrt(Utils.gamma2sigma(svm.gamma))
     end
     mach = machine(pipe, Xtrain, ytrain, cache=false)
