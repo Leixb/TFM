@@ -24,6 +24,65 @@ this method since it is faster than the double cross-test method requiring only
 
 % TODO: Add figure of the 5-2 cross-validation ?
 
+\subsubsection{Paired t-test}%
+\label{sec:paired-t-test}
+
+Perhaps more importantly, the evaluations from the 5\texttimes2 cross-validation
+can be used to perform a statistical test to determine the significance level
+of the difference between two models as described by \textcite{dietterichApproximateStatisticalTests1998}.
+
+Given two models $A$ and $B$, we denote as $p_A^{(i)}$ the performance of the
+model $A$ on the $i$-th split and as $p_B^{(i)}$ the performance of the model
+$B$ on the $i$-th split. This performance can be any metric as long as it is
+the same for both models.
+We can then compute the difference between the
+performances of the two models on each split:
+\begin{equation}
+    p^{(i)} = p_A^{(i)} - p_B^{(i)}
+\end{equation}
+
+In 5\times2 cross-validation, we have 5 splits and we use them 2 times each,
+swapping the training and test sets. Therefore, we have 10 values of $p^{(i)}$,
+and the values are related in pairs ($p^{(1)}$ and $p^{(2)}$). We can estimate
+the mean and variance of the differences in pairs as follows:
+\begin{align}
+    \bar{p} & = \frac{p^{(1)} + p^{(2)}}{2}                                         \\
+    s^2     & = \left(p^{(1)} - \hat{p}\right)^2 + \left(p^{(2)} - \hat{p}\right)^2
+\end{align}
+
+Using these values, we can compute the $t$-statistic as follows:
+\begin{equation}\label{eq:t-statistic}
+    t = \frac{p_1^{(1)}}{\sqrt{(1/5)\sum_{i=1}^5 s_i^2}}
+\end{equation}
+
+Where $p_1^{(1)}$ is the $p^{(1)}$ from the first split.
+
+Under the null hypothesis that the two models are equal in performance, the
+$t$-statistic from \cref{eq:t-statistic} should follow a Student's
+$t$-distribution with 5 degrees of freedom. Using this, we can obtain a
+$p$-value for the difference between the two models. If the $p$-value is less
+than our significance level, we can reject the null hypothesis and conclude
+that the two models perform statistically different.
+
+In order for the test to be valid, the exact same splits must be used for both
+models. Since we are training various models with different hyperparameters
+and can not possibly compute all the possible pairings, we train all the models
+separately and save the performance data for each split.
+This comes at the risk of not using the exact same split for each model. To avoid
+this, special steps have been taken:
+
+\begin{enumerate}
+    \item A MersenneTwister is initialized with a given seed and passed to each
+          iteration of the resampling method. Ensuring that from the same seed,
+          the 5 splits are consistently generated whilst still being random and
+          independent from each other.
+    \item Regression unit tests have been added to ensure that the splits are
+          consistent throughout the development of the thesis.
+    \item The unit tests are automatically run on every commit to the repository.
+\end{enumerate}
+
+% TODO: Maybe this part of the test should be moved to the implementation section?
+
 \subsection{Metrics}
 \label{sec:metrics}
 
@@ -154,9 +213,15 @@ consistent with the paper without requiring a lot of computational power.
     Remove STD bands?
 \end{important}
 \begin{figure}[H]
-    \includegraphics[width=\textwidth]{plots/MSE_frenay}
+    \includegraphics[width=.7\textwidth]{plots/MSE_frenay}
     \caption{MSE results on datasets from \cite{frenayParameterinsensitiveKernelExtreme2011}}
     \label{fig:mse-frenay}
+\end{figure}
+
+\begin{figure}[H]
+    \includegraphics[width=.7\textwidth]{plots/MSE_frenay_original}
+    \caption{MSE from \cite{frenayParameterinsensitiveKernelExtreme2011}}
+    \label{fig:mse-frenay-original}
 \end{figure}
 
 \Cref{fig:mse-frenay} shows the results of the arc-sine
@@ -204,6 +269,9 @@ with $n=0,1,2$ on the Frenay datasets.
 
 \begin{figure}[H]
     \includegraphics{plots/nRMSE_acos_frenay_scaled}
+    \begin{cnote}
+        FIX: std of Triazines goes crazy with acos2
+    \end{cnote}
     \caption{nRMSE results on datasets from \cite{frenayParameterinsensitiveKernelExtreme2011} with
         scaled $\sigma_w$ using Arc cosine kernel}%
     \label{fig:nrmse-acos-frenay-scaled}
@@ -355,146 +423,4 @@ to determine if a dataset is a good candidate for the arc-sine kernel or not.
     \label{fig:nrmse-all-scaled}
 \end{figure}
 
-% TODO: no em convenc el titol
-\subsection{Relation between the hyperparameters of the arc-sine and RBF kernels}
-
-% TODO: t statistic instead of nRMSE?
-
-% TODO: cite
-From the results obtained in the previous section, we can see that the
-arc-sine kernel (both normalized and non-normalized) seems to be able
-to achieve similar performance to the RBF kernel when $\sigma_w$.
-
-To further explore this, we can compare the relationship between the hyperparameter
-$\sigma_w$ of the arc-sine kernel and the hyperparameter $\gamma$ of the RBF
-kernel.
-
-% TODO: explain this properly
-% \begin{equation*}
-%     \Delta_{ij} = nRMSE_i - nRMSE_j
-% \end{equation*}
-% Where $nRMSE_i$ 
-
-\Cref{fig:heatmaps-rbf-asinnorm} shows the difference between the nRMSE of the
-RBF and the normalized arc-sine kernel.
-
-Positive values (in blue) indicate that for that
-combination of $\sigma_w$ and $\gamma$, the normalized arc-sine kernel
-outperforms the RBF kernel.
-Negative values (in red) indicate that the RBF
-kernel performs better than the normalized arc-sine kernel.
-The darker the color, the bigger the difference.
-
-We can observe 3 different behaviours:
-\begin{itemize}
-    \item The difference between the RBF and normalized arc-sine
-          kernels is barely noticeable: \texttt{Cancer}, \texttt{LiverDisorders},
-          \texttt{Triazines}, \dots. Looking at the results from the previous
-          sections, these are \emph{hard} datasets, in the sense that the
-          \emph{nRMSE} obtained by both the RBF and other kernels is high (>0.8).
-
-    \item There is no clear effect of $\sigma_w$ on the
-          performance of the normalized arc-sine kernel: \texttt{Bank32fh},
-          \texttt{Bank32fm}, \texttt{CommunitiesAndCrime}, \texttt{Pumadyn32fm}, \dots
-
-    \item There is threshold for $\sigma_w$ where the normalized
-          arc-sine kernel goes from performing worse than the RBF kernel to
-          performing equally or better than RBF.
-\end{itemize}
-
-% TODO: explain better
-Again, the \texttt{CPU} dataset exhibits a different behaviour where for
-$\sigma_w=0.1$ it is able to match the performance of the RBF kernel, but
-all the others it's significantly worse.
-
-\begin{figure}[H]
-    \includegraphics[width=0.9\textwidth]{plots/heatmaps_rbf_asinnorm_s}
-    \caption{Difference between nRMSE of RBF and normalized arc-sine kernels}
-    \label{fig:heatmaps-rbf-asinnorm}
-\end{figure}
-
-\Cref{fig:heatmaps-asin-asinnorm} shows the difference between the non normalized
-and the normalized arc-sine kernels. Positive values indicate that the normalized
-kernel performs better. We can see that the values in the top right corner (both sigmas $>1$)
-of all the datasets is zero. Which indicates that they perform equally well.
-
-\begin{figure}[H]
-    \includegraphics[width=0.9\textwidth]{plots/heatmaps_asin_asinnorm_s}
-    \caption{Difference between nRMSE of arc-sine and normalized arc-sine kernels}
-    \label{fig:heatmaps-asin-asinnorm}
-\end{figure}
-
-% TODO: maybe a combination plot of the heatmap and the line plot for some
-% interesting datasets?
-
-% TODO: classification is a mess
-% \section{Classification}
-%
-% \begin{figure}[H]
-%     \includegraphics{plots/nRMSE_class_all_scaled}
-%     \caption{Classification accuracy}
-%     \label{fig:nrmse-class-all}
-% \end{figure}
-%
-% \begin{marker}
-%     This makes no sense, the accuracies are too low, specially iris (Even on the
-%     RBF).
-%
-%     Add the other datasets.
-%     Add more values of sigma.
-%     Other metrics (precision, recall, f1, etc)
-% \end{marker}
-
-\section{Estimation of the time needed to train the SVM}
-
-The main incentive for using the arc-sine kernel is that it is supposed to be
-parameter insensitive, which means that we can reduce the search space for the
-hyperparameters and thus reduce the time needed to train the SVM.
-
-If for the RBF kernel we have to search for $n$ possible values of $\gamma$
-hyperparameter whilst for the arc-sine kernel we can set $\sigma_w=10$ and
-achieve similar results, then we can reduce the search space by a factor of $n$.
-
-However, it is still possible that even with a fixed $\sigma_w$ the arc-sine
-kernel requires a wider search space for the other hyperparameters (cost and
-$\varepsilon$) or the computation of the kernel is more expensive than the RBF
-and thus the time needed to train the SVM is not reduced.
-
-For instance, in the initial testing of the normalized arc-sine kernel, the average
-training for the Adult dataset using the normalized arc-sine kernel
-took approximately 2 times longer than the RBF kernel.
-
-% TODO: plots de temps de execucio
-% TODO: plots de temps de iteracions / iteracions per segon
-% TODO: plots de temps de nombre de parametres provats
-%
-
-\section{Meta-learning}
-
-As explained in \cref{sec:meta-learning}, we want to use meta-learning
-techniques to determine the best value of sigma for a given dataset, or at least
-to determine if a dataset is a good candidate for the arc-sine kernel or not.
-For that, we can create two models:
-\begin{enumerate}
-    \item Predict the best value of $\sigma_w$ for a given dataset.
-    \item Predict whether a high value of $\sigma_w$ will achieve equivalent
-          performance to the RBF kernel.
-\end{enumerate}
-
-For the first model,
-we can use the best value of $\sigma_w$ for each dataset
-obtained from the previous experiments. This will be our target
-variable.
-
-For the second model, we need to determine if there is a statistically
-significant difference between the performance at $\sigma \gg 10$ and the
-performance of the RBF kernel.
-% TODO: t-test or arbitrary threshold?
-
-% TODO: probably need a lot more datasets to be able to do anything...
-
-\begin{note}
-    With the number of datasets the results are not conclusive.
-    Need much more datasets.
-\end{note}
 
