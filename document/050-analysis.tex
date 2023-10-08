@@ -3,6 +3,84 @@
 \chapter{Discussion of results}
 \label{sec:analysis}
 
+\section{Results for the arc sine kernel on the Frenay datasets}
+
+% TODO: bands for std or no bands, if not, make sure that the explaination below
+% is clear.
+\begin{important}
+    Remove STD bands?
+\end{important}
+\begin{figure}[H]
+    \includegraphics[width=.7\textwidth]{plots/MSE_frenay}
+    \caption{MSE results on datasets from \cite{frenayParameterinsensitiveKernelExtreme2011}}
+    \label{fig:mse-frenay}
+\end{figure}
+
+\begin{figure}[H]
+    \includegraphics[width=.7\textwidth]{plots/MSE_frenay_original}
+    \caption{MSE from \cite{frenayParameterinsensitiveKernelExtreme2011}}
+    \label{fig:mse-frenay-original}
+\end{figure}
+
+\Cref{fig:mse-frenay} shows the results of the arc-sine
+kernel~(normalized and non-normalized) on the same datasets used by \textcite{frenayParameterinsensitiveKernelExtreme2011}. The shading corresponds to the standard deviation when averaging the
+cross-validation results.
+
+The results are consistent with the results obtained by \citeauthor{frenayParameterinsensitiveKernelExtreme2011}.
+Except for the \texttt{CPU} dataset, which in the original paper is reported to
+not be significantly different from the RBF kernel for $\sigma_w > 0.1$. In
+our results, the optimal value of $\sigma_w$ is $0.01$ which is indeed not
+significantly different from the RBF kernel, but once we increase $\sigma_w$,
+the performance drops significantly and converges to a much higher value than
+expected. This may be due to the fact that the \texttt{CPU} dataset is very
+small and thus the difference in our resampling method is more noticeable.
+
+What we can conclude however is that both the normalized and non-normalized
+arc-sine kernel do seem to be insensitive to the value of $\sigma_w$ for
+$\sigma_w > 0.1$.
+
+\begin{figure}[H]
+    \includegraphics{plots/nRMSE_frenay_scaled}
+    \caption{nRMSE results on datasets from \cite{frenayParameterinsensitiveKernelExtreme2011} with
+        scaled $\sigma_w$}%
+    \label{fig:nrmse-frenay-scaled}
+\end{figure}
+
+\Cref{fig:nrmse-frenay-scaled} shows the results of the arc-sine kernel using
+\emph{nRMSE} as the performance measure and with $\sigma_w$ scaled. These allow
+us to compare the results between datasets.
+
+\begin{cnote}
+    Add copy of the table of Frénay and Verleysen along with the equivalent
+    table for our results?
+
+    The table is quite dense, so putting them side by side my be too much.
+
+    Figure out what is the most relevant information to show, rest in the
+    appendix
+\end{cnote}
+
+\subsection{Results for the arc cosine kernel on the Frenay datasets}
+
+\Cref{fig:nrmse-acos-frenay-scaled} shows the results when using the arc cosine kernels
+with $n=0,1,2$ on the Frenay datasets.
+
+\begin{figure}[H]
+    \includegraphics{plots/nRMSE_acos_frenay_scaled}
+    \begin{cnote}
+        FIX: std of Triazines goes crazy with acos2
+    \end{cnote}
+    \caption{nRMSE results on datasets from \cite{frenayParameterinsensitiveKernelExtreme2011} with
+        scaled $\sigma_w$ using Arc cosine kernel}%
+    \label{fig:nrmse-acos-frenay-scaled}
+\end{figure}
+
+\begin{cnote}
+    Arc cosine kernel for n=2 is too slow (specially when $cost>1000$)
+    I have removed it, but ideally we run it with a smaller parameter grid.
+    Should be addressed either way.
+\end{cnote}
+
 % TODO: no em convenc el titol
 \section{Paired t-test results}
 

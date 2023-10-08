@@ -166,6 +166,30 @@ In \cref{sec:experiments} we describe the experimental design in more detail.
 % Wong colorscheme (used in Makie) \cite{wongPointsViewColor2011}
 % + patterns when possible
 
+\subsection{Diversity and Inclusion}%
+
+The datasets used in this thesis are publicly available and have been widely
+used in other studies. Some datasets concern sensitive topics such as cancer,
+alcohol consumption or community crime rates. However, the aim of the thesis is
+not to study the data itself, but the behaviour of the kernels in different
+scenarios. As such, the datasets were chosen based on their characteristics and
+not on the topic they represent and
+aiming to have a diverse set of datasets.
+
+Nevertheless, we acknowledge that there may be a bias in the selection of the
+datasets. Since we had limited computational resources and time to perform the
+experiments, the number of datasets is limited and not as diverse as we would
+like.
+
+A special effort has been taken to ensure that the data visualizations
+presented in this thesis are accessible. The colors are selected to be
+distinguishable by people with color blindness and the figures are designed to
+be readable when printed in black and white. In particular,
+we used the colors described by \textcite{wongPointsViewColor2011} and
+the perceptually uniform colors from \textcite{crameriScientificColourMaps2023}.
+When applicable, we used patterns and changes in line styles or markers to
+further distinguish the different series in the plots.
+
 % \subsection{Experimental Design}%
 
 \section{Structure of the thesis}
@@ -175,11 +199,9 @@ In \cref{sec:experiments} we describe the experimental design in more detail.
 background of the kernels used in this thesis, showing their derivation and
 properties. In \cref{sec:implementation} we describe the implementation of the
 kernels in \emph{C} and the wrappers used to interface with them from
-\emph{Julia}. \Cref{sec:experiments} discussed the experimental design and the
-initial results obtained.
-% TODO: analysis section?
-% Finally, \cref{sec:analysis} provides an analysis of the results and
-% discusses the implications of the findings.
+\emph{Julia}. \Cref{sec:experiments} discussed the experimental design.
+\Cref{sec:analysis} provides an analysis of the results from the experiments
+and discusses the implications of the findings.
 \Cref{sec:conclusions} concludes the thesis and provides some ideas for future
 work.
 

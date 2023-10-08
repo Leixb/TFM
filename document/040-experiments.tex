@@ -99,10 +99,11 @@ $\sigma_{obs}$ is the standard deviation of the observed values.
 For the classification problems, we save the matrix of confusion from which we
 can calculate the accuracy, precision, recall and F1 score.
 
-Additionally, we save the number of iterations and the time needed for the
+Additionally, we save the number of iterations and execution time for the
 training process.
 
-\subsection{Normalization}
+\subsection{Normalization}%
+\label{sec:normalization}
 
 In order to be able to compare the results between different datasets, an effort
 was made to normalize the data and hyperparameters. To that end, the following
@@ -175,6 +176,10 @@ $10^{-3},\,10^{-2},\,\dots,\,10^{6}$.
     \end{tabular}
 \end{table}
 
+In total, for each dataset and kernel, we have $9 \cdot 6 \cdot 6 = 324$ different
+parameter configurations across the 5\texttimes2 cross-validation splits, which
+results in $3\,240$ training processes per dataset and kernel.
+
 \section{Reproducing the results of \texorpdfstring{\citeauthor{frenayParameterinsensitiveKernelExtreme2011}}{Frénay and Verleysen}}
 \label{sec:reproducing-frenay}
 
@@ -182,9 +187,28 @@ The first objective is to reproduce the results obtained by
 \textcite{frenayParameterinsensitiveKernelExtreme2011}, which will help validate
 our implementation of the arc sine kernel, ensure that our experimental setup is
 correct and to have a baseline to compare our results with. This also serves as
-a peer review of their results.
+a review of their results.
 
-\subsection{Considerations on the resampling method}
+In their paper, \citeauthor{frenayParameterinsensitiveKernelExtreme2011} use
+Mean Squared Error (MSE) as their performance measure and do not apply any
+normalization to the $\sigma_w$ parameter. They do standardize both the input
+variables and the target variable. In order to compare our results with theirs,
+we use the same performance measure and do not normalize the $\sigma_w$ parameter,
+however we use the $5\times2$ cross-validation instead of the cross-validation used
+in the paper. This decision is explained in \cref{sec:considerations-on-the-resampling-method}.
+
+The datasets used in the paper are shown in \cref{tab:datasets_frenay}. Some
+datasets had columns which have to be removed following the same procedure as
+described by \textcite{frenayParameterinsensitiveKernelExtreme2011}.
+\begin{table}[H]
+    \caption{Regression datasets used in \cite{frenayParameterinsensitiveKernelExtreme2011}}
+    \label{tab:datasets_frenay}
+    \input{tables/datasets_frenay.tex}
+\end{table}
+
+
+\subsection{Considerations on the resampling method}%
+\label{sec:considerations-on-the-resampling-method}
 
 In the paper, \citeauthor{frenayParameterinsensitiveKernelExtreme2011} use a
 double cross-test resampling method which is illustrated in
@@ -201,91 +225,42 @@ training processes in total.
 
 As mentioned in \cref{sec:resampling}, we opted to use a 5\texttimes2 cross
 which sacrifices part of the statistical power of their method in favor of
-speed. This decision was made since 5\texttimes2 should be enough to get a
-reasonable estimate of the performance and verify that the results are
-consistent with the paper without requiring a lot of computational power.
+speed. We believe that this is a reasonable trade-off since the aim of this
+first objective is to validate the implementation and experimental setup against
+known results.
 
-\subsection{Results for the arc sine kernel on the Frenay datasets}
+\section{Exploring the performance of other datasets and kernels}%
+\label{sec:exploring-the-performance-of-other-datasets-and-kernels}
 
-% TODO: bands for std or no bands, if not, make sure that the explaination below
-% is clear.
-\begin{important}
-    Remove STD bands?
-\end{important}
-\begin{figure}[H]
-    \includegraphics[width=.7\textwidth]{plots/MSE_frenay}
-    \caption{MSE results on datasets from \cite{frenayParameterinsensitiveKernelExtreme2011}}
-    \label{fig:mse-frenay}
-\end{figure}
+In this experiment, the aim is to obtain meaningful data on the performance of
+the different kernels on different datasets. It is important that the results
+are statistically sound and the metrics are normalized so that comparisons
+between datasets and kernels are valid. As explained in \cref{sec:normalization}, we
+will use the normalized root-mean-square error (\emph{nRMSE}) as our performance
+measure for the regression problems and $\sigma_w$ will be normalized by
+dividing it by the number of attributes of the dataset.
 
-\begin{figure}[H]
-    \includegraphics[width=.7\textwidth]{plots/MSE_frenay_original}
-    \caption{MSE from \cite{frenayParameterinsensitiveKernelExtreme2011}}
-    \label{fig:mse-frenay-original}
-\end{figure}
+\subsection{Additional datasets}%
 
-\Cref{fig:mse-frenay} shows the results of the arc-sine
-kernel~(normalized and non-normalized) on the same datasets used by \textcite{frenayParameterinsensitiveKernelExtreme2011}. The shading corresponds to the standard deviation when averaging the
-cross-validation results.
+In addition to the datasets used in \cite{frenayParameterinsensitiveKernelExtreme2011},
+more datasets were tested to have a more broad view of the performance of the
+kernels. The datasets were chosen trying to cover a wide range of different
+properties. The datasets used are shown in \cref{tab:datasets_regression,tab:datasets_classification}.
 
-The results are consistent with the results obtained by \citeauthor{frenayParameterinsensitiveKernelExtreme2011}.
-Except for the \texttt{CPU} dataset, which in the original paper is reported to
-not be significantly different from the RBF kernel for $\sigma_w > 0.1$. In
-our results, the optimal value of $\sigma_w$ is $0.01$ which is indeed not
-significantly different from the RBF kernel, but once we increase $\sigma_w$,
-the performance drops significantly and converges to a much higher value than
-expected. This may be due to the fact that the \texttt{CPU} dataset is very
-small and thus the difference in our resampling method is more noticeable.
+% TODO: maybe add the table here instead of referencing it?
 
-What we can conclude however is that both the normalized and non-normalized
-arc-sine kernel do seem to be insensitive to the value of $\sigma_w$ for
-$\sigma_w > 0.1$.
-
-\begin{figure}[H]
-    \includegraphics{plots/nRMSE_frenay_scaled}
-    \caption{nRMSE results on datasets from \cite{frenayParameterinsensitiveKernelExtreme2011} with
-        scaled $\sigma_w$}%
-    \label{fig:nrmse-frenay-scaled}
-\end{figure}
-
-\Cref{fig:nrmse-frenay-scaled} shows the results of the arc-sine kernel using
-\emph{nRMSE} as the performance measure and with $\sigma_w$ scaled. These allow
-us to compare the results between datasets.
-
-\begin{cnote}
-    Add copy of the table of Frénay and Verleysen along with the equivalent
-    table for our results?
-
-    The table is quite dense, so putting them side by side my be too much.
-
-    Figure out what is the most relevant information to show, rest in the
-    appendix
-\end{cnote}
-
-\subsection{Results for the arc cosine kernel on the Frenay datasets}
-
-\Cref{fig:nrmse-acos-frenay-scaled} shows the results when using the arc cosine kernels
-with $n=0,1,2$ on the Frenay datasets.
-
-\begin{figure}[H]
-    \includegraphics{plots/nRMSE_acos_frenay_scaled}
-    \begin{cnote}
-        FIX: std of Triazines goes crazy with acos2
-    \end{cnote}
-    \caption{nRMSE results on datasets from \cite{frenayParameterinsensitiveKernelExtreme2011} with
-        scaled $\sigma_w$ using Arc cosine kernel}%
-    \label{fig:nrmse-acos-frenay-scaled}
-\end{figure}
-
-\begin{cnote}
-    Arc cosine kernel for n=2 is too slow (specially when $cost>1000$)
-    I have removed it, but ideally we run it with a smaller parameter grid.
-    Should be addressed either way.
-\end{cnote}
-
+The Bank and PumaDyn datasets are part of the Delve project, they are synthetic
+datasets with different levels of linearity and noise as well as features. In total
+there are 8 variations of each. They provide a good way to test how the kernels
+perform on different noise and linearity levels.
 
 \section{Execution time and number of iterations}%
 \label{sec:execution-time-and-number-of-iterations}
+
+Another of the goals is to compare estimate whether the use of these infinite
+neural network kernels is feasible in practice, by comparing their execution
+time. To that end, all executions will be timed and the number of iterations
+taken by the SVM solver will be saved.
 
 \begin{figure}[H]
     \includegraphics{plots/execution_log}

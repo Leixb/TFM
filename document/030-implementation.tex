@@ -177,6 +177,17 @@ polynomial, radial basis function (RBF) and sigmoid. Additionally, it can use
 precomputed kernel matrices by setting the kernel type to \texttt{PRECOMPUTED}
 and passing the kernel matrix as the training data.
 
+The use of precomputed kernel matrices allows us to use any kernel function
+of our choice. However, this requires computing the kernel matrix in advance,
+which is not feasible for large datasets, since it requires $O(n^2)$ memory and
+$O(n^2d)$ time, where $n$ is the number of samples and $d$ is the number of
+features.
+Instead, we can extend the library to add our own kernel functions
+and let \texttt{libsvm} compute the values as needed.
+The \texttt{libsvm} library is quite efficient in caching the kernel evaluations
+and since it uses a Sequential Minimal Optimization algorithm, it only requires
+some columns of the kernel matrix at a time \cite{CC01a}.
+
 \subsection{Adding the kernels}
 
 For our purposes, we want to extend the library by adding our own kernels. To do
