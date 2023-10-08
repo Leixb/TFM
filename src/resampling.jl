@@ -102,6 +102,12 @@ function FiveTwo(; rng=nothing)
     return FiveTwo(rng)
 end
 
+# Copy the resampling strategies, making a copy of the underlying RNG. This
+# makes sure that the copied resampler will generate the same train/test
+# than the original.
+Base.copy(x::RepeatedCV{S}) where {S<:ResamplingStrategy} = RepeatedCV{S}(x.repeats, copy(x.rng))
+Base.copy(x::TwoFold) = TwoFold(copy(x.rng))
+
 # Functions to print resampling strategies inside filenames
 Base.show(io::IO, resampling::CV) = print(io, "CV-$(resampling.nfolds)")
 Base.show(io::IO, resampling::StratifiedCV) = print(io, "SCV-$(resampling.nfolds)")

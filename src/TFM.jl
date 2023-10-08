@@ -60,6 +60,7 @@ export mse
     include("../scripts/plots.jl")
     include("../scripts/save_datasets.jl")
     include("../scripts/extract_features.jl")
+    include("../scripts/produce_precomp_vs_native.jl")
     end
 end
 
