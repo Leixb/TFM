@@ -208,7 +208,11 @@ it computes $\exp\bigl(-\gamma(\|x_i\|^2 - 2x_i^Tx_j + \|x_j\|^2)\bigr)$, and by
 precomputing $\|x_i\|^2$ for all $x_i$ in the beginning, the number of
 operations is reduced from $3n$ to $2n$. This same optimization can be applied
 to our kernels. \Cref{fig:c_improvement} shows the improvement in performance
-when using this optimization.
+when using this optimization (\emph{RadialBasis} is included as a check to make
+sure it behaved the same in both cases, which it does).
+The improvement is specially significant for the
+normalized arc sine kernel since it requires more computations of the
+dot product.
 
 % \begin{cnote}
 %     The plot probably should be improved:
@@ -316,10 +320,29 @@ double kernel_acos_2(int i, int j) const
 \end{minted}
 \end{listing}
 
+\subsubsection{A Note on the possibility of passing the kernel as a function pointer}
+
+One of the initial ideas was to pass the kernel function as a parameter to the
+library. This would mean that the kernel function would be implemented in
+\emph{Julia} and passed to the library as a function pointer. However, this
+requires extensive modification of the library and a high performance
+penalty. This is because the kernel function is called many times and the
+\texttt{libsvm} kernels are constant functions that are inlined by the
+compiler. Passing the kernel as a function pointer introduces both a function
+call and a pointer dereference, which is a significant performance penalty. For
+these reasons, we decided to implement the kernels directly in the library.
+
 \subsection{Controlling the number of iterations}
 
-One metric which we wanted to measure was the number of iterations the SVM
-algorithm took and have the possibility to stop it early. To do so,
+A Support Vector Machine (SVM) is a quadratic optimization problem, which
+in \texttt{libsvm} is solved using the Sequential Minimal Optimization (SMO).
+The SMO algorithm is an iterative algorithm which stops when the KKT conditions
+are satisfied. The number of iterations the algorithm takes depends on both
+the dataset and the parameters. A bad choice of parameters can lead to a very
+slow convergence \cite{CC01a}.
+
+One metric which we wanted to measure was the number of iterations the SMO
+algorithm took and have the possibility to stop it early.
 \emph{libsvm} only provides a \texttt{tolerance} parameter for the stopping
 criterion. However, in \emph{sklearn} they provide a \texttt{max\_iter}
 parameter\footnote{\url{https://github.com/scikit-learn/scikit-learn/pull/1184}}
@@ -328,7 +351,8 @@ iterations the algorithm took
 \footnote{\url{https://github.com/scikit-learn/scikit-learn/pull/21408}}. This
 is accomplished by using a modified version of \emph{libsvm}. Since we are
 modifying the library as well, we added the same functionality to our modified
-version
+version. This is something were the \emph{Julia} wrapper of \emph{libsvm} is
+lacking when compared to the more mature \emph{Python} version.
 
 \pagebreak % INFO: make sure this is start of page so wrapfigure plays nice
 \section{Julia}%
