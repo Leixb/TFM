@@ -27,7 +27,7 @@ objectives is to make the experimental setup as reproducible as possible.
 
 \begin{wrapfigure}{r}{.40\textwidth}
     \includegraphics[width=.95\linewidth]{dependency_tree_libsvm}
-    \caption{\emph{libsvm} runtime dependencies.}
+    \caption{\libsvm runtime dependencies.}
     \label{fig:dependency_tree_libsvm}
 \end{wrapfigure}
 
@@ -37,7 +37,7 @@ allows us to keep a consistent environment across different machines and
 operating systems. It keeps track of \emph{all} the system dependencies of the
 project including all the libraries and tools (such as compilers, interpreters,
 etc.). For instance, with \emph{nix} we can visualize the runtime dependency
-tree of the \emph{libsvm} library as shown in \cref{fig:dependency_tree_libsvm}.
+tree of the \libsvm library as shown in \cref{fig:dependency_tree_libsvm}.
 
 On the \emph{Julia} side, the dependencies are managed through \emph{Pkg}
 \cite{PkgJuliaLanguage}. All this complexity is hidden from the user through
@@ -162,17 +162,17 @@ installed automatically using \emph{Nix} and \emph{direnv} as described in
 Additionally, the \mintinline{bash}{nix build} command can be used to build the
 document and a tarball with the datasets.
 
-\section{Extending \texttt{libsvm}}%
+\section{Extending \libsvm{}}%
 \label{sub:impl_c}
 
-\emph{libsvm} is a C library developed by \textcite{CC01a} under BSD-3 license
+\libsvm is a C library developed by \textcite{CC01a} under BSD-3 license
 which implements the Support Vector Machine (SVM) algorithm. The library is the
 de facto standard for SVM implementations in the machine learning community,
 being used by many other libraries and frameworks such as Python's
 sklearn~\cite{ScikitlearnScikitlearn2023} or R's
 e1071~\cite{meyer[autE1071MiscFunctions2023}.
 
-Out of the box, \emph{libsvm} supports using the built-in kernels: linear,
+Out of the box, \libsvm supports using the built-in kernels: linear,
 polynomial, radial basis function (RBF) and sigmoid. Additionally, it can use
 precomputed kernel matrices by setting the kernel type to \texttt{PRECOMPUTED}
 and passing the kernel matrix as the training data.
@@ -183,8 +183,8 @@ which is not feasible for large datasets, since it requires $O(n^2)$ memory and
 $O(n^2d)$ time, where $n$ is the number of samples and $d$ is the number of
 features.
 Instead, we can extend the library to add our own kernel functions
-and let \texttt{libsvm} compute the values as needed.
-The \texttt{libsvm} library is quite efficient in caching the kernel evaluations
+and let \libsvm compute the values as needed.
+The \libsvm library is quite efficient in caching the kernel evaluations
 and since it uses a Sequential Minimal Optimization algorithm, it only requires
 some columns of the kernel matrix at a time \cite{CC01a}.
 
@@ -201,7 +201,7 @@ From there, we have to implement the kernel functions themselves. Surprisingly
 at first, the kernel functions are duplicated in the code for each kernel type:
 \texttt{k\_function} and \texttt{kernel\_function}. The former is used for the
 training phase and the latter for the prediction phase. This is explained in the
-\emph{libsvm}'s FAQ \cite{LIBSVMFAQ}:
+\libsvm{}'s FAQ \cite{LIBSVMFAQ}:
 
 For the RBF kernel, Instead of doing $\exp\left(-\gamma\|x_i - x_j\|^2\right)$,
 it computes $\exp\bigl(-\gamma(\|x_i\|^2 - 2x_i^Tx_j + \|x_j\|^2)\bigr)$, and by
@@ -327,7 +327,7 @@ library. This would mean that the kernel function would be implemented in
 \emph{Julia} and passed to the library as a function pointer. However, this
 requires extensive modification of the library and a high performance
 penalty. This is because the kernel function is called many times and the
-\texttt{libsvm} kernels are constant functions that are inlined by the
+\libsvm kernels are constant functions that are inlined by the
 compiler. Passing the kernel as a function pointer introduces both a function
 call and a pointer dereference, which is a significant performance penalty. For
 these reasons, we decided to implement the kernels directly in the library.
@@ -335,7 +335,7 @@ these reasons, we decided to implement the kernels directly in the library.
 \subsection{Controlling the number of iterations}
 
 A Support Vector Machine (SVM) is a quadratic optimization problem, which
-in \texttt{libsvm} is solved using the Sequential Minimal Optimization (SMO).
+in \libsvm is solved using the Sequential Minimal Optimization (SMO).
 The SMO algorithm is an iterative algorithm which stops when the KKT conditions
 are satisfied. The number of iterations the algorithm takes depends on both
 the dataset and the parameters. A bad choice of parameters can lead to a very
@@ -343,15 +343,15 @@ slow convergence \cite{CC01a}.
 
 One metric which we wanted to measure was the number of iterations the SMO
 algorithm took and have the possibility to stop it early.
-\emph{libsvm} only provides a \texttt{tolerance} parameter for the stopping
+\libsvm only provides a \texttt{tolerance} parameter for the stopping
 criterion. However, in \emph{sklearn} they provide a \texttt{max\_iter}
 parameter\footnote{\url{https://github.com/scikit-learn/scikit-learn/pull/1184}}
 which is the maximum number of iterations and also report the number of
 iterations the algorithm took
 \footnote{\url{https://github.com/scikit-learn/scikit-learn/pull/21408}}. This
-is accomplished by using a modified version of \emph{libsvm}. Since we are
+is accomplished by using a modified version of \libsvm{}. Since we are
 modifying the library as well, we added the same functionality to our modified
-version. This is something were the \emph{Julia} wrapper of \emph{libsvm} is
+version. This is something were the \emph{Julia} wrapper of \libsvm is
 lacking when compared to the more mature \emph{Python} version.
 
 \pagebreak % INFO: make sure this is start of page so wrapfigure plays nice
@@ -373,9 +373,9 @@ such as C. In particular, \emph{BinaryBuilder.jl}
 \cite{JLLPackagesBinaryBuilder} allows reproducible cross-platform compilation
 of 3rd party libraries for different platforms and architectures. This is used
 throughout the Julia ecosystem to provide binary dependencies for packages, for
-example, \emph{libsvm} is provided by the \emph{libsvm\_jll} package
-\cite{LibsvmJllJl2022}. This makes it very easy to change the \emph{libsvm}
-library used by a package by simply changing the dependency to our modified
+example, \libsvm is provided by the \emph{libsvm\_jll} package
+\cite{LibsvmJllJl2022}. This makes it very easy to modify the \libsvm
+library used by a package by simply updating the dependency to our modified
 \emph{libsvm\_jll} package.
 
 The latest stable version at the time of writing (1.9.x) introduced a major
@@ -386,26 +386,26 @@ minutes. Now, this is cached between sessions\cite{JuliaV1Release}.
 
 For the above reasons, along with the fact that there is a large and growing
 number of machine learning packages in Julia, we decided to interface our
-modified \emph{libsvm} library with Julia.
+modified \libsvm library with Julia.
 
 \subsection{libsvm\_jll}
 
 As mentioned before, the \emph{libsvm\_jll} package is a compiled version of the
-\emph{libsvm} C library compiled through \emph{BinaryBuilder.jl}. This so-called
+\libsvm C library compiled through \emph{BinaryBuilder.jl}. This so-called
 \emph{Julia Link Library} (JLL) package is not much different from a regular
 system library, except that its dependencies are dynamically linked to other JLL
 packages.
 
 For our implementation, we used the original recipe from
-\textcite{LibsvmJllJl2022} and modified it to use our modified \emph{libsvm}
+\textcite{LibsvmJllJl2022} and modified it to use our modified \libsvm
 source code.
 
 \subsection{LIBSVM.jl}
 
-The \emph{LIBSVM.jl} package \cite{LIBSVMJl2023} is a Julia wrapper for the
-\emph{libsvm} library which provides a high-level interface to the library. It
-uses the artifacts generated by the \emph{libsvm\_jll} package and provides the
-translation between Julia types and the C types used by the library.
+The \emph{LIBSVM.jl} package \cite{LIBSVMJl2023} is a Julia wrapper that
+provides a high-level interface to the \libsvm library. It uses the artifacts
+generated by the \emph{libsvm\_jll} package and provides the
+translation between Julia types and the C types.
 
 \subsubsection{Adding the kernels}
 
@@ -433,11 +433,11 @@ store the number of iterations as well as properly copying the values from the C
 pointer into Julia object. In order to test that this was properly implemented,
 we added a test set to \emph{LIBSVM.jl}. The tests validate that the number of
 iterations copied from the C pointer is the same as the one returned by the
-\emph{libsvm} library and that \texttt{max\_iter} is respected.
+\libsvm library and that \texttt{max\_iter} is respected.
 
-\subsubsection{libsvm 3.31}
+\subsubsection{\libsvm 3.31}
 
-The version of \emph{libsvm} used by \emph{LIBSVM.jl} is 3.25. It has not been
+The version of \libsvm used by \emph{LIBSVM.jl} is 3.25. It has not been
 updated to the newest version 3.31, since it breaks the API by adding the option
 of probability density estimation. Again, we worked around this by modifying the
 library to properly handle the new API (this change will be upstreamed to
@@ -448,7 +448,7 @@ library to properly handle the new API (this change will be upstreamed to
 \emph{MLJ} \cite{blaomMLJJuliaPackage2020} is a machine learning framework for
 Julia which provides a common interface for many machine learning packages. It
 is the equivalent of \emph{scikit-learn} in Python. It provides an interface to
-\emph{LIBSVM} through the \emph{MLJLIBSVMInterface.jl} package. By modifying
+\emph{LIBSVM.jl} through the \emph{MLJLIBSVMInterface.jl} package. By modifying
 the latter package to include the \texttt{max\_iter} parameter, we can use it in
 \emph{MLJ}.
 
@@ -484,7 +484,7 @@ the libraries interface with each other.
         };
 
     \end{tikzpicture}
-    \caption{Dependency graph of Julia packages exposing the libsvm library API.}
+    \caption{Dependency graph of Julia packages exposing the \libsvm library API.}
     \label{fig:julia_libsvm_deps}
 \end{figure}
 
