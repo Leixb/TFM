@@ -57,7 +57,7 @@ know if the dataset has been modified.
 \begin{listing}[htpb]
     \caption{Fragment of the \texttt{datasets.toml} file.}
     \label{lst:datasets_toml}
-    \inputminted[firstline=29,lastline=35]{toml}{../datasets.toml}
+    \inputminted[firstline=30,lastline=44]{toml}{../datasets.toml}
 \end{listing}
 
 \subsection{Build system}
@@ -236,7 +236,7 @@ The first step, is to add the new kernel types to the \texttt{enum} in
     \caption{Modified Enum definition from \texttt{svm.h}}
     \label{lst:svm_h_enum}
     \begin{minted}{C}
-enum { LINEAR, POLY, RBF, SIGMOID, PRECOMPUTED, ASIN, ASIN_NORM, ACOS_0, ACOS_1, ACOS_2}; /* kernel_type */
+enum { LINEAR, POLY, RBF, SIGMOID, PRECOMPUTED, ASIN, ASIN_NORM, ACOS_0, ACOS_1, ACOS_2, ACOS_1_NORM, ACOS_2_NORM}; /* kernel_type */
 \end{minted}
 \end{listing}
 Then, we add the corresponding cases to the switch statements in
@@ -266,7 +266,7 @@ static inline double asin_elm(const svm_node *x, const svm_node *y, const double
     return asin((1.0 + dot(x, y))/sqrt( (gamma + 1.0 + x_square)* (gamma + 1.0 + y_square)) );
 };
 
-// Fallback method used in prediction
+// Alternative method used in prediction, where we don't have x_square and y_square precomputed
 static inline double asin_elm(const svm_node *x, const svm_node *y, const double gamma) {
     return asin_elm(x, y, dot(x), dot(y), gamma);
 }
@@ -284,39 +284,44 @@ static inline double asin_elm_equal(const double x_square, const double gamma) {
         (Notice the use of \texttt{x\_square} to avoid computing the dot product of $x$ with itself every time)
     }
     \label{lst:kernel_function}
-    \begin{minted}{C}
-double kernel_asin(int i, int j) const
-{
-    return M_2_PI*asin_elm(x[i], x[j], x_square[i], x_square[j], gamma);
-}
-double kernel_asin_norm(int i, int j) const
-{
-    return asin_elm(x[i], x[j], x_square[i], x_square[j], gamma)/sqrt(
-        asin_elm_equal(x_square[i], gamma)*asin_elm_equal(x_square[j], gamma)
-    );
-}
-double kernel_acos_0(int i, int j) const
-{
-    return 1.0 - M_1_PI*acos(dot(x[i], x[j])/sqrt(x_square[i]*x_square[j]));
-}
-double kernel_acos_1(int i, int j) const
-{
-    const double x2y2 = x_square[i]*x_square[j];
-    const double xy = sqrt(x2y2);
-    const double cos_theta = dot(x[i], x[j])/xy;
-    const double theta = acos(cos_theta);
-    return M_1_PI*xy*(sin(theta) + (M_PI - theta)*cos_theta);
-}
-double kernel_acos_2(int i, int j) const
-{
-    const double x2y2 = x_square[i]*x_square[j];
-    const double sqrt_x2y2 = sqrt(x2y2);
-    const double dot_xy = dot(x[i], x[j]);
-    const double cos_theta = dot_xy/sqrt_x2y2;
-    const double cos2_theta = dot_xy*dot_xy/x2y2;
-    const double theta = acos(cos_theta);
-    return M_1_PI*x2y2*(3*sin(theta)*cos_theta + (M_PI - theta)*(1 + 2*cos2_theta));
-}
+    \begin{minted}[autogobble,mathescape,codetagify=NOTE]{C}
+    double kernel_asin(int i, int j) const {
+        return M_2_PI*asin_elm(x[i], x[j], x_square[i], x_square[j], gamma);
+        // $\frac{2}{\pi}\arcsin\left(\frac{1 + x^Ty}{\sqrt{(1 + x^Tx)(1 + y^Ty)}}\right)$
+    }
+    double kernel_asin_norm(int i, int j) const {
+        return asin_elm(x[i], x[j], x_square[i], x_square[j], gamma)/sqrt(
+            asin_elm_equal(x_square[i], gamma)*asin_elm_equal(x_square[j], gamma)
+        ); // NOTE: we use asin_elm_equal to avoid unnecessary sqrt computations
+    }
+    double kernel_acos_0(int i, int j) const {
+        return 1.0 - M_1_PI*acos(dot(x[i], x[j])/sqrt(x_square[i]*x_square[j])); // $1 - \frac{\theta}{\pi}$
+    }
+    double kernel_acos_1(int i, int j) const {
+        const double x2y2 = x_square[i]*x_square[j]; // $\lVert x \rVert^2 \lVert y \rVert^2$
+        const double xy = sqrt(x2y2);                // $\lVert x \rVert \lVert y \rVert$
+        const double cos_theta = dot(x[i], x[j])/xy; // $\cos(\theta) = \frac{x^Ty}{\lVert x \rVert \lVert y \rVert}$
+        const double theta = acos(cos_theta);
+        return M_1_PI*xy*(sin(theta) + (M_PI - theta)*cos_theta); // $\frac{1}{\pi}\lVert x \rVert \lVert y \rVert \left(\sin(\theta) + (\pi - \theta)\cos(\theta)\right)$
+    }
+    double kernel_acos_2(int i, int j) const {
+        const double x2y2 = x_square[i]*x_square[j];         // $\lVert x \rVert^2 \lVert y \rVert^2$
+        const double cos_theta = dot(x[i], x[j])/sqrt(x2y2); // $\cos(\theta) = \frac{x^Ty}{\lVert x \rVert \lVert y \rVert}$
+        const double cos2_theta = cos_theta*cos_theta;
+        const double theta = acos(cos_theta);
+        return M_1_PI*x2y2*(3*sin(theta)*cos_theta + (M_PI - theta)*(1 + 2*cos2_theta)); // $\frac{1}{\pi}\lVert x \rVert^2 \lVert y \rVert^2 \left(3\sin(\theta)\cos(\theta) + (\pi - \theta)(1 + 2\cos^2(\theta))\right)$
+    }
+    double kernel_acos_1_norm(int i, int j) const {
+        const double cos_theta = dot(x[i], x[j])/sqrt(x_square[i]*x_square[j]); // $\cos(\theta) = \frac{x^Ty}{\lVert x \rVert \lVert y \rVert}$
+        const double theta = acos(cos_theta);
+        return M_1_PI*(sin(theta) + (M_PI - theta)*cos_theta); // $\frac{1}{\pi}\left(\sin(\theta) + (\pi - \theta)\cos(\theta)\right)$
+    }
+    double kernel_acos_2_norm(int i, int j) const {
+        const double cos_theta = dot(x[i], x[j])/sqrt(x_square[i]*x_square[j]); // $\cos(\theta) = \frac{x^Ty}{\lVert x \rVert \lVert y \rVert}$
+        const double cos2_theta = cos_theta*cos_theta;
+        const double theta = acos(cos_theta);
+        return M_1_PI*(3*sin(theta)*cos_theta + (M_PI - theta)*(1 + 2*cos2_theta)); // $\frac{1}{\pi}\left(3\sin(\theta)\cos(\theta) + (\pi - \theta)(1 + 2\cos^2(\theta))\right)$
+    }
 \end{minted}
 \end{listing}
 
@@ -414,7 +419,7 @@ to reflect the \texttt{enum} in the C library.
 \begin{listing}[H]
     \begin{minted}{julia}
 module kernel
-@enum KERNEL Linear Polynomial RadialBasis Sigmoid Precomputed Asin AsinNorm Acos0 Acos1 Acos2
+@enum KERNEL Linear Polynomial RadialBasis Sigmoid Precomputed Asin AsinNorm Acos0 Acos1 Acos2 Acos1Norm Acos2Norm
 end
 \end{minted}
     \caption{Julia \texttt{enum} definition for the kernels, equivalent to the C definition in \cref{lst:svm_h_enum}.}
