@@ -64,6 +64,140 @@ function plot_sigma_kernel(ax, df_sub_kern, kernel; sigma::Symbol, measure::Symb
     )
 end
 
+function plot_delve_all(df::DataFrame,
+    show_kernels::AbstractArray{String}=["Asin", "AsinNorm"],
+    ; # Keyword arguments
+    fig::Figure=Figure(),
+    linkxaxes::Bool=true,
+    linkyaxes::Bool=false,
+    show_rbf::Bool=false,
+    sigma::Symbol=:sigma,
+    measure::Symbol=:measure_test,
+    std::Symbol=:std,
+    show_bands::Bool=(measure == :measure_cv),
+    ax_opts::NamedTuple=(; xscale=log10)
+)
+    # Filter the correct rows and sort by sigma so lines are drawn in order
+    df = @chain df begin
+        @rsubset(:dataset isa DataSets.Delve)
+        sort(:sigma)
+    end
+
+    measure_type = get_measure_type(df)
+
+    # Grid layout 2x2:
+    #
+    # fm   nm
+    # fh   nh
+    #
+    # linearity: fn     fairly / non         X
+    # noise: mh         moderate / hight     Y
+
+    # bank 8
+    # bank 32
+    # pumadyn 8
+    # pumadyn 32
+
+    sizes = [8, 32]
+    datasets = [DataSets.Bank, DataSets.Pumadyn]
+    pairings = Iterators.product(sizes, datasets)
+
+    for (i, (size, dataset)) in enumerate(pairings)
+        @info i, size, dataset
+    end
+
+    axis = map(1:length(pairings)) do i
+        (;
+            fm=Axis(fig[i, 1]; ax_opts...),
+            fh=Axis(fig[i, 2]; ax_opts...),
+            nm=Axis(fig[i, 3]; ax_opts...),
+            nh=Axis(fig[i, 4]; ax_opts..., yaxisposition=:right)
+        )
+    end
+
+    plot_dataset = function (ax, df)
+        plot_band = wrap_tuple((ax, df_sub_kern, kernel) -> plot_sigma_band(ax, df_sub_kern, kernel; sigma, measure, std))
+        plot_kernel = wrap_tuple((ax, df_sub_kern, kernel) -> plot_sigma_kernel(ax, df_sub_kern, kernel; sigma, measure))
+
+        # List of axes and their corresponding dataframes
+        subplots = map(collect(pairs(ax))) do (name, ax)
+            name = string(name)
+            df_sub = @rsubset(df, :dataset.linearity == name[1], :dataset.noise == name[2])
+
+            ax, df_sub
+        end
+
+        # List of axes and their corresponding dataframes by kernel
+        plots_and_kernels = map(Iterators.product(subplots, show_kernels)) do ((ax, df_sub), kernel)
+            df_sub_kern = @rsubset(df_sub, :kernel_cat == kernel)
+
+            ax, df_sub_kern, kernel
+        end
+
+        # Call all the plotting functions
+        # We plot bands first so they are on bottom
+        show_bands && foreach(plot_band, plots_and_kernels)
+
+        foreach(plot_kernel, plots_and_kernels)
+
+        show_rbf && foreach(subplots) do (ax, df_sub)
+            df_rbf = @rsubset(df_sub, :kernel_cat == "RadialBasis")
+            if !isempty(df_rbf)
+                plot_rbf(ax, df_rbf, measure, measure_type)
+            end
+        end
+    end
+
+    foreach(zip(pairings, axis)) do ((size, dataset), ax)
+        df_sub = @rsubset(df, :dataset.size == size, :dataset isa dataset)
+
+        plot_dataset(ax, df_sub)
+    end
+
+    #
+    if linkyaxes
+        foreach(axis) do ax
+            linkyaxes!(values(ax)...)
+            hideydecorations!(ax.nm, grid=false)
+            hideydecorations!(ax.fh, grid=false)
+        end
+    end
+    #
+    if linkxaxes
+        foreach(axis[1:end-1]) do ax
+            foreach(ax) do ax
+                hidexdecorations!(ax, grid=false)
+            end
+            linkxaxes!(values(ax)...)
+        end
+    end
+    #
+    # # Facet labels
+    BoxLabel(fig[1, 0], "8", rotation=pi / 2, tellheight=false)
+    BoxLabel(fig[2, 0], "32", rotation=pi / 2, tellheight=false)
+    BoxLabel(fig[3, 0], "8", rotation=pi / 2, tellheight=false)
+    BoxLabel(fig[4, 0], "32", rotation=pi / 2, tellheight=false)
+    BoxLabel(fig[1:2, -1], "Bank", rotation=pi / 2)
+    BoxLabel(fig[3:4, -1], "PumaDyn", rotation=pi / 2)
+    #
+    BoxLabel(fig[0, 1], "Moderate Noise", tellwidth=false)
+    BoxLabel(fig[0, 2], "High Noise", tellwidth=false)
+    BoxLabel(fig[0, 3], "Moderate Noise", tellwidth=false)
+    BoxLabel(fig[0, 4], "High Noise", tellwidth=false)
+    BoxLabel(fig[-1, 1:2], "Fairly linear", tellwidth=false)
+    BoxLabel(fig[-1, 3:4], "Non-linear", tellwidth=false)
+    #
+    # # Dataset name and size on top left
+    # datasetname = name(dataset)
+    # Label(fig[-1:0, -1:0], "$datasetname\n$size", font=:bold, fontsize=20)
+    #
+    # # Axis labels
+    Label(fig[1:4, 5], name(measure_type), rotation=pi / 2, font=:bold)
+    Legend(fig[-1:0, -1:0], axis[1].fm, "Kernel", framevisible=false, merge=true)
+    Label(fig[5, 1:4], L"\sigma_w", font=:bold)
+
+    fig
+end
 function plot_delve(df::DataFrame, dataset::Type{<:DataSets.Delve},
     size::Integer=32,
     show_kernels::AbstractArray{String}=["Asin", "AsinNorm"],
