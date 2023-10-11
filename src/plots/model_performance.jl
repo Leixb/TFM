@@ -215,6 +215,7 @@ function plot_sigma(
     interactive::Bool=is_interactive(),
     ax_opts::NamedTuple=(; xscale=log10),
     vertical::Bool=false,
+    datasets::Union{Nothing,AbstractArray{String}}=nothing,
     kwargs...
 )
 
@@ -228,7 +229,12 @@ function plot_sigma(
 
     measure_type = get_measure_type(df_filtered)
 
-    datasets = unique(df_filtered.dataset_cat)
+    datasets_ = unique(df_filtered.dataset_cat)
+    if !isnothing(datasets)
+        datasets_ = intersect(datasets_, datasets)
+    end
+    datasets = datasets_
+
     kernels = unique(df.kernel_cat)
 
     # HACK: this is awful, but it works.
