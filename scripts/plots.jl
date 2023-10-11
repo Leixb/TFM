@@ -31,16 +31,22 @@ end
 # WARN: --scan only affects Experiment 3, since 1 and 2 have already been
 # purged.
 
+if !@isdefined plot_list
+    plot_list = 1:10
+else
+    @info "Plot list: $plot_list"
+end
+
 @info scan_dirs ? "Scanning directories" : "Not scanning directories (pass --scan to scan for new data)"
 
-@info "Benchmarks"
-let
+1 in plot_list && let
+    @info "Benchmarks"
     @saveplot benchmark_time_inst = Plots.plot_benchmark_time_instances()
     @saveplot benchmark_time_improvement_old = Plots.exec_improvement()
 end
 
-@info "Experiment run 1 (svms/) MSE (Frenay grid)"
-let
+2 in plot_list && let
+    @info "Experiment run 1 (svms/) MSE (Frenay grid)"
     local opts = (;
         linkxaxes=true, linkyaxes=false,
         show_rbf=true
@@ -61,8 +67,8 @@ end
 # measurement is the result of the evaluation when doing cross-validation
 # std is the standard deviation of the measurement
 
-@info "Experiment run 2 (svms_2/) Normalized RMSE"
-let
+3 in plot_list && let
+    @info "Experiment run 2 (svms_2/) Normalized RMSE"
     local opts = (;
         linkxaxes=true, linkyaxes=false,
         show_rbf=true
@@ -74,6 +80,10 @@ let
         @transform(:corrected_sigma = :sigma .* :n_feat)
     end
     @saveplot nRMSE_all = Plots.plot_sigma(nrmse; opts..., opts_big_vert..., vertical=true)
+
+    @saveplot nRMSE_asin = Plots.plot_sigma(nrmse, ["Asin"]; opts..., opts_big_vert..., vertical=true)
+    @saveplot nRMSE_asinnorm = Plots.plot_sigma(nrmse, ["AsinNorm"]; opts..., opts_big_vert..., vertical=true)
+
     @saveplot nRMSE_frenay = Plots.plot_sigma(@rsubset(nrmse, :dataset isa DataSets.Frenay); opts...)
     @saveplot nRMSE_frenay_s = Plots.plot_sigma(@rsubset(nrmse, :dataset isa DataSets.Small); opts...)
     @saveplot nRMSE_frenay_l = Plots.plot_sigma(@rsubset(nrmse, :dataset isa DataSets.Large); opts...)
@@ -81,8 +91,8 @@ let
     @saveplot nRMSE_pumadyn = Plots.plot_sigma(@rsubset(nrmse, :dataset isa DataSets.Pumadyn); opts...)
 end
 
-@info "Experiment run 3 (svms3/) nRMSE with scaled sigma"
-let
+4 in plot_list && let
+    @info "Experiment run 3 (svms3/) nRMSE with scaled sigma"
     local data_ex3 = experiment_data("svms3", scan_dirs)
 
     local nrmse_s = @chain data_ex3 begin
@@ -91,26 +101,51 @@ let
         @rtransform(:n_feat = Plots.num_features[:dataset_cat])
         @transform(:corrected_sigma = :sigma .* :n_feat)
     end
-    local opts = (;
-        linkyaxes=true, linkxaxes=true,
-        sigma=:corrected_sigma,
-        measure=:measure_cv,
-        std=:measure_std,
-        show_bands=true,
-        show_rbf=true
+
+    local nrmse_s_nodelve = @rsubset(nrmse_s, !(:dataset isa DataSets.Delve))
+
+    local opts = Dict(
+        :linkyaxes => false,
+        :linkxaxes => true,
+        :sigma => :corrected_sigma,
+        :measure => :measure_cv,
+        :std => :measure_std,
+        :show_bands => true,
+        :show_rbf => true
     )
 
     @info "Experiment run 3 (smvs3/) - part 1: Regression plots"
 
     @saveplot nRMSE_all_scaled = Plots.plot_sigma(nrmse_s; opts..., show_bands, opts_big_vert..., vertical=true)
+
+    @saveplot nRMSE_asin_scaled = Plots.plot_sigma(nrmse_s, ["Asin"]; opts..., show_bands, opts_big_vert..., vertical=true)
+    @saveplot nRMSE_asinnorm_scaled = Plots.plot_sigma(nrmse_s, ["AsinNorm"]; opts..., show_bands, opts_big_vert..., vertical=true)
+
+    @saveplot nRMSE_nodelve_all_scaled = Plots.plot_sigma(nrmse_s_nodelve; opts..., show_bands, opts_big.resolution, vertical=true)
+
+    @saveplot nRMSE_nodelve_asin_scaled = Plots.plot_sigma(nrmse_s_nodelve, ["Asin"]; opts..., show_bands, opts_big.resolution, vertical=true)
+    @saveplot nRMSE_nodelve_asinnorm_scaled = Plots.plot_sigma(nrmse_s_nodelve, ["AsinNorm"]; opts..., show_bands, opts_big.resolution, vertical=true)
+
     @saveplot nRMSE_frenay_scaled = Plots.plot_sigma(@rsubset(nrmse_s, :dataset isa DataSets.Frenay); opts..., show_bands)
     @saveplot nRMSE_frenay_s_scaled = Plots.plot_sigma(@rsubset(nrmse_s, :dataset isa DataSets.Small); opts..., show_bands)
     @saveplot nRMSE_frenay_l_scaled = Plots.plot_sigma(@rsubset(nrmse_s, :dataset isa DataSets.Large); opts..., show_bands)
+
+    opts[:linkyaxes] = true
 
     @saveplot nRMSE_delve_bank_32_scaled = Plots.plot_delve(nrmse_s, DataSets.Bank, 32; opts...)
     @saveplot nRMSE_delve_bank_8_scaled = Plots.plot_delve(nrmse_s, DataSets.Bank, 8; opts...)
     @saveplot nRMSE_delve_pumadyn_32_scaled = Plots.plot_delve(nrmse_s, DataSets.Pumadyn, 32; opts...)
     @saveplot nRMSE_delve_pumadyn_8_scaled = Plots.plot_delve(nrmse_s, DataSets.Pumadyn, 8; opts...)
+
+    @saveplot nRMSE_delve_asin_bank_32_scaled = Plots.plot_delve(nrmse_s, DataSets.Bank, 32, ["Asin"]; opts...)
+    @saveplot nRMSE_delve_asin_bank_8_scaled = Plots.plot_delve(nrmse_s, DataSets.Bank, 8, ["Asin"]; opts...)
+    @saveplot nRMSE_delve_asin_pumadyn_32_scaled = Plots.plot_delve(nrmse_s, DataSets.Pumadyn, 32, ["Asin"]; opts...)
+    @saveplot nRMSE_delve_asin_pumadyn_8_scaled = Plots.plot_delve(nrmse_s, DataSets.Pumadyn, 8, ["Asin"]; opts...)
+
+    @saveplot nRMSE_delve_asinnorm_bank_32_scaled = Plots.plot_delve(nrmse_s, DataSets.Bank, 32, ["AsinNorm"]; opts...)
+    @saveplot nRMSE_delve_asinnorm_bank_8_scaled = Plots.plot_delve(nrmse_s, DataSets.Bank, 8, ["AsinNorm"]; opts...)
+    @saveplot nRMSE_delve_asinnorm_pumadyn_32_scaled = Plots.plot_delve(nrmse_s, DataSets.Pumadyn, 32, ["AsinNorm"]; opts...)
+    @saveplot nRMSE_delve_asinnorm_pumadyn_8_scaled = Plots.plot_delve(nrmse_s, DataSets.Pumadyn, 8, ["AsinNorm"]; opts...)
 
     local kernels = ["Acos0", "Acos1", "Acos2"]
 
@@ -134,14 +169,16 @@ let
     end
 
     @saveplot accuracy_class_all_scaled = Plots.plot_sigma(acc_s; opts..., show_bands, resolution=opts_big.resolution)
+    @saveplot accuracy_class_asin_scaled = Plots.plot_sigma(acc_s, ["Asin"]; opts..., show_bands, resolution=opts_big.resolution)
+    @saveplot accuracy_class_asinnorm_scaled = Plots.plot_sigma(acc_s, ["AsinNorm"]; opts..., show_bands, resolution=opts_big.resolution)
 
     local kernels = ["Acos0", "Acos1", "Acos2"]
 
     @saveplot accuracy_class_acos_all_scaled = Plots.plot_sigma(acc_s, kernels; opts..., resolution=opts_big.resolution)
 end
 
-@info "Experiment run 4 (svms4_inc) - Increasing subsample"
-let
+5 in plot_list && let
+    @info "Experiment run 4 (svms4_inc) - Increasing subsample"
     df_sum_best_b32fm = let
         df = experiment_data("svms4_inc", scan_dirs)
         df.subsample = (df.subsample .|> a -> isnothing(a) ? 1.0 : a)
@@ -155,8 +192,8 @@ let
     @saveplot nRMSE_bank32fm_sampling = Plots.plot_sigma_subsample(df_sum_best_b32fm; measure=:measurement, linkyaxes=false)
 end
 
-@info "Kernel plots"
-let
+6 in plot_list && let
+    @info "Kernel plots"
     @saveplot kernel_asin = Plots.plot_kernel(
         Utils.kernel_asin_normalized; fig_opts=(; resolution=(375, 200)),
         x=range(-1, 1, 201)
@@ -171,8 +208,8 @@ let
     @saveplot kernel_acos2_3d = Plots.plot_kernel_3d(Utils.kernel_acos, 1, 2)
 end
 
-@info "Heatmaps"
-let
+7 in plot_list && let
+    @info "Heatmaps"
     heatmap_df = Plots.data_nrmse_s()
     local opts = (;
         alpha=0.0001,
