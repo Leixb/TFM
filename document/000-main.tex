@@ -70,8 +70,15 @@
 
 \pgfplotsset{cycle list={wong_blue,wong_orange,wong_green,wong_purple,wong_skyblue,wong_vermillion,wong_yellow}}
 
+% MACROS to make things more consistent
+
 \usepackage{xspace}
 \newcommand{\libsvm}{\texttt{libsvm}\xspace}
+
+\newcommand{\R}{\mathbb{R}}
+
+% TODO: update this once we have a final threshold conclusion
+\newcommand{\threshold}{$>10$\xspace}
 
 \makeatletter
 \patchcmd{\@chapter}% <cmd>
@@ -159,7 +166,7 @@
 
 \include{010-intro}
 \include{012-theoretical-background}
-\include{020-objectives}
+% \include{020-objectives}
 \include{030-implementation}
 \include{040-experiments}
 \include{050-analysis}

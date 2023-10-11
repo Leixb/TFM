@@ -12,19 +12,27 @@
 % breakthroughs.
 
 \Textcite{frenayParameterinsensitiveKernelExtreme2011} presented a
-parameter-insensitive kernel inspired from extreme learning machines (ELMs
-\cite{huangExtremeLearningMachine2006}). According to the authors, the
-meta-parameter associated with the kernel does not affect the performance of the
+``parameter-insensitive'' kernel inspired from extreme learning machines
+(ELMs)~\cite{huangExtremeLearningMachine2006}. According to the authors, the
+meta-parameter associated with the kernel, once it reaches a certain threshold,
+further increasing its value
+does not affect the performance of the
 results obtained. In the paper they demonstrate the effectiveness of the kernel
-in a Support Vector Regression (SVR) task. The results obtained with this kernel
-are not significantly different from the results obtained in the
-\emph{state-of-the-art} of each dataset using Gaussian kernels.
+in a Support Vector Regression (SVR) task. Showing that results obtained
+with this kernel are not significantly different from the results obtained
+in the \emph{state-of-the-art} of each dataset using Gaussian kernels.
 
 If the kernel is indeed parameter-insensitive, then it is possible that other
-infinite neural network kernels also have this property. The aim of this project
-is to study the effects of these infinite neural network kernels in extreme
-learning machines; understanding their behaviour in practical learning problems,
-with a special focus on the dependence (or lack of) of performance on the kernel
+infinite neural network kernels also have this property. Infinite neural network
+kernels are a family of kernels which are derived from infinite neural networks,
+which are networks with infinitely many hidden units.
+
+\subsection{Goals}
+
+The aim of this project is to study the effects of these infinite neural network
+kernels in support vector machines; understanding their behaviour in practical
+learning problems, with a special focus on the dependence (or lack of) of
+performance on the kernel
 hyperparameters.
 
 Having a parameter-insensitive kernel has the potential to cut down on the time
@@ -40,83 +48,135 @@ range of characteristics, but are in no way exhaustive. But should be enough to
 provide a good understanding of the behaviour of the kernels and gain some
 insights on their limitations.
 
-
-% 1.2 Problem Statement
-% ==============================================================================
-% Introduce the specific problem you're addressing in your thesis – the effects
-% of infinite neural network kernels. Explain why this topic is relevant and how
-% it fits within the broader landscape of neural network research. Highlight any
-% existing challenges, limitations, or gaps in the current understanding of this
-% concept.
-
-% 1.3 Objectives and Research Questions
-% ==============================================================================
-% Clearly state the objectives of your thesis. What do you aim to achieve
-% through your research? Identify the central research questions that will guide
-% your investigation into the effects of infinite neural network kernels.
-
-
-% 1.4 Significance of the Study
-% ==============================================================================
-% Discuss the potential implications and applications of understanding infinite
-% neural network kernels. How might this knowledge contribute to improving
-% neural network design, performance, or interpretability? Highlight the
-% importance of addressing this topic to advance the field of neural networks.
-
-% 1.5 Scope and Limitations
-% ==============================================================================
-% Define the scope of your research. Specify the boundaries of your
-% investigation, such as the specific types of neural networks, data, and
-% mathematical principles you will focus on. Also, acknowledge any limitations
-% that might affect the generalizability of your findings.
-
-% 2.2 Kernel Methods in Machine Learning
-% ==============================================================================
-% Introduce the concept of kernel methods in machine learning, emphasizing their
-% use in support vector machines (SVMs) and other algorithms. Explain how
-% kernels allow algorithms to operate in a higher-dimensional feature space
-% without explicitly calculating the coordinates.
-
-% \subsection{Infinite Neural Network Kernels}%
-% 2.3 Infinite Kernels and Their Implications
-% ==============================================================================
-% Define what is meant by "infinite neural network kernels." Explore how
-% infinite kernels can potentially offer novel insights into neural network
-% behavior, representation learning, and generalization. Touch upon any related
-% mathematical concepts that will be relevant to your analysis.
-
-% \section{Related Work}%
-% \label{sec:related_work}
-
-% 3. Related Work
-% ==============================================================================
-
-% 3.1 Studies on Neural Network Kernels
-% ==============================================================================
-% Discuss existing research or studies that have explored neural network
-% kernels, both finite and infinite. Highlight any findings, methodologies, or
-% gaps in the literature that your thesis aims to address.
-
-% 3.2 Applications and Impact
-% ==============================================================================
-% Provide examples of how understanding neural network kernels, particularly
-% infinite ones, has impacted real-world applications or theoretical
-% advancements in machine learning and related fields.
-
-% 6. Conclusion
-% ==============================================================================
-% Summarize the key points you've discussed in the introduction and provide a
-% smooth transition to the subsequent chapters. Emphasize the importance of your
-% research in advancing the understanding of infinite neural network kernels and
-% its potential implications.
-
-% Remember, the introduction should capture the reader's attention, provide
-% context, and set the stage for the rest of your thesis. Make sure your writing
-% is clear, concise, and well-organized, and consider revisiting and refining
-% the introduction after you've completed the other sections of your thesis to
-% ensure it accurately reflects your research's scope and findings.
-
 \section{Methodology}
+
+\subsection{Literature Review}%
+\label{sub:literature_review}
+
+First, we review the literature on infinite neural networks and any works
+related to kernels which can be derived from them. Aim to understand the
+current state of the art in regard to infinite neural network kernels and
+their applications.
+
+Looking at papers which cite
+\textcite{frenayParameterinsensitiveKernelExtreme2011}, we find some surveys
+on \cite{huangTrendsExtremeLearning2015,huangExtremeLearningMachines2011}, most
+citations mention the kernel as a curiosity when talking about extreme learning
+machines \cite{yuLearningDeepRepresentations2015}
+
+An important consideration is not to confuse the ``ELM kernel'' with the
+``Kernel ELM'' (KELM) \cite{huangExtremeLearningMachine2012}. The latter is an
+extension of the ELM architecture to support kernel learning, which has gained
+popularity in recent years. We are interested in the former, which is a kernel
+derived from the interpretation of the ELM as an infinite neural network and is
+not related to the KELM.
+
+The only other infinite neural network kernels we have found in the literature
+are the ones presented in \textcite{choLargemarginClassificationInfinite2010},
+which are derived from infinite neural networks with a different activation
+function than the one used by
+\citeauthor{frenayParameterinsensitiveKernelExtreme2011}. These kernels
+use the angle of the input vectors to compute the similarity between them,
+and therefore use $\arccos$ to obtain the angle. Throughout this thesis
+we will refer to these kernels as the ``arccosine kernels'' and the kernel
+from \citeauthor{frenayParameterinsensitiveKernelExtreme2011} as the
+``arcsine kernel''.
+
+We have found no other kernels derived from infinite neural networks in the
+literature, it seems that this is an unexplored area or that analytical
+expressions for such kernels are impossible to derive for other configurations.
+
+\begin{table}[H]
+    \caption{Summary of infinite neural network kernels with analytical expressions found in the literature.}
+    \label{tab:kernels_summary}
+    \begin{tabular}{lcccc}
+        \toprule
+        \textbf{Kernel}  & \textbf{Distribution} & \textbf{Activation function} & \textbf{Reference}                                                                       & \textbf{Equation}      \\
+        \midrule
+        Arc-sine         & \textit{Gaussian}     & \textit{erf}                 & \cite{williamsComputationInfiniteNeural1998,frenayParameterinsensitiveKernelExtreme2011} & \ref{eq:kernel_asin}   \\
+        \addlinespace
+        Arc-cosine $n=0$ & \textit{Gaussian}     & \textit{heavyside}           & \cite{choLargemarginClassificationInfinite2010,pandeyGoDeepWide2014}                     & \ref{eq:kernel_cho_n0} \\
+        Arc-cosine $n=1$ & \textit{Gaussian}     & \textit{ReLu}                & \cite{choLargemarginClassificationInfinite2010,pandeyGoDeepWide2014}                     & \ref{eq:kernel_cho_n1} \\
+        Arc-cosine $n=2$ & \textit{Gaussian}     & \textit{RePu}                & \cite{choLargemarginClassificationInfinite2010,pandeyGoDeepWide2014}                     & \ref{eq:kernel_cho_n2} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+
+\Cref{tab:kernels_summary} gives an overview of the infinite neural network
+kernels with known analytical expressions in the literature which will be
+used in this thesis.
+We have 4 kernels in total, all of them derived from infinite neural networks
+with Gaussian priors but with different activation functions. All of them have a
+single hyperparameter, $\sigma_w$, which is the standard deviation of the
+Gaussian prior. Additionally, we can compare the \emph{normalized} and
+\emph{non-normalized} versions of the kernels. This gives a potential total of
+8 kernels to compare.
+
+\subsection{Objectives}
+Once we have a clear understanding of the state of the art, we can define the
+objectives of the thesis.
+
+\begin{description}
+    \item[O1] Reproduce the results obtained by
+        \textcite{frenayParameterinsensitiveKernelExtreme2011}.
+    \item[O2] Compare the performance of the kernels with different datasets and
+        hyperparameters.
+    \item[03] See how the other infinite neural network kernels behave in comparison
+        with the arcsine kernel.
+    \item[O4] Keep the computational cost of the experiments low in order to be
+        able to run them in a reasonable amount of time.
+        \begin{itemize}
+            \item The experiments should be able to run on a laptop.
+            \item The experiments should be able to run in a reasonable amount
+                  of time (less than a day).
+        \end{itemize}
+    \item[O5] Make the experiments reproducible and the code available to the
+        public. % TODO: add link to code, and Zenodo
+        \begin{itemize}
+            \item The code should be well documented.
+            \item The code should be easy to use.
+            \item All dependencies should be documented.
+        \end{itemize}
+    \item[O6] Apply meta-learning to find the best kernel and hyperparameters
+        for a given dataset.
+\end{description}
+
+The first are related to the results of our experiments and the last two are
+constraints on how the experiments should be performed in order to ensure that
+they are both reproducible and computationally feasible.
+
+\subsubsection{Hypotheses}
+\label{sec:objectives_and_hypotheses}
+
+% \section{Kernel summary}
+% \label{sec:kernels}
+
+% TODO: formalize all the hypothesis
+We formulate the following hypotheses regrading the behaviour of the kernels and
+their hyperparameters. These hypotheses are based on the results obtained by
+\textcite{frenayParameterinsensitiveKernelExtreme2011}:
+
+\begin{hypothesis}\label{hyp:threshold}
+    Kernels originating from infinite neural networks will exhibit the same
+    behaviour described by
+    \textcite{frenayParameterinsensitiveKernelExtreme2011}; where there is a
+    threshold value of their hyperparameter past which the kernel prediction
+    capability does not improve.
+\end{hypothesis}
+
+\begin{hypothesis}
+    The value of the hyper-parameter at the threshold described in
+    \ref{hyp:threshold}, will be the optimal (or close to optimal) value for the
+    kernel.
+\end{hypothesis}
+
+\begin{hypothesis}
+    Infinite neural network kernels are able to generalize to other datasets and
+    obtain results comparable to the \emph{state-of-the-art}.
+\end{hypothesis}
+
+The aim is to design experiments that will allow us to test these hypotheses.
 
 \subsection{Data Collection and Generation}%
 
@@ -144,7 +204,7 @@ datasets are summarized in \cref{tab:datasets_regression,tab:datasets_classifica
     % INFO: keep this up to date with scripts/tables.jl
 \end{table}
 
-\subsection{Experiments and Goals}%
+\subsection{Experiments}%
 
 We can classify the experiments in two groups according to their purposes. The
 first group of experiments is used to understand the performance of the
@@ -229,11 +289,17 @@ work.
 
 \section{Contributions}
 
-% TODO
+% TODO: more things
 The main contributions of this thesis are:
 \begin{enumerate}
-    \item Updated \libsvm in \texttt{nixpkgs} repository and enabled OpenMP support\footnote{\url{https://github.com/NixOS/nixpkgs/pull/221325}}
-    \item Extended \libsvm to support additional kernels\footnote{\url{https://github.com/leixb/libsvm}}
-    \item Extended the Julia wrapper for \libsvm to support these additional kernels and added additional
+    \item Updated \libsvm in \texttt{nixpkgs} repository and enabled OpenMP support\footnote{\url{https://github.com/NixOS/nixpkgs/pull/221325}}.
+    \item Extended \libsvm to support additional kernels\footnote{\url{https://github.com/leixb/libsvm}}.
+    \item Extended the Julia wrapper for \libsvm to support these additional kernels and added additional.
           features to report and limit the iterations of the solver\footnote{\url{https://github.com/leixb/LIBSVM.jl}}
+    \item Analyzed the behaviour of the known infinite neural network kernels with analytical expressions.
+          % TODO: make sure this threshold is correct
+    \item Shown that these infinite neural network kernels are parameter insensitive for high (\threshold) values of $\sigma$.
+    \item For some datasets, we have found that the region where arcsine kernels are parameter insensitive obtains
+          significantly worse results than the optimal value of sigma.
+    \item Shown that the arcsine kernel does not need to be normalized for high (\threshold) values of $\sigma$.
 \end{enumerate}

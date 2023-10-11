@@ -7,6 +7,70 @@ In order to understand the rest of the thesis, it is important to give a brief
 overview of the fundamentals on which the kernels used are based on. This
 section will cover the basics of neural networks and kernel methods.
 
+\section{Basic definitions}
+
+\subsection{Kernel Functions}%
+
+A kernel function $K$ is a function that maps a pair of vectors $\x,\,\z \in
+    \mathbb{R}^n$ to a scalar value $K(\x,\,\z) \in \mathbb{R}$ which is the
+inner-product of the two vectors in a feature space $\mathcal{H}$. That is,
+$K(\x,\,\z) = \left\langle \phi(\x),\,\phi(\z) \right\rangle_{\mathcal{H}}$,
+where $\phi$ is the feature map that maps the input vectors to the feature
+space.
+
+% TODO: Maybe can be explained better.
+
+These functions are useful because they allow us to work in a higher dimensional
+feature space without having to explicitly compute the feature map $\phi$; this
+is known as the \emph{kernel trick}. Kernel methods are a class of algorithms
+that can leverage this trick to solve problems in a higher dimensional feature
+space while only having to work in the original input space.
+
+\subsection{Activation functions}
+
+An activation function is a function $g$ that is applied to the output of a
+neuron. It takes the weighted sum of the inputs to the neuron and outputs a
+value that is used as the input to the next layer. By using an activation
+function, the network is easier to train and can learn more complex functions.
+Since without them, the backpropagation would take into account all outputs no
+matter how small they values are, which would make the training process slow.
+Popular activation functions include the sigmoid function, the hyperbolic
+tangent function, and the rectified linear unit (ReLU) function:
+
+\begin{figure}[H]
+    \begin{tikzpicture}
+        \begin{groupplot}[group style={
+                        group size=3 by 1,
+                        xlabels at=edge bottom,
+                        ylabels at=edge left,
+                        vertical sep=4em,
+                    },
+                width = .3\textwidth,
+                ymin=-0.1, ymax=1.1,
+                every axis plot/.append style={smooth, mark=none, line width=2pt},
+                enlarge x limits=false,
+                samples=25,
+                domain=-10:10,
+                xmin=-10, xmax=10,
+                grid=both,
+                grid style={dotted, draw=gray!40, line width=1.0pt}
+            ]
+            \nextgroupplot[title={\bfseries ReLU},xmin=-2,xmax=2]
+            \draw[line width=2pt, color=wong_blue] (-10,0) -- (0,0);
+            \draw[line width=2pt, color=wong_blue] (0,0) -- (2.1,2.1);
+
+            \nextgroupplot[title={\bfseries Sigmoid }]
+            \addplot[color=wong_orange] gnuplot[id=sigmoid]{exp(x)/(1 + exp(x))};
+
+            \nextgroupplot[title={\bfseries tanh },ymin=-1,xmin=-5,xmax=5]
+            \addplot[color=wong_green] gnuplot[id=tanh]{tanh(x)};
+        \end{groupplot}
+    \end{tikzpicture}
+    \caption{Common activation functions}
+    \label{fig:common_activation_functions}
+\end{figure}
+
+
 \section{Extreme Learning Machines}%
 \label{sub:neural_networks_fundamentals}
 % 2.1 Extreme Learning Machines
@@ -27,7 +91,7 @@ be the weight vector connecting the $i$-th hidden node to the output layer.
 Finally, let $b_i$ be the bias of the $i$-th hidden node and $g(\cdot)$ be the
 activation function.
 
-We can model the model mathematically as follows:
+We can model it as follows:
 \begin{equation}%
     \label{eq:slfn}
     \sum_{i=1}^{\tilde{N}} \boldsymbol\beta_{i} g\left( \textbf w_i \cdot \textbf x_j + b_i \right) = \textbf t_j, \quad j = 1,\,2,\,\dots,\,N
@@ -112,10 +176,17 @@ $\textbf{H}^{\dagger}$ is the Moore-Penrose pseudoinverse of $\textbf{H}$.
 \Textcite{huangExtremeLearningMachine2006} showed that this method works for
 activation functions that are infinitely differentiable.
 
-ELM does is much faster to train than backpropagation, does not get stuck in
-local minima and has better generalization performance. However the issue of
-overfitting and underfitting is still present, and the performance of the
-network is still dependent on the number of hidden nodes $\tilde{N}$.
+ELM presents the following advantages over traditional backpropagation:
+\begin{itemize}
+    \item Much faster to train (can be done in a single step)
+    \item Does not get stuck in local minima
+    \item Better generalization performance
+\end{itemize}
+However there are some drawbacks:
+\begin{itemize}
+    \item The issue of overfitting and underfitting is still present.
+    \item The performance of the network is dependent on the number of hidden nodes $\tilde{N}$.
+\end{itemize}
 \Textcite{huangExtremeLearningMachine2012} propose to incrementally add hidden
 nodes and use cross-validation to determine the optimal number of hidden nodes.
 
@@ -243,7 +314,7 @@ where $\Theta(z) = \frac{1}{2} \bigl(1 + \text{sign}(z)\bigr)$ is the Heaviside
 step function. And $n$ is a hyperparameter corresponding to the order of the
 kernel. In this kernel, $\Theta(z)z^n$ is the activation function of the neural
 network, which varies depending on the value of $n$ as shown in
-\cref{fig:activation_functions}.
+\cref{fig:activation_functions} (These are also known as Heavyside, ReLU and RePU).
 
 Notice the similarities between this integral (\cref{eq:integral_cho}) and the
 previous one from \citeauthor{williamsComputationInfiniteNeural1998}
@@ -353,8 +424,12 @@ $K_{\Sigma,\,n}$ is related to the original kernel $K_{n}$ as follows:
 
 \section{Kernel normalization}%
 \label{sec:kernel_normalization}
-% TODO: why is this useful? the original kernel seems to work fine in practice
-% and a priori seems already normalized?
+
+By normalizing a kernel, we make it insensitive to the scaling of the input
+data and ensure that the kernel values are in the range $[0,\,1]$. This makes
+the kernel more robust and easier to tune, since the effects of the
+hyperparameters are more consistent.
+% TODO : idk
 
 \subsubsection{Definition}
 
@@ -370,7 +445,8 @@ the normalized version. The normalization of a kernel is defined as follows:
 For the arc sine kernel, the normalization has can not be simplified analytically,
 it's just the application of \cref{eq:kernel_normalization} to the kernel expression.
 
-\subsection{Arc cosine family}
+\subsection{Arc cosine family}%
+\label{sub:kernel_normalization_acos}
 
 If we apply the normalization from \cref{eq:kernel_normalization} to the
 general expression for the arc cosine family of kernels $k_n$ from

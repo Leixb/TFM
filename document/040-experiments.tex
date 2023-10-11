@@ -17,10 +17,19 @@ resampling method as described by
 
 The 5\texttimes2 cross-validation consists of doing a 50\textendash50 split of
 the dataset into two sets. First, we train on the first set and test on the
-second set and then we train on the second set and test on the first set. The
-process is repeated 5 times, each time with a different random split. We choose
-this method since it is faster than the double cross-test method requiring only
-10 training processes instead of 100.
+second set, and then we train on the second set and test on the first set. The
+process is repeated 5 times, each time with a different random split. A diagram
+of the process is shown in \cref{fig:5x2CV}.
+
+\begin{figure}[H]
+    \input{figures/5x2CV.tikz}
+    \caption{Illustration of the 5\texttimes2 cross-validation method}%
+    \label{fig:5x2CV}
+\end{figure}
+
+We choose
+this method since it allows us to perform a statistical test to determine
+the difference between two models, as we will see in \cref{sec:paired-t-test}.
 
 % TODO: Add figure of the 5-2 cross-validation ?
 
@@ -41,7 +50,7 @@ performances of the two models on each split:
     p^{(i)} = p_A^{(i)} - p_B^{(i)}
 \end{equation}
 
-In 5\times2 cross-validation, we have 5 splits and we use them 2 times each,
+In 5\times2 cross-validation, we have 5 splits, and we use them 2 times each,
 swapping the training and test sets. Therefore, we have 10 values of $p^{(i)}$,
 and the values are related in pairs ($p^{(1)}$ and $p^{(2)}$). We can estimate
 the mean and variance of the differences in pairs as follows:
@@ -91,15 +100,22 @@ we use the normalized root-mean-square error (\emph{nRMSE}),
 which is a normalized version of the root-mean-square error (\emph{RMSE})
 defined as follows:
 \begin{equation}
-    nRMSE = \sqrt{\frac{1}{n}\sum_{i=1}^n (y_i - \hat{y}_i)^2}\frac{1}{\sigma_{obs}}
+    nRMSE = \frac{1}{\sigma_{obs}}\sqrt{\frac{1}{n}\sum_{i=1}^n (y_i - \hat{y}_i)^2}
 \end{equation}
 where $y_i$ is the observed value, $\hat{y}_i$ is the predicted value and
 $\sigma_{obs}$ is the standard deviation of the observed values.
 
-For the classification problems, we save the matrix of confusion from which we
-can calculate the accuracy, precision, recall and F1 score.
+The values of \emph{nRMSE} are in the range $[0, 1]$, where $0$ means that the
+model is perfect. Inversely, $1$ means that the model is as good as predicting
+the mean of the observed values (if $\hat{y}_i$ is the mean of the observed
+values, then the \emph{RMSE} is equal to $\sigma_{obs}$). From this it follows
+that \emph{nRMSE} can be interpreted as the percentage of the standard deviation
+of the observed values that the model cannot explain.
 
-Additionally, we save the number of iterations and execution time for the
+For classification, we save the matrix of confusion from which we
+can calculate the accuracy, precision, recall and F1-score.
+
+Additionally, we report the number of iterations and execution time for the
 training process.
 
 \subsection{Normalization}%
@@ -132,8 +148,8 @@ This acts as a method of scaling the data to values that are well-behaved for
 the SVM.
 
 % TODO: all this is repeated in the implementation
-\paragraph{Normalized Root-Mean-Square Error} We define the
-normalized root-mean-square error (\emph{nRMSE}) as follows:
+\paragraph{Normalized Root-Mean-Square Error} As explained
+in \cref{sec:metrics}, we use the normalized root-mean-square error (\emph{nRMSE}):
 \begin{equation}
     nRMSE = \frac{RMSE}{\sigma_{obs}}
 \end{equation}
@@ -230,6 +246,7 @@ first objective is to validate the implementation and experimental setup against
 known results.
 
 \section{Exploring the performance of other datasets and kernels}%
+\sectionmark{Exploring performance}
 \label{sec:exploring-the-performance-of-other-datasets-and-kernels}
 
 In this experiment, the aim is to obtain meaningful data on the performance of
