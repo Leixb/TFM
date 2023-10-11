@@ -43,7 +43,7 @@ regression(df::DataFrame) = @rsubset(df, is_regression(:dataset))
 classification(df::DataFrame) = @rsubset(df, !is_regression(:dataset))
 
 function kernel_idx(kernel::String)
-    kernels = ["Asin", "AsinNorm", "Acos0", "Acos1", "Acos2", "RadialBasis"]
+    kernels = ["AsinNorm", "Asin", "Acos0", "Acos1", "Acos2", "RadialBasis"]
     idx = findfirst(kernels .== kernel)
     if isnothing(idx)
         @warn "Unknown kernel: $kernel"
