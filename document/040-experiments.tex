@@ -271,148 +271,108 @@ datasets with different levels of linearity and noise as well as features. In to
 there are 8 variations of each. They provide a good way to test how the kernels
 perform on different noise and linearity levels.
 
-\section{Execution time and number of iterations}%
-\label{sec:execution-time-and-number-of-iterations}
-
-Another of the goals is to compare estimate whether the use of these infinite
-neural network kernels is feasible in practice, by comparing their execution
-time. To that end, all executions will be timed and the number of iterations
-taken by the SVM solver will be saved.
-
-\begin{figure}[H]
-    \includegraphics{plots/execution_log}
-    \caption{Execution time of the different kernels (log scale) Changing the cost
-        parameter}%
-    \label{fig:execution-log}
-\end{figure}
-
-\Cref{fig:execution-log} shows boxplots of the execution times of the different
-kernels for across all datasets. The title above each subplot indicates the
-value of the cost parameter. As we can see, increasing the cost parameter
-increases the execution time of the SVM. This effect is more noticeable for the
-kernels with more complex computations, such as the normalized arc-sine kernel
-and specially the arc-cosine kernels with $n=1$ and $n=2$.
-
-\begin{cnote}
-    These values of the cost are too high.
-    In the other plots, we use $10^4$ as the upper bound.
-    We should probably remove the bottom row altogether.
-
-    Also, add cost=... to the subplot titles
-\end{cnote}
-
-\begin{figure}[H]
-    \includegraphics{plots/iter_log}
-    \caption{Iterations needed for different kernels (log scale) Changing the cost
-        parameter}
-\end{figure}
-
-\begin{cnote}
-    Why asin-norm has more iterations than asin in average?
-\end{cnote}
-
-\section{Comparing the performance of the kernels with different datasets}%
-\sectionmark{Comparing performance}
-
-\subsection{Delve (Bank and PumaDyn) dataset families}
-
-The Delve datasets are a collection of datasets used in the Delve project,
-among them are the Bank and PumaDyn datasets. There are 8 variations of
-these datasets, which come from the combination of these properties%
-\footnote{\url{https://www.cs.toronto.edu/~delve/data/families.html}}:
-\begin{description}
-    \item[Attributes] 32 or 8
-    \item[Linearity] Fairly linear or Nonlinear
-    \item[Noise] High or Low.
-\end{description}
-
-% We refer to a specific combination as \texttt{Bank32fh}, which corresponds to
-% the Bank dataset with 32 attributes, \textbf{f}airly linear and \textbf{h}igh
-% noise.
-
-\subsubsection{Bank}
-
-\begin{figure}[H]
-    \includegraphics[width=0.7\textwidth]{plots/nRMSE_delve_bank_32_scaled}
-    \caption{nRMSE results on Delve Bank32 dataset with $\sigma_w$ scaled}
-    \label{fig:nrmse-delve-bank-32-scaled}
-\end{figure}
-
-\begin{figure}[H]
-    \includegraphics[width=0.7\textwidth]{plots/nRMSE_delve_bank_8_scaled}
-    \caption{nRMSE results on Delve Bank8 dataset with $\sigma_w$ scaled}
-    \label{fig:nrmse-delve-bank-8-scaled}
-\end{figure}
-
-\subsubsection{Pumadyn}
-
-\begin{figure}[H]
-    \includegraphics[width=0.7\textwidth]{plots/nRMSE_delve_pumadyn_32_scaled}
-    \caption{nRMSE results on Delve PumaDyn32 dataset with $\sigma_w$ scaled}
-    \label{fig:nrmse-delve-pumadyn-32-scaled}
-\end{figure}
-
-\begin{figure}[H]
-    \includegraphics[width=0.7\textwidth]{plots/nRMSE_delve_pumadyn_8_scaled}
-    \caption{nRMSE results on Delve PumaDyn8 dataset with $\sigma_w$ scaled}
-    \label{fig:nrmse-delve-pumadyn-8-scaled}
-\end{figure}
-
-\Cref{fig:nrmse-delve-bank-32-scaled,fig:nrmse-delve-bank-8-scaled,fig:nrmse-delve-pumadyn-32-scaled,fig:nrmse-delve-pumadyn-8-scaled}
-show the results obtained on the different datasets in the Band and PumaDyn
-families. We can see that the arc-sine kernels do converge when $\sigma_w > 1$.
-In the fairly linear datasets, there is not much difference to the RBF kernel,
-but in the non-linear there are situations where there is a noticeable
-difference. In particular, we see a similar behaviour to the one observed in the
-CPU dataset, in which there is a value of $\sigma_w$ that is \emph{optimal} (in
-the sense that is not significantly different from the RBF kernel) but
-increasing $\sigma_w$ does worsen the performance. This seems to contradict the
-theory that there is a threshold $t$ for which increasing $\sigma_w > t$ does
-not affect the result and this result is optimal.
-
-It seems that the linearity of the dataset determines whether the arc-sine
-kernel performs as the state-of-the-art RBF kernel or not when $\sigma_w$ is
-large. This is an interesting result, since we may be able to use meta-learning
-to determine if a dataset is a good candidate for the arc-sine kernel or not.
-
-% TODO: can we really draw conclusions from this?
-
-\subsection{Delve (Bank and PumaDyn) dataset using arc cosine}
-
-% TODO: every result with acos is weird
-
-\subsubsection{Bank}
-
-\begin{figure}[H]
-    \includegraphics[width=0.7\textwidth]{plots/nRMSE_acos_delve_bank_32_scaled}
-    \caption{nRMSE results on Delve Bank32 dataset with $\sigma_w$ scaled}
-    \label{fig:nrmse-acos-delve-bank-32-scaled}
-\end{figure}
-
-\begin{figure}[H]
-    \includegraphics[width=0.7\textwidth]{plots/nRMSE_acos_delve_bank_8_scaled}
-    \caption{nRMSE results on Delve Bank8 dataset with $\sigma_w$ scaled}
-    \label{fig:nrmse-acos-delve-bank-8-scaled}
-\end{figure}
-
-\subsubsection{Pumadyn}
-
-\begin{figure}[H]
-    \includegraphics[width=0.7\textwidth]{plots/nRMSE_acos_delve_pumadyn_32_scaled}
-    \caption{nRMSE results on Delve PumaDyn32 dataset with $\sigma_w$ scaled}
-    \label{fig:nrmse-acos-delve-pumadyn-32-scaled}
-\end{figure}
-
-\begin{figure}[H]
-    \includegraphics[width=0.7\textwidth]{plots/nRMSE_acos_delve_pumadyn_8_scaled}
-    \caption{nRMSE results on Delve PumaDyn8 dataset with $\sigma_w$ scaled}
-    \label{fig:nrmse-acos-delve-pumadyn-8-scaled}
-\end{figure}
-
-\begin{figure}[H]
-    \includegraphics[width=0.9\textwidth]{plots/nRMSE_all_scaled}
-    \caption{nRMSE results on all datasets with $\sigma_w$ scaled}
-    \label{fig:nrmse-all-scaled}
-\end{figure}
-
-
+% \section{Comparing the performance of the kernels with different datasets}%
+% \sectionmark{Comparing performance}
+%
+% \subsection{Delve (Bank and PumaDyn) dataset families}
+%
+% The Delve datasets are a collection of datasets used in the Delve project,
+% among them are the Bank and PumaDyn datasets. There are 8 variations of
+% these datasets, which come from the combination of these properties%
+% \footnote{\url{https://www.cs.toronto.edu/~delve/data/families.html}}:
+% \begin{description}
+%     \item[Attributes] 32 or 8
+%     \item[Linearity] Fairly linear or Nonlinear
+%     \item[Noise] High or Low.
+% \end{description}
+%
+% % We refer to a specific combination as \texttt{Bank32fh}, which corresponds to
+% % the Bank dataset with 32 attributes, \textbf{f}airly linear and \textbf{h}igh
+% % noise.
+%
+% \subsubsection{Bank}
+%
+% \begin{figure}[H]
+%     \includegraphics[width=0.7\textwidth]{plots/nRMSE_delve_bank_32_scaled}
+%     \caption{nRMSE results on Delve Bank32 dataset with $\sigma_w$ scaled}
+%     \label{fig:nrmse-delve-bank-32-scaled}
+% \end{figure}
+%
+% \begin{figure}[H]
+%     \includegraphics[width=0.7\textwidth]{plots/nRMSE_delve_bank_8_scaled}
+%     \caption{nRMSE results on Delve Bank8 dataset with $\sigma_w$ scaled}
+%     \label{fig:nrmse-delve-bank-8-scaled}
+% \end{figure}
+%
+% \subsubsection{Pumadyn}
+%
+% \begin{figure}[H]
+%     \includegraphics[width=0.7\textwidth]{plots/nRMSE_delve_pumadyn_32_scaled}
+%     \caption{nRMSE results on Delve PumaDyn32 dataset with $\sigma_w$ scaled}
+%     \label{fig:nrmse-delve-pumadyn-32-scaled}
+% \end{figure}
+%
+% \begin{figure}[H]
+%     \includegraphics[width=0.7\textwidth]{plots/nRMSE_delve_pumadyn_8_scaled}
+%     \caption{nRMSE results on Delve PumaDyn8 dataset with $\sigma_w$ scaled}
+%     \label{fig:nrmse-delve-pumadyn-8-scaled}
+% \end{figure}
+%
+% \Cref{fig:nrmse-delve-bank-32-scaled,fig:nrmse-delve-bank-8-scaled,fig:nrmse-delve-pumadyn-32-scaled,fig:nrmse-delve-pumadyn-8-scaled}
+% show the results obtained on the different datasets in the Band and PumaDyn
+% families. We can see that the arc-sine kernels do converge when $\sigma_w > 1$.
+% In the fairly linear datasets, there is not much difference to the RBF kernel,
+% but in the non-linear there are situations where there is a noticeable
+% difference. In particular, we see a similar behaviour to the one observed in the
+% CPU dataset, in which there is a value of $\sigma_w$ that is \emph{optimal} (in
+% the sense that is not significantly different from the RBF kernel) but
+% increasing $\sigma_w$ does worsen the performance. This seems to contradict the
+% theory that there is a threshold $t$ for which increasing $\sigma_w > t$ does
+% not affect the result and this result is optimal.
+%
+% It seems that the linearity of the dataset determines whether the arc-sine
+% kernel performs as the state-of-the-art RBF kernel or not when $\sigma_w$ is
+% large. This is an interesting result, since we may be able to use meta-learning
+% to determine if a dataset is a good candidate for the arc-sine kernel or not.
+%
+% % TODO: can we really draw conclusions from this?
+%
+% \subsection{Delve (Bank and PumaDyn) dataset using arc cosine}
+%
+% % TODO: every result with acos is weird
+%
+% \subsubsection{Bank}
+%
+% \begin{figure}[H]
+%     \includegraphics[width=0.7\textwidth]{plots/nRMSE_acos_delve_bank_32_scaled}
+%     \caption{nRMSE results on Delve Bank32 dataset with $\sigma_w$ scaled}
+%     \label{fig:nrmse-acos-delve-bank-32-scaled}
+% \end{figure}
+%
+% \begin{figure}[H]
+%     \includegraphics[width=0.7\textwidth]{plots/nRMSE_acos_delve_bank_8_scaled}
+%     \caption{nRMSE results on Delve Bank8 dataset with $\sigma_w$ scaled}
+%     \label{fig:nrmse-acos-delve-bank-8-scaled}
+% \end{figure}
+%
+% \subsubsection{Pumadyn}
+%
+% \begin{figure}[H]
+%     \includegraphics[width=0.7\textwidth]{plots/nRMSE_acos_delve_pumadyn_32_scaled}
+%     \caption{nRMSE results on Delve PumaDyn32 dataset with $\sigma_w$ scaled}
+%     \label{fig:nrmse-acos-delve-pumadyn-32-scaled}
+% \end{figure}
+%
+% \begin{figure}[H]
+%     \includegraphics[width=0.7\textwidth]{plots/nRMSE_acos_delve_pumadyn_8_scaled}
+%     \caption{nRMSE results on Delve PumaDyn8 dataset with $\sigma_w$ scaled}
+%     \label{fig:nrmse-acos-delve-pumadyn-8-scaled}
+% \end{figure}
+%
+% \begin{figure}[H]
+%     \includegraphics[width=0.9\textwidth]{plots/nRMSE_all_scaled}
+%     \caption{nRMSE results on all datasets with $\sigma_w$ scaled}
+%     \label{fig:nrmse-all-scaled}
+% \end{figure}
+%
+%

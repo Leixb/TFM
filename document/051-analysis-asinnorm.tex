@@ -86,7 +86,8 @@ From the Delve datasets we can further observe:
 
 \begin{figure}[H]
     \includegraphics[width=\textwidth]{plots/nRMSE_delve_asinnorm_scaled_unlinked}
-    \caption{Sigma vs Normalized Root Mean Squared error by dataset using Normalized arcsine kernel}%
+    \caption{Sigma vs Normalized Root Mean Squared error by dataset using Normalized arcsine kernel on
+        Delve datasets}%
     \label{fig:nrmse-delve-asinnorm-scaled}
 \end{figure}
 
@@ -110,7 +111,8 @@ sigma, which is not what we expected. A similar behaviour can be observed in
     \label{fig:accuracy-asinnorm-scaled}
 \end{figure}
 
-\subsubsection{Comparison with radial basis (RBF) kernel}
+\subsubsection{Comparison with radial basis (RBF) kernel}%
+\label{ssub:comparison_with_radial_basis_rbf_kernel}
 
 The statements made in the previous sections, hint that the normalized arcsine
 kernel are based on observations of the different plots presented. However,
@@ -184,13 +186,13 @@ an ``optimal'' value of sigma which loses performance in both directions.
 \subsubsection{Computational Cost}
 
 It is difficult to compare the computational cost between the RBF kernel
-and the normalized arcsine kernel. Since their performance is dependant
+and the normalized arcsine kernel. Since their performance is dependent
 on the parameter selection and the dataset. \Cref{fig:time-asinnorm-scaled-compacts}
 shows the boxplots of all executions of the normalized arcsine and rbf kernels
 on the \texttt{CompActs} dataset grouped by the cost hyperparameter.
 
 \begin{figure}[H]
-    \includegraphics{plots/exec_cost}
+    \includegraphics[width=0.6\textwidth]{plots/exec_cost}
     \caption{Time by cost parameter for normalized arcsine kernel on CompActs dataset}
     \label{fig:time-asinnorm-scaled-compacts}
 \end{figure}
@@ -210,7 +212,7 @@ if the speedup is greater than 1, it means that the normalized arcsine kernel
 is faster than the RBF kernel. If it is less than 1, it means that the RBF
 kernel is faster than the normalized arcsine kernel. Since there are a lot
 of outliers, we use the median instead of the mean to compute the speedup. We
-do so by taking the median execution time for configuration of dataset, kernel
+do so by taking the median execution time for configuration of dataset, kernel,
 and hyperparameters across all folds and values of sigma and gamma and computing
 the speedup using \cref{eq:speedup} for each one. Averaging these speedups
 gives us a speedup of $0.68$, which means that the RBF kernel is faster by

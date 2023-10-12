@@ -11,11 +11,76 @@ hyperparameter. This means that for the normalized arccosine kernel, there is
 no $\sigma$ hyperparameter to tune. Additionally, for $n=0$, the kernel is
 already normalized.
 
+We can perform the paired t-test between the results obtained with each of the
+normalized arccosine kernels and the radial basis kernel. Taking the best
+performant hyperparamters (the ones that minimize the nRMSE) for each kernel and
+dataset combination.
+
 \subsubsection{Normalized Arccosine kernel for $n=0$}
+
+\Cref{tab:paired_ttest_acos0_rbf} shows the results for the paired t-test of
+the normalized arccosine kernel for $n=0$ against the radial basis kernel. Looking
+at the $p$\textendash{}values, we can see that for most datasets, the null hypothesis
+cannot be rejected, which means that we cannot reject the hypothesis that both
+kernels perform the same. In bold, we highlight the $p$\textendash{}values that
+reject the null hypothesis with a significance level of $\alpha = 0.001$. In all
+these cases except for the \texttt{Pumadyn32nm} dataset, the RBF kernel performs
+better than the normalized arccosine kernel for $n=0$.
+
+\begin{table}[H]
+    \caption{Results for the paired t-test of acos $n=0$ against RBF for regression datasets}
+    \label{tab:paired_ttest_acos0_rbf}
+    \input{tables/paired_ttest_acos_rbf.tex}
+\end{table}
+
 \subsubsection{Normalized Arccosine kernel for $n=1$}
+
+\cref{tab:paired_ttest_acos1_rbf} shows the results for the paired t-test of
+the normalized arccosine kernel for $n=1$ against the radial basis kernel in the
+same format as \cref{tab:paired_ttest_acos0_rbf}. In this case, there are no
+datasets where the arccosine kernel outperforms the RBF kernel in a statistically
+significant way. Comparing the $p$\textendash{}values with the ones obtained
+in \cref{tab:paired_ttest_acos0_rbf}, we can see that they are in the same order
+of magnitude for most datasets. In fact, the datasets in which the $p$\textendash{}values
+reject the null hypothesis are the same, except for the \texttt{Pumadyn32nm}, which
+for $n=1$ the null hypothesis cannot be rejected.
+
+\begin{table}[H]
+    \caption{Results for the paired t-test of acos $n=1$ against RBF for regression datasets}
+    \label{tab:paired_ttest_acos1_rbf}
+    \input{tables/paired_ttest_acos1_rbf.tex}
+\end{table}
+
 \subsubsection{Normalized Arccosine kernel for $n=2$}
 
+\Cref{tab:paired_ttest_acos2_rbf} shows the results for the paired t-test of
+the normalized arccosine kernel for $n=2$ against the radial basis kernel in the
+same format as \cref{tab:paired_ttest_acos0_rbf}. The results in terms of
+the significance level of the $p$\textendash{}values are similar to the ones
+when $n=1$. The only differences are \texttt{Pumadyn8fh} and \texttt{Pumadyn8nh}.
+% which for $n=1$ % TODO: finish sentence !!!!
+
+\begin{table}[H]
+    \caption{Results for the paired t-test of acos $n=2$ against RBF for regression datasets}
+    \label{tab:paired_ttest_acos2_rbf}
+    \input{tables/paired_ttest_acos2_rbf.tex}
+\end{table}
+
 \subsection{Non-Normalized arccosine kernels}
+
+As explained above, for the case of $n=0$, the arccosine kernel is already
+normalized, so we only need to consider the cases where $n=1$ and $n=2$.
+
+When running the experiments with the non-normalized versions of the arc-cosine
+kernels, the execution time was significantly higher than the normalized versions.
+With higher values of the cost ($C$) parameter, the execution time when $n=2$ was
+extremely high for larger datasets, and the SMO algorithm that \libsvm uses to find
+the support vectors reached the maximum number of iterations without converging.
+
+
+\begin{figure}[H]
+    \includegraphics[width=\textwidth]{plots/nRMSE_nodelve_acos_scaled}
+\end{figure}
 
 \subsubsection{Arccosine kernel for $n=1$}
 
