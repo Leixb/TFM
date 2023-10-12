@@ -352,6 +352,7 @@ function plot_sigma(
     measure::Symbol=:measure_test,
     std::Symbol=:std,
     show_bands::Bool=(measure == :measure_cv),
+    show_horizontal::Vector{String}=String[],
     interactive::Bool=is_interactive(),
     ax_opts::NamedTuple=(; xscale=log10),
     vertical::Bool=false,
@@ -440,6 +441,14 @@ function plot_sigma(
             if !isempty(df_rbf)
                 hline = plot_rbf(ax, df_rbf, measure, measure_type, show_std=show_bands)
                 interactive && connect!(hline.visible, toggles_dict["RadialBasis"].active)
+            end
+        end
+
+        if !isempty(show_horizontal)
+            foreach(show_horizontal) do horizontal
+                df_horiz = @subset(df_group, :kernel_cat .== horizontal)
+                !isempty(df_horiz) &&
+                    hlines!(ax, getproperty(df_horiz, measure), label=horizontal)
             end
         end
         ax.title = string(dataset)

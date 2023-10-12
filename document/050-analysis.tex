@@ -26,7 +26,7 @@ results obtained with the arc-sine kernel and then with the arc-cosine kernels.
 \section{Arc-cosine kernels}
 \input{053-analysis-acos}
 
-\input{059-analysis-recap}
+% \input{059-analysis-recap}
 
 % \begin{figure}[H]
 %     \includegraphics{plots/nRMSE_frenay_scaled}
@@ -254,31 +254,34 @@ results obtained with the arc-sine kernel and then with the arc-cosine kernels.
 % % TODO: plots de temps de nombre de parametres provats
 % %
 %
+
+\pagebreak
 \section{Meta-learning}
 
 As explained in \cref{sec:meta-learning}, we want to use meta-learning
-techniques to determine the best value of sigma for a given dataset, or at least
-to determine if a dataset is a good candidate for the arc-sine kernel or not.
-For that, we can create two models:
-\begin{enumerate}
-    \item Predict the best value of $\sigma_w$ for a given dataset.
-    \item Predict whether a high value of $\sigma_w$ will achieve equivalent
-          performance to the RBF kernel.
-\end{enumerate}
+techniques to determine the best value of sigma for a given dataset. That
+is, we want to build a model which predicts the best value of sigma given
+the properties of the dataset.
 
-For the first model,
-we can use the best value of $\sigma_w$ for each dataset
-obtained from the previous experiments. This will be our target
-variable.
+Since we have a very small number of datasets (32 for regression and 8 for classification)
+we decided to use leave-one-out cross-validation to train the model. This
+means that for each dataset, we train the model using all the other datasets
+and then evaluate it on the dataset which was left out. This is repeated
+for each dataset. The approach was used to tune the parameters of the model
+and a 5-fold cross validation was used on top of that to evaluate the models.
 
-For the second model, we need to determine if there is a statistically
-significant difference between the performance at $\sigma \gg 10$ and the
-performance of the RBF kernel.
-% TODO: t-test or arbitrary threshold?
+We use the coefficient of determination ($R^2$) as the performance measure
+for the model. Several models were tested, including ridge regression, lasso
+regression, support vector regression, and random forest regression. However,
+none of the models achieved a satisfactory performance. The best model was
+a random forest regression with a coefficient of determination of $R^2=0.07$.
 
-% TODO: probably need a lot more datasets to be able to do anything...
+We explored other approaches to the problem, including doing random subsets of
+different sizes for the datasets. Using this approach a 0.4 coefficient of
+determination was achieved, however this was probably due to overfitting.
 
-\begin{note}
-    With the number of datasets the results are not conclusive.
-    Need much more datasets.
-\end{note}
+In general, the results obtained with meta-learning were not satisfactory, but
+show a promising direction for future work. With a much larger group of datasets,
+such approach could be used, and potentially by using explainable AI (XAI)
+techniques, insight on which properties of the datasets are most relevant
+to determine the best value of sigma could be obtained.

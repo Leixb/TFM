@@ -6,6 +6,16 @@ import MLJBase: train_test_pairs
 
 export TwoFold, FiveTwo, RepeatedCV
 
+struct LOO <: ResamplingStrategy
+    function LOO()
+        return new()
+    end
+end
+
+function train_test_pairs(::LOO, rows)
+    return [(rows[1:end.!=i], rows[i]) for i in eachindex(rows)]
+end
+
 """
     TwoFold <: ResamplingStrategy
 

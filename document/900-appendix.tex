@@ -2,6 +2,46 @@
 % vim: spell spelllang=en:
 \chapter{Appendix}
 
+\section{Execution time and number of iterations}%
+\label{sec:execution-time-and-number-of-iterations}
+
+% Another of the goals is to compare estimate whether the use of these infinite
+% neural network kernels is feasible in practice, by comparing their execution
+% time. To that end, all executions will be timed and the number of iterations
+% taken by the SVM solver will be saved.
+
+\begin{figure}[H]
+    \includegraphics{plots/execution_log}
+    \caption{Execution time of the different kernels (log scale) Changing the cost
+        parameter}%
+    \label{fig:execution-log}
+\end{figure}
+
+\Cref{fig:execution-log} shows boxplots of the execution times of the different
+kernels for across all datasets. The title above each subplot indicates the
+value of the cost parameter. As we can see, increasing the cost parameter
+increases the execution time of the SVM. This effect is more noticeable for the
+kernels with more complex computations, such as the normalized arc-sine kernel
+and specially the arc-cosine kernels with $n=1$ and $n=2$.
+
+% \begin{cnote}
+%     These values of the cost are too high.
+%     In the other plots, we use $10^4$ as the upper bound.
+%     We should probably remove the bottom row altogether.
+%
+%     Also, add cost=... to the subplot titles
+% \end{cnote}
+
+\begin{figure}[H]
+    \includegraphics{plots/iter_log}
+    \caption{Iterations needed for different kernels (log scale) Changing the cost
+        parameter}
+\end{figure}
+
+% \begin{cnote}
+%     Why asin-norm has more iterations than asin in average?
+% \end{cnote}
+
 \section{Paired t-test asin vs asin norm}
 
 \begin{figure}[H]
@@ -9,38 +49,39 @@
     \caption{Difference between nRMSE of RBF and normalized arc-sine kernels ($\alpha=0.001$)}
     \label{fig:paired-ttest-asin-asinnorm-diff}
 \end{figure}
-
-\section{Additional plots}
-
-% NOTE: this is without scaling sigma
-\begin{figure}[H]
-    \includegraphics{plots/nRMSE_frenay}
-    \caption{nRMSE results on datasets from \cite{frenayParameterinsensitiveKernelExtreme2011}}
-\end{figure}
-
-% WARN: these don't have all values of epsilon in our grid
-\begin{figure}[H]
-    \includegraphics{plots/nRMSE_bank}
-    \caption{nRMSE results on Delve Bank dataset}
-\end{figure}
-
-% WARN: these don't have all values of epsilon in our grid
-\begin{figure}[H]
-    \includegraphics{plots/nRMSE_pumadyn}
-    \caption{nRMSE results on Delve PumaDyn dataset}
-\end{figure}
-
-\begin{figure}[H]
-    \includegraphics{plots/nRMSE_all_scaled}
-    \caption{nRMSE results on Regression datasets with $\sigma_w$ scaled}
-\end{figure}
-
-\begin{figure}[H]
-    \includegraphics{plots/nRMSE_frenay_scaled}
-    \caption{nRMSE results on Frenay datasets with $\sigma_w$ scaled}
-\end{figure}
+%
+% \section{Additional plots}
+%
+% % NOTE: this is without scaling sigma
+% \begin{figure}[H]
+%     \includegraphics{plots/nRMSE_frenay}
+%     \caption{nRMSE results on datasets from \cite{frenayParameterinsensitiveKernelExtreme2011}}
+% \end{figure}
+%
+% % WARN: these don't have all values of epsilon in our grid
+% \begin{figure}[H]
+%     \includegraphics{plots/nRMSE_bank}
+%     \caption{nRMSE results on Delve Bank dataset}
+% \end{figure}
+%
+% % WARN: these don't have all values of epsilon in our grid
+% \begin{figure}[H]
+%     \includegraphics{plots/nRMSE_pumadyn}
+%     \caption{nRMSE results on Delve PumaDyn dataset}
+% \end{figure}
+%
+% \begin{figure}[H]
+%     \includegraphics{plots/nRMSE_all_scaled}
+%     \caption{nRMSE results on Regression datasets with $\sigma_w$ scaled}
+% \end{figure}
+%
+% \begin{figure}[H]
+%     \includegraphics{plots/nRMSE_frenay_scaled}
+%     \caption{nRMSE results on Frenay datasets with $\sigma_w$ scaled}
+% \end{figure}
 
 \subsection{3D kernels}
+\label{sub:3d_kernels}
 
 % 3d version
 \begin{figure}
@@ -71,104 +112,104 @@
     \caption{acos kernel $n=2$}
 \end{figure}
 
-% TODO: remove
-\section{Kernels}
-\subsection{Arc sine kernel}
-
-\textcite{frenayParameterinsensitiveKernelExtreme2011,williamsComputationInfiniteNeural1998}:
-
-
-\begin{equation}
-    \erf(x) = \frac{2}{\sqrt{\pi}} \int_0^x e^{-t^2} \,dt
-\end{equation}
-
-% TODO: Put integral from William
-% \begin{equation}\label{eq:asin_integral}
+% % TODO: remove
+% \section{Kernels}
+% \subsection{Arc sine kernel}
+%
+% \textcite{frenayParameterinsensitiveKernelExtreme2011,williamsComputationInfiniteNeural1998}:
+%
+%
 % \begin{equation}
-
-\begin{equation}
-    V_{\erf}\left(\x,\,\x'\right) =
-    \frac{1}{(2\pi)^{\frac{d+1}{2}} |\boldsymbol \Sigma|^{\frac{1}{2}}}
-    \int
-    \erf \left(\bu ^T \tilde \x \right)
-    \erf \left(\bu ^T \tilde \x '\right)
-    \exp \left(
-    -\frac{1}{2} \bu ^T \boldsymbol \Sigma^{-1} \bu
-    \right)
-    \,d\boldsymbol u
-\end{equation}
-
-Appropriately scaled, the graph of this function is very similar to the
-\texttt{tanh} function, which is more commonly used in the neural networks'
-literature \cite{williamsComputationInfiniteNeural1998}.
-
-\begin{equation}
-    k(\x,\,\z \mid p \to + \infty)  = \frac{2}{\pi}
-    \arcsin \frac{1 + \left\langle \x,\,\z \right\rangle}{\sqrt{
-            \left(
-            \frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
-            \right)
-            \left(
-            \frac{1}{2\sigma_w^2} + 1 + \left\langle \z,\,\z \right\rangle
-            \right)
-        }}
-\end{equation}
-
-\begin{equation}
-    \gamma = \frac{1}{2\sigma_w^2}
-\end{equation}
-
-\paragraph{Normalization}
-
-\begin{equation}
-    \tilde{k}(\x,\,\z \mid p \to + \infty) = \frac{
-        k(\x,\,\z \mid p \to + \infty) }{
-        \sqrt{
-            k(\x,\,\x \mid p \to + \infty)
-            k(\z,\,\z \mid p \to + \infty)
-        }
-    }
-\end{equation}
-
-\begin{align*}
-    k(\x,\,\x \mid p \to + \infty)
-     & = \frac{2}{\pi}
-    \arcsin \frac{1 + \left\langle \x,\,\x \right\rangle}{\sqrt{
-            \left(
-            \frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
-            \right)
-            \left(
-            \frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
-            \right)
-    }}                 \\
-     & = \frac{2}{\pi}
-    \arcsin \frac{1 + \left\langle \x,\,\x \right\rangle}{
-        \frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
-    }
-\end{align*}
-
-\begin{equation}
-    \tilde{k}(\x,\,\z \mid p \to + \infty) =
-    \frac{
-        \arcsin \frac{1 + \left\langle \x,\,\z \right\rangle}{\sqrt{
-                \left(
-                \frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
-                \right)
-                \left(
-                \frac{1}{2\sigma_w^2} + 1 + \left\langle \z,\,\z \right\rangle
-                \right)
-            }}
-    }{
-        \sqrt{
-            \arcsin \frac{1 + \left\langle \x,\,\x \right\rangle}{
-                \frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
-            }
-            \arcsin \frac{1 + \left\langle \z,\,\z \right\rangle}{
-                \frac{1}{2\sigma_w^2} + 1 + \left\langle \z,\,\z \right\rangle
-            }
-        }
-    }
-\end{equation}
+%     \erf(x) = \frac{2}{\sqrt{\pi}} \int_0^x e^{-t^2} \,dt
+% \end{equation}
+%
+% % TODO: Put integral from William
+% % \begin{equation}\label{eq:asin_integral}
+% % \begin{equation}
+%
+% \begin{equation}
+%     V_{\erf}\left(\x,\,\x'\right) =
+%     \frac{1}{(2\pi)^{\frac{d+1}{2}} |\boldsymbol \Sigma|^{\frac{1}{2}}}
+%     \int
+%     \erf \left(\bu ^T \tilde \x \right)
+%     \erf \left(\bu ^T \tilde \x '\right)
+%     \exp \left(
+%     -\frac{1}{2} \bu ^T \boldsymbol \Sigma^{-1} \bu
+%     \right)
+%     \,d\boldsymbol u
+% \end{equation}
+%
+% Appropriately scaled, the graph of this function is very similar to the
+% \texttt{tanh} function, which is more commonly used in the neural networks'
+% literature \cite{williamsComputationInfiniteNeural1998}.
+%
+% \begin{equation}
+%     k(\x,\,\z \mid p \to + \infty)  = \frac{2}{\pi}
+%     \arcsin \frac{1 + \left\langle \x,\,\z \right\rangle}{\sqrt{
+%             \left(
+%             \frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
+%             \right)
+%             \left(
+%             \frac{1}{2\sigma_w^2} + 1 + \left\langle \z,\,\z \right\rangle
+%             \right)
+%         }}
+% \end{equation}
+%
+% \begin{equation}
+%     \gamma = \frac{1}{2\sigma_w^2}
+% \end{equation}
+%
+% \paragraph{Normalization}
+%
+% \begin{equation}
+%     \tilde{k}(\x,\,\z \mid p \to + \infty) = \frac{
+%         k(\x,\,\z \mid p \to + \infty) }{
+%         \sqrt{
+%             k(\x,\,\x \mid p \to + \infty)
+%             k(\z,\,\z \mid p \to + \infty)
+%         }
+%     }
+% \end{equation}
+%
+% \begin{align*}
+%     k(\x,\,\x \mid p \to + \infty)
+%      & = \frac{2}{\pi}
+%     \arcsin \frac{1 + \left\langle \x,\,\x \right\rangle}{\sqrt{
+%             \left(
+%             \frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
+%             \right)
+%             \left(
+%             \frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
+%             \right)
+%     }}                 \\
+%      & = \frac{2}{\pi}
+%     \arcsin \frac{1 + \left\langle \x,\,\x \right\rangle}{
+%         \frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
+%     }
+% \end{align*}
+%
+% \begin{equation}
+%     \tilde{k}(\x,\,\z \mid p \to + \infty) =
+%     \frac{
+%         \arcsin \frac{1 + \left\langle \x,\,\z \right\rangle}{\sqrt{
+%                 \left(
+%                 \frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
+%                 \right)
+%                 \left(
+%                 \frac{1}{2\sigma_w^2} + 1 + \left\langle \z,\,\z \right\rangle
+%                 \right)
+%             }}
+%     }{
+%         \sqrt{
+%             \arcsin \frac{1 + \left\langle \x,\,\x \right\rangle}{
+%                 \frac{1}{2\sigma_w^2} + 1 + \left\langle \x,\,\x \right\rangle
+%             }
+%             \arcsin \frac{1 + \left\langle \z,\,\z \right\rangle}{
+%                 \frac{1}{2\sigma_w^2} + 1 + \left\langle \z,\,\z \right\rangle
+%             }
+%         }
+%     }
+% \end{equation}
 
 \section{Implementation details}
 

@@ -116,7 +116,7 @@ end
 
     @info "Experiment run 3 (smvs3/) - part 1: Regression plots"
 
-    # @saveplot nRMSE_all_scaled = Plots.plot_sigma(nrmse_s; opts..., show_bands, opts_big_vert..., vertical=true)
+    @saveplot nRMSE_all_scaled = Plots.plot_sigma(nrmse_s; opts..., show_bands, opts_big_vert..., vertical=true)
     #
     # @saveplot nRMSE_asin_scaled = Plots.plot_sigma(nrmse_s, ["Asin"]; opts..., show_bands, opts_big_vert..., vertical=true)
     # @saveplot nRMSE_asinnorm_scaled = Plots.plot_sigma(nrmse_s, ["AsinNorm"]; opts..., show_bands, opts_big_vert..., vertical=true)
@@ -164,9 +164,17 @@ end
 
     # opts[:linkyaxes] = true
 
-    local kernels = ["Acos0", "Acos1", "Acos2"]
+    # local kernels = ["Acos0", "Acos1", "Acos2"]
+    local kernels = ["AsinNorm", "Acos1", "Acos2"]
 
-    @saveplot nRMSE_nodelve_acos_scaled = Plots.plot_sigma(nrmse_s_nodelve, kernels; opts..., show_bands, opts_big.resolution, vertical=true)
+    # @saveplot nRMSE_nodelve_acos_scaled = Plots.plot_sigma(nrmse_s_nodelve, kernels; opts..., show_bands, opts_big.resolution, vertical=true)
+    @saveplot nRMSE_nodelve_acos_scaled = Plots.plot_sigma(nrmse_s_nodelve, kernels; opts..., show_bands, opts_big.resolution, vertical=true, show_horizontal=["Acos1Norm", "Acos2Norm"])
+
+    @saveplot nRMSE_nodelve_acos1_scaled = Plots.plot_sigma(nrmse_s_nodelve, ["Acos1"]; opts..., show_bands, opts_big.resolution, vertical=true, show_horizontal=["Acos1Norm"])
+    @saveplot nRMSE_nodelve_acos2_scaled = Plots.plot_sigma(nrmse_s_nodelve, ["Acos2"]; opts..., show_bands, opts_big.resolution, vertical=true, show_horizontal=["Acos2Norm"])
+
+    @saveplot nRMSE_acos1_scaled = Plots.plot_sigma(nrmse_s, ["Acos1"]; opts..., show_bands, opts_big_vert..., vertical=true, show_horizontal=["Acos1Norm"])
+    @saveplot nRMSE_acos2_scaled = Plots.plot_sigma(nrmse_s, ["Acos2"]; opts..., show_bands, opts_big.resolution, vertical=true, show_horizontal=["Acos2Norm"])
 
     @saveplot nRMSE_acos_all_scaled = Plots.plot_sigma(nrmse_s, kernels; opts..., opts_big_vert..., vertical=true)
     # @saveplot nRMSE_acos_frenay_scaled = Plots.plot_sigma(@rsubset(nrmse_s, :dataset isa DataSets.Frenay), kernels; opts...)
@@ -233,7 +241,8 @@ end
 
 7 in plot_list && let
     @info "Heatmaps"
-    heatmap_df = Plots.data_nrmse_s()
+    heatmap_df = Plots.regression(Plots.data_nrmse_s())
+    heatmap_df_class = Plots.classification(Plots.data_nrmse_s())
     local opts = (;
         alpha=0.0001,
         opts_big_vert...
@@ -264,6 +273,16 @@ end
     @saveplot heatmaps_rbf_asin_s = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:RadialBasis, kernel_r=:Asin, sigma=:sigma_scaled, opts...)
     @saveplot heatmaps_asin_asinnorm_s = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:Asin, kernel_r=:AsinNorm, sigma=:sigma_scaled, opts...)
     @saveplot heatmaps_rbf_acos1_s = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:RadialBasis, kernel_r=:Acos1, sigma=:sigma_scaled, opts...)
+
+    # Classification
+
+    @saveplot heatmaps_rbf_asinnorm_class_pvalues = Plots.plot_all_heatmaps(heatmap_df_class; kernel_l=:RadialBasis, kernel_r=:AsinNorm, measure=:per_fold, opts...)
+    @saveplot heatmaps_rbf_asin_class_pvalues = Plots.plot_all_heatmaps(heatmap_df_class; kernel_l=:RadialBasis, kernel_r=:Asin, measure=:per_fold, opts...)
+    # @saveplot heatmaps_asin_asinnorm_class_pvalues = Plots.plot_all_heatmaps(heatmap_df_class; kernel_l=:Asin, kernel_r=:AsinNorm, measure=:per_fold, opts...)
+
+    @saveplot heatmaps_rbf_asinnorm_class = Plots.plot_all_heatmaps(heatmap_df_class; kernel_l=:RadialBasis, kernel_r=:AsinNorm, opts...)
+    @saveplot heatmaps_rbf_asin_class = Plots.plot_all_heatmaps(heatmap_df_class; kernel_l=:RadialBasis, kernel_r=:Asin, opts...)
+    # @saveplot heatmaps_asin_asinnorm_class = Plots.plot_all_heatmaps(heatmap_df_class; kernel_l=:Asin, kernel_r=:AsinNorm, opts...)
 end
 
 @info "DONE in $(time() - start_time) seconds"

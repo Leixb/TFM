@@ -122,7 +122,7 @@ objectives of the thesis.
         \textcite{frenayParameterinsensitiveKernelExtreme2011}.
     \item[O2] Compare the performance of the kernels with different datasets and
         hyperparameters.
-    \item[03] See how the other infinite neural network kernels behave in comparison
+    \item[O3] See how the other infinite neural network kernels behave in comparison
         with the arcsine kernel.
     \item[O4] Keep the computational cost of the experiments low in order to be
         able to run them in a reasonable amount of time.
@@ -294,7 +294,7 @@ The main contributions of this thesis are:
 \begin{enumerate}
     \item Updated \libsvm in \texttt{nixpkgs} repository and enabled OpenMP support\footnote{\url{https://github.com/NixOS/nixpkgs/pull/221325}}.
     \item Extended \libsvm to support additional kernels\footnote{\url{https://github.com/leixb/libsvm}}.
-    \item Extended the Julia wrapper for \libsvm to support these additional kernels and added additional.
+    \item Extended the Julia wrapper for \libsvm to support these additional kernels and added additional
           features to report and limit the iterations of the solver\footnote{\url{https://github.com/leixb/LIBSVM.jl}}
     \item Analyzed the behaviour of the known infinite neural network kernels with analytical expressions.
           % TODO: make sure this threshold is correct
@@ -302,4 +302,5 @@ The main contributions of this thesis are:
     \item For some datasets, we have found that the region where arcsine kernels are parameter insensitive obtains
           significantly worse results than the optimal value of sigma.
     \item Shown that the arcsine kernel does not need to be normalized for high (\threshold) values of $\sigma$.
+    \item Shown that the arccosine kernels are parameter insensitive when normalized.
 \end{enumerate}

@@ -57,13 +57,36 @@ for $n=1$ the null hypothesis cannot be rejected.
 the normalized arccosine kernel for $n=2$ against the radial basis kernel in the
 same format as \cref{tab:paired_ttest_acos0_rbf}. The results in terms of
 the significance level of the $p$\textendash{}values are similar to the ones
-when $n=1$. The only differences are \texttt{Pumadyn8fh} and \texttt{Pumadyn8nh}.
-% which for $n=1$ % TODO: finish sentence !!!!
+when $n=1$. The only differences are \texttt{Pumadyn8fh} and \texttt{Pumadyn8nh},
+which are datasets with a small number of features and high noise.
 
 \begin{table}[H]
     \caption{Results for the paired t-test of acos $n=2$ against RBF for regression datasets}
     \label{tab:paired_ttest_acos2_rbf}
     \input{tables/paired_ttest_acos2_rbf.tex}
+\end{table}
+
+\subsubsection{Computation cost of normalized arccosine kernels}
+
+If we computed the median relative execution time speedup of the normalized
+arccosine kernels with respect to the RBF kernel, we obtain the results
+shown in \cref{tab:speedup_acos_rbf}. As expected, the more comlex the kernel
+is (higher value of $n$), the slower it is. Comparing these results with the
+ones obtained for the normalized arcsine kernel in \cref{ssub:computational_cost},
+we can see that the normalized arc cosine for $n=2$ has a similar speedup to
+the normalized arcsine kernel. And the non-normalized arcsine kernel is faster
+than the other arc cosine kernels.
+
+\begin{table}[H]
+    \caption{Speedup of normalized arccosine kernels with respect to RBF}
+    \label{tab:speedup_acos_rbf}
+    \begin{tabular}{lrrr}
+        \toprule
+        {}      & $n=0$ & $n=1$ & $n=2$ \\
+        \midrule
+        Speedup & 0.82  & 0.72  & 0.65  \\
+        \bottomrule
+    \end{tabular}
 \end{table}
 
 \subsection{Non-Normalized arccosine kernels}
@@ -77,11 +100,69 @@ With higher values of the cost ($C$) parameter, the execution time when $n=2$ wa
 extremely high for larger datasets, and the SMO algorithm that \libsvm uses to find
 the support vectors reached the maximum number of iterations without converging.
 
-
-\begin{figure}[H]
-    \includegraphics[width=\textwidth]{plots/nRMSE_nodelve_acos_scaled}
-\end{figure}
-
 \subsubsection{Arccosine kernel for $n=1$}
 
+\Cref{fig:nrmse-acos1-scaled} shows the results for the non-normalized arccosine
+kernel for $n=1$ for the different datasets. As reference, the performance of
+the RBF kernel and the normalized arccosine kernel for $n=1$ are also shown.
+
+\begin{figure}[H]
+    \includegraphics[width=\textwidth]{plots/nRMSE_acos1_scaled}
+    \caption{Sigma vs Normalized Root Mean Squared error by dataset using non-normalized arccosine kernel for $n=1$}%
+    \label{fig:nrmse-acos1-scaled}
+\end{figure}
+
+It seems that lover values of $\sigma$ are better for the non-normalized arccosine
+kernel for $n=1$. Additionally, the normalized arccosine kernel for $n=1$ seems
+to not perform as well as the non-normalized version with proper tuning of the
+$\sigma$ hyperparameter. There are some datasets in which the performance of
+both the normalized and non-normalized arccosine kernel for $n=1$ is significantly
+worse than the RBF kernel. This is the case for \texttt{Bank8nm}, \texttt{Bank8fm},
+\texttt{Pumadyn8fm}, \texttt{Pumadyn8nh}, \texttt{Pumadyn8nm} and \texttt{EnergyEfficiencyHeating}.
+
+There is an issue with \texttt{Triazines}, where the value of the nRMSE is well
+above 1 ($10^{14}$). This may be caused by the fact that the dataset is very small
+(186 instances) but has a relatively large number of features (60) and may cause numerical
+issues when computing the angles between the vectors.
+
 \subsubsection{Arccosine kernel for $n=2$}
+
+For the arccosine kernel with $n=2$, not all datasets could be computed due to
+time constraints. As explained above, for some datasets, the SMO algorithm
+took too long to converge. \Cref{fig:nrmse-acos2-scaled} shows the results for
+the non-normalized arccosine kernel for $n=2$ for the different datasets which
+could be computed. Again the performance of the normalized arccosine kernel for
+$n=2$ and the RBF kernel are also shown.
+
+\begin{figure}[H]
+    \includegraphics[width=\textwidth]{plots/nRMSE_acos2_scaled}
+    \caption{Sigma vs Normalized Root Mean Squared error by dataset using non-normalized arccosine kernel for $n=2$}%
+    \label{fig:nrmse-acos2-scaled}
+\end{figure}
+
+With this kernel, there are various datasets which present issues (values of nRMSE
+above 1). This is the case for \texttt{Abalone}, \texttt{Cancer}, and \texttt{Triazines}.
+
+There are clearly some issues with the non-normalized arccosine kernel for $n=1$ and
+specially for $n=2$. We suspect that without normalization, the differences between
+the values of the features are too large in some datasets, leading to numerical errors.
+
+If we try to visualize the kernel for $n=1$ and $n=2$ in a 3-dimensional space around
+the origin, we can observe how for relatively small differences between $x$ and $y$,
+the value of the kernel is very large. This is shown in \cref{fig:kernel-acos1-3d,fig:kernel-acos2-3d}.
+This specially noticeable for $n=2$ where it grows exponentially. This is due to the
+nature of the kernels which come from the \emph{Ramp} (or \emph{ReLU}) and
+\emph{Quarter-Pipe} (or \emph{RePU}) activation functions which we discussed in
+\cref{sec:arc_cosine_kernels}.
+
+\begin{figure}[H]
+    \includegraphics{plots/kernel_acos1_3d}
+    \caption{3D visualization of acos kernel $n=1$ around the origin}
+    \label{fig:kernel-acos1-3d}
+\end{figure}
+
+\begin{figure}[H]
+    \includegraphics{plots/kernel_acos2_3d}
+    \caption{3D visualization of acos kernel $n=2$ around the origin}
+    \label{fig:kernel-acos2-3d}
+\end{figure}

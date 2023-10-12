@@ -300,7 +300,8 @@ that the integral can evaluated to the expression shown in
 
 % TODO: Maybe some more details on how he gets to the expression
 
-\section{Arc-cosine kernels}
+\section{Arc-cosine kernels}%
+\label{sec:arc_cosine_kernels}
 
 \Textcite{choLargemarginClassificationInfinite2010} generalize the work of
 \textcite{williamsComputationInfiniteNeural1998} by expanding the family of
@@ -417,10 +418,10 @@ $K_{\Sigma,\,n}$ is related to the original kernel $K_{n}$ as follows:
     K_{\Sigma,\,n}(\x,\,\y) = K_{n}\left(\Sigma^{\frac{1}{2}}\x,\,\Sigma^{\frac{1}{2}}\y\right)
 \end{equation}
 
-\begin{cnote}
-    For $k_0$, the effect of adding the covariance cancels out in:
-    $\frac{\x \cdot \y}{\left\lVert \x \right\rVert \left\lVert \y \right\rVert}$
-\end{cnote}
+% \begin{cnote}
+%     For $k_0$, the effect of adding the covariance cancels out in:
+%     $\frac{\x \cdot \y}{\left\lVert \x \right\rVert \left\lVert \y \right\rVert}$
+% \end{cnote}
 
 \section{Kernel normalization}%
 \label{sec:kernel_normalization}
@@ -464,8 +465,8 @@ general expression for the arc cosine family of kernels $k_n$ from
 \end{align}
 
 From this result, we can see that the normalization of the arc cosine family of kernels
-completely removes the dependence on the magnitude of the input vectors $\x$ and $\y$, and
-we are left with a kernel that only depends on the angle between them.
+completely removes the dependence on the magnitude of the input vectors $\x$ and $\y$.
+Therefore, we are left with a kernel that only depends on the angle between them.
 
 For $n = 0,\,1,\,2$, the expression for $J_n(0)$ is:
 \begin{align}
@@ -473,8 +474,14 @@ For $n = 0,\,1,\,2$, the expression for $J_n(0)$ is:
     J_1(0) & = \sin(0) + (\pi - 0)\cos(0) = 0 + \pi = \pi                             \\
     J_2(0) & = 3\sin(0)\cos(0) + (\pi - 0)\left(1 + 2\cos^2(0)\right) = 0 + \pi = \pi
 \end{align}
-There seems to be a pattern where $J_n(0) = \pi$, but it cannot be proved. For
-now, we can only say that the normalized form of the arc cosine kernels
+There seems to be a pattern where:
+\begin{equation}
+    J_n(0) = \pi\quad \forall n \in \mathbb{N} \label{eq:jn0}
+\end{equation}
+An attempt was made to prove this, but without success.
+We leave \cref{eq:jn0} as a conjecture for future work.
+
+For now, we can only say that the normalized form of the arc cosine kernels
 for $n \in \left\{ 0,\,1,\,2 \right\}$ is:
 \begin{equation}
     \hat{K}_n(\x,\,\y) = \frac{J_n(\theta)}{\pi}, \quad \forall n \in \left\{ 0,\,1,\,2 \right\}.

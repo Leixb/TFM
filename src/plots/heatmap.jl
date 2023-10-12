@@ -11,7 +11,6 @@ import MLJBase: skipnan
 function data_nrmse_s()
     @chain Experiments.experiment_data("svms3", false) begin
         summarize_best([:kernel_cat, :dataset_cat, :sigma])
-        regression()
     end
 end
 

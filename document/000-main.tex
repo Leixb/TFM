@@ -6,7 +6,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \input{001-preamble}
 \input{002-pgfplots-julia-preamble}
-\input{003-preamble-notex}
+% \input{003-preamble-notex}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % EXTRA PACKAGES / CONFIG
@@ -112,30 +112,31 @@
 \include{005-titlepage}
 \cleardoublepage
 
-% \chapter*{Acknowledgements}
+\chapter*{Acknowledgements}
 
-% I would like to thank my supervisor, Lluís Belanche, for his guidance and
-% support throughout this project. I would also like to thank my family and
-% friends for their support and encouragement.
+I would like to thank my supervisor, Lluís Belanche, for his guidance and
+support throughout this project. I would also like to thank my family and
+friends for their support and encouragement.
 
 % \cleardoublepage
 
 \begin{abstract}
-    \begin{important}
-        TODO: Rewrite abstract once everything else is done.
-    \end{important}
-    % TODO: improve abstract once conclusions are clear
     Initial results from \textcite{frenayParameterinsensitiveKernelExtreme2011}
     showed that the arc sine kernel, a kernel derived from the infinite neural
     network, was able to obtain state-of-the-art results on several datasets
-    without the need to tune its hyperparameter. In this work, we explore other
+    without the need to tune its hyperparameter sigma. In this work, we explore
+    this kernel in more detail along with other
     kernels derived from infinite neural networks and compare their behaviour.
-    We find that not all kernels derived from infinite neural networks have the
-    parameter insensitivity property. We also find that the arc sine kernel is
-    not able to generalize to other datasets and that the parameter
-    insensitivity property is not as strong as initially thought. Finally, we
-    explore the possibility of using meta-learning to find the best kernel and
-    parameters for a given dataset given its properties.
+
+    In particular, for the kernel given by \textcite{frenayParameterinsensitiveKernelExtreme2011},
+    whilst it seems to be true that for sufficiently large values of its
+    hyperparameter sigma the behaviour of the kernel does not change.
+    However, there seems to be some situations in which tuning the hyperparameter sigma
+    can improve the results, in some cases significantly.
+    We find that other kernels derived from infinite neural networks have the
+    parameter insensitivity property to some extent, but they do not perform
+    as well as the RBF kernel. We also explore the effects of normalization
+    on these kernels.
 \end{abstract}
 
 

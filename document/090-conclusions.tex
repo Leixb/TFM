@@ -3,37 +3,99 @@
 
 \section{Summary of results}
 
-% TODO: Write this as a text, not just bullet points.
+With this thesis we have explored the behaviour of inifinite neural network
+kernels that have been proposed in the literature and which have an analytical
+form. We have found that this family of kernels is quite small, with only
+the arc sine (or ELM kernel from \cite{frenayParameterinsensitiveKernelExtreme2011})
+and the arc cosine kernels (\cite{choLargemarginClassificationInfinite2010}) which
+both build on the work of \textcite{williamsComputingInfiniteNetworks1996}.
 
-\begin{itemize}
-    \item Arc sine \begin{itemize}
-              \item The performance of the asin kernels does stabilize with larger
-                    $\sigma_w$ (>10).
-              \item However, this is may not be optimal for all datasets, in some cases
-                    there are values of $\sigma_w$ that perform better than the ones
-                    above the stabilization point.
-              \item The normalized arc sine kernel generally performs better than the
-                    non-normalized one, however for $\sigma_w > 10$ there is no
-                    appreciable difference in any of the datasets tested if the
-                    data has been standardized.
-          \end{itemize}
-    \item Arc cosine \begin{itemize}
-              \item The covariance arc cosine kernels, when normalized, cancel out the effect
-                    of the $\sigma_w$ parameter.
-              \item The arc cosine kernels (not normalized) do not seem to have the same parameter
-                    insensitivity property as the arc sine kernels, at least not for
-                    $\sigma_w \to +\infty$.
-          \end{itemize}
-\end{itemize}
+For the arc sine kernel (or ELM), we have reproduced the results of \textcite{frenayParameterinsensitiveKernelExtreme2011}
+and explored the behaviour in several other datasets. Doing so, we have found that
+indeed it is parameter insensitive for sufficiently large values of $\sigma_w$,
+however, in some datasets, by using other smaller values of $\sigma_w$ the performance
+improved significantly. Meaning that some tuning of the hyperparameter is still
+necessary if we want to obtain the best results in all cases.
 
-The arc sine kernel may be a viable alternative to the RBF Kernel that provides
-similar results without the need to tune its hyperparameter. Additionally, there
-is no need to normalize the kernel is the data is standardized.
+Normalizing the arc sine kernel does improve its performance for small values
+of $\sigma_w$, but for sufficiently large values of $\sigma_w$ ($>10$), the
+effect of kernel normalization is negligible. We have shown using a paired
+t-test that with an $\alpha=0.001$, the null hypothesis that the normalized
+and non-normalized arc sine kernels perform the same cannot be rejected for
+$\sigma_w > 10^6$.
 
-% TODO:
-% \section{Further work}
+For the arc cosine kernel, we have shown that for $n=0,1,2$, the normalization
+of the kernel makes it insensitive to the value of $\sigma_w$. Moreover, not
+normalizing the kernel leads to potential numerical issues due to the large
+values the kernel gives when the difference between the features is relatively
+large.
+
+\section{Main takeaways}
+
+We can conclude that the arc sine kernel is a viable alternative to the RBF
+in some scenarios, but it is not a panacea. It will not obtain the best results
+in all cases, but may be worth considering when trying various kernels due to
+its relaxed hyperparameter tuning requirements. In general the computational
+cost of the arc sine kernel is around 1.5 times the cost of the RBF kernel,
+which is not a significant difference considering that if we don't need to tune
+sigma, we can save the time spent in the hyperparameter search.
+
+The normalized arc cosine kernels are impresive in the sense that when normalized
+they lose the dependence on the $\sigma_w$ hyperparameter, but they still obtain
+parity with the RBF kernel in more than half of the datasets tested.
+
+\section{Further work}
+
+Further exploration of a more complete and diverse set of datasets would be
+required to obtain a more complete picture of the behaviour of the arc sine
+and arc cosine kernels. The meta-learning analysis we have performed is
+limited by our small number of datasets and using a much bigger number of
+datasets could potentially lead to meaningful results.
+
+Additionally, it would be interesting to explore
+the behaviour of the arc cosine kernels for $n>2$, starting by proving
+the conjecture in \cref{eq:jn0}.
+
+% With this thesis we have reproduced the results of \textcite{frenayParameterinsensitiveKernelExtreme2011}
+% and explored the behaviour of the arc sine kernel in more detail. We have found
+% that whilst the performance of the arc sine kernel does stabilize with larger
+% values of $\sigma_w$ ($>10$), this stabilization in the performance is not
+% optimal in all cases. In some cases,
+
+
+% \section{Summary of results}
+%
+% % TODO: Write this as a text, not just bullet points.
 %
 % \begin{itemize}
-%     \item Study the behaviour of the arc cosine kernels in more detail.
-%     \item \dots
+%     \item Arc sine \begin{itemize}
+%               \item The performance of the asin kernels does stabilize with larger
+%                     $\sigma_w$ (>10).
+%               \item However, this is may not be optimal for all datasets, in some cases
+%                     there are values of $\sigma_w$ that perform better than the ones
+%                     above the stabilization point.
+%               \item The normalized arc sine kernel generally performs better than the
+%                     non-normalized one, however for $\sigma_w > 10$ there is no
+%                     appreciable difference in any of the datasets tested if the
+%                     data has been standardized.
+%           \end{itemize}
+%     \item Arc cosine \begin{itemize}
+%               \item The covariance arc cosine kernels, when normalized, cancel out the effect
+%                     of the $\sigma_w$ parameter.
+%               \item The arc cosine kernels (not normalized) do not seem to have the same parameter
+%                     insensitivity property as the arc sine kernels, at least not for
+%                     $\sigma_w \to +\infty$.
+%           \end{itemize}
 % \end{itemize}
+%
+% The arc sine kernel may be a viable alternative to the RBF Kernel that provides
+% similar results without the need to tune its hyperparameter. Additionally, there
+% is no need to normalize the kernel is the data is standardized.
+%
+% % TODO:
+% % \section{Further work}
+% %
+% % \begin{itemize}
+% %     \item Study the behaviour of the arc cosine kernels in more detail.
+% %     \item \dots
+% % \end{itemize}

@@ -184,12 +184,16 @@ we can see that this is one of the cases in which we described the behaviour of
 an ``optimal'' value of sigma which loses performance in both directions.
 
 \subsubsection{Computational Cost}
+\label{ssub:computational_cost}
 
 It is difficult to compare the computational cost between the RBF kernel
 and the normalized arcsine kernel. Since their performance is dependent
 on the parameter selection and the dataset. \Cref{fig:time-asinnorm-scaled-compacts}
 shows the boxplots of all executions of the normalized arcsine and rbf kernels
-on the \texttt{CompActs} dataset grouped by the cost hyperparameter.
+on the \texttt{CompActs} dataset grouped by the cost hyperparameter%
+\footnote{In \cref{sec:execution-time-and-number-of-iterations} there are some plots showing
+    boxplots of the execution time and number of iterations for each kernel accross
+    all datasets.}.
 
 \begin{figure}[H]
     \includegraphics[width=0.6\textwidth]{plots/exec_cost}
@@ -217,3 +221,4 @@ and hyperparameters across all folds and values of sigma and gamma and computing
 the speedup using \cref{eq:speedup} for each one. Averaging these speedups
 gives us a speedup of $0.68$, which means that the RBF kernel is faster by
 a factor of $1/0.68 = 1.47$.
+
