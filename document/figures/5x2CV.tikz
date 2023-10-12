@@ -59,7 +59,7 @@
 	\filldraw[fill=\colvali] (6,-1) rectangle (6.5,0);
 	\draw[pattern=north west lines] (6,-1) rectangle (6.5,0);
 
-	\draw (6.75,-0.5) node[right] {Random split};
+	\draw (6.75,-0.5) node[right] {Random 50-50 split};
 	\draw[->] (2.25,-1.25) -- (0.5,-2.9);
 	\draw[->] (3.25,-1.25) -- (5,-2.9);
 
