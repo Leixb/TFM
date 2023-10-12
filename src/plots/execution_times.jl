@@ -35,8 +35,8 @@ function plot_benchmark_time_instances(df::DataFrame=data_benchmark_meta())
         :instances,
         #:binary => "Binary",
         :time => "Execution time (s)",
-        # lower=(:time, :std) => -,
-        # upper=(:time, :std) => +,
+        lower=(:time, :std) => -,
+        upper=(:time, :std) => +,
         color=:kernel => sr => "Kernel",
         #dodge=:model
     )
@@ -50,7 +50,7 @@ function plot_benchmark_time_instances(df::DataFrame=data_benchmark_meta())
         axis=(;
             # xticklabelrotation=pi / 4,
             #limits=((nothing, nothing), (0, nothing)),
-            yscale=log10,
+            # yscale=log10,
             xscale=log10
         ),)
 
@@ -104,6 +104,42 @@ function exec_improvement(df::AbstractDataFrame=data_benchmark_improvement())
             limits=((nothing, nothing), (0, nothing))
             #yscale=log10
         ),)
+
+    fg
+end
+
+function exec_dataset(df::AbstractDataFrame, dataset="CompActs", show_kernels=["AsinNorm", "RadialBasis"]; kwargs...)
+
+    cols = mapping(
+        #:kernel_cat => "Kernel",
+        :cost => nonnumeric => "Cost",
+        :s => "Execution time (seconds)",
+        color=:kernel_cat => "Kernels",
+        dodge=:kernel_cat => "Kernels"
+    )
+    grp = mapping()
+    #grp = mapping(layout=:cost => nonnumeric)
+    geom = visual(BoxPlot)
+
+    dt = @chain df begin
+        @rsubset(:dataset_cat == dataset)
+        @rsubset(:kernel_cat in show_kernels)
+        @transform(:s = :ms / 1000)
+        data()
+    end
+
+    plt = dt * cols * geom * grp
+    fg = draw(plt,
+        facet=(; linkyaxes=true),
+        axis=(;
+            xticklabelrotation=pi / 4
+            #limits=(nothing, (10, nothing)),
+            #yscale=log10,
+            #xscale=log10
+        ),
+        figure=(; kwargs...),
+        legend=(position=:top, titleposition=:left)
+    )
 
     fg
 end

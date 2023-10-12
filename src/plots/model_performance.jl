@@ -77,6 +77,8 @@ function plot_delve_all(df::DataFrame,
     show_bands::Bool=(measure == :measure_cv),
     ax_opts::NamedTuple=(; xscale=log10)
 )
+
+    gr = GridLayout(fig[1, 1])
     # Filter the correct rows and sort by sigma so lines are drawn in order
     df = @chain df begin
         @rsubset(:dataset isa DataSets.Delve)
@@ -108,10 +110,10 @@ function plot_delve_all(df::DataFrame,
 
     axis = map(1:length(pairings)) do i
         (;
-            fm=Axis(fig[i, 1]; ax_opts...),
-            fh=Axis(fig[i, 2]; ax_opts...),
-            nm=Axis(fig[i, 3]; ax_opts...),
-            nh=Axis(fig[i, 4]; ax_opts..., yaxisposition=:right)
+            fm=Axis(gr[i, 1]; ax_opts...),
+            fh=Axis(gr[i, 2]; ax_opts..., yaxisposition=:right),
+            nm=Axis(gr[i, 3]; ax_opts...),
+            nh=Axis(gr[i, 4]; ax_opts..., yaxisposition=:right)
         )
     end
 
@@ -143,7 +145,7 @@ function plot_delve_all(df::DataFrame,
         show_rbf && foreach(subplots) do (ax, df_sub)
             df_rbf = @rsubset(df_sub, :kernel_cat == "RadialBasis")
             if !isempty(df_rbf)
-                plot_rbf(ax, df_rbf, measure, measure_type)
+                plot_rbf(ax, df_rbf, measure, measure_type, show_std=show_bands)
             end
         end
     end
@@ -154,6 +156,12 @@ function plot_delve_all(df::DataFrame,
         plot_dataset(ax, df_sub)
     end
 
+    rowgap!(gr, 1, 10)
+    rowgap!(gr, 3, 10)
+
+    colgap!(gr, 1, 10)
+    colgap!(gr, 3, 10)
+
     #
     if linkyaxes
         foreach(axis) do ax
@@ -161,6 +169,7 @@ function plot_delve_all(df::DataFrame,
             hideydecorations!(ax.nm, grid=false)
             hideydecorations!(ax.fh, grid=false)
         end
+        linkyaxes!(axis[1].fm, axis[2].fm, axis[3].fm, axis[4].fm)
     end
     #
     if linkxaxes
@@ -170,31 +179,28 @@ function plot_delve_all(df::DataFrame,
             end
             linkxaxes!(values(ax)...)
         end
+        linkxaxes!(axis[1].fm, axis[2].fm, axis[3].fm, axis[4].fm)
     end
     #
     # # Facet labels
-    BoxLabel(fig[1, 0], "8", rotation=pi / 2, tellheight=false)
-    BoxLabel(fig[2, 0], "32", rotation=pi / 2, tellheight=false)
-    BoxLabel(fig[3, 0], "8", rotation=pi / 2, tellheight=false)
-    BoxLabel(fig[4, 0], "32", rotation=pi / 2, tellheight=false)
-    BoxLabel(fig[1:2, -1], "Bank", rotation=pi / 2)
-    BoxLabel(fig[3:4, -1], "PumaDyn", rotation=pi / 2)
+    BoxLabel(gr[1, 0], "8", rotation=pi / 2, tellheight=false)
+    BoxLabel(gr[2, 0], "32", rotation=pi / 2, tellheight=false)
+    BoxLabel(gr[3, 0], "8", rotation=pi / 2, tellheight=false)
+    BoxLabel(gr[4, 0], "32", rotation=pi / 2, tellheight=false)
+    BoxLabel(gr[1:2, -1], "Bank", rotation=pi / 2)
+    BoxLabel(gr[3:4, -1], "PumaDyn", rotation=pi / 2)
     #
-    BoxLabel(fig[0, 1], "Moderate Noise", tellwidth=false)
-    BoxLabel(fig[0, 2], "High Noise", tellwidth=false)
-    BoxLabel(fig[0, 3], "Moderate Noise", tellwidth=false)
-    BoxLabel(fig[0, 4], "High Noise", tellwidth=false)
-    BoxLabel(fig[-1, 1:2], "Fairly linear", tellwidth=false)
-    BoxLabel(fig[-1, 3:4], "Non-linear", tellwidth=false)
-    #
-    # # Dataset name and size on top left
-    # datasetname = name(dataset)
-    # Label(fig[-1:0, -1:0], "$datasetname\n$size", font=:bold, fontsize=20)
-    #
-    # # Axis labels
-    Label(fig[1:4, 5], name(measure_type), rotation=pi / 2, font=:bold)
-    Legend(fig[-1:0, -1:0], axis[1].fm, "Kernel", framevisible=false, merge=true)
-    Label(fig[5, 1:4], L"\sigma_w", font=:bold)
+    BoxLabel(gr[0, 1], "Moderate Noise", tellwidth=false)
+    BoxLabel(gr[0, 2], "High Noise", tellwidth=false)
+    BoxLabel(gr[0, 3], "Moderate Noise", tellwidth=false)
+    BoxLabel(gr[0, 4], "High Noise", tellwidth=false)
+    BoxLabel(gr[-1, 1:2], "Fairly linear", tellwidth=false)
+    BoxLabel(gr[-1, 3:4], "Non-linear", tellwidth=false)
+
+    # Axis labels
+    Label(gr[1:4, 5], name(measure_type), rotation=pi / 2, font=:bold)
+    Legend(gr[-1:0, -1:0], axis[1].fm, "Kernels", framevisible=false, merge=true)
+    Label(gr[5, 1:4], L"Sigma ($\sigma_w$)", font=:bold)
 
     fig
 end
