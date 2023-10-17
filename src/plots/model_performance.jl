@@ -67,7 +67,7 @@ end
 function plot_delve_all(df::DataFrame,
     show_kernels::AbstractArray{String}=["Asin", "AsinNorm"],
     ; # Keyword arguments
-    fig::Figure=Figure(),
+    fig::Figure=Figure(backgroundcolor=:transparent),
     linkxaxes::Bool=true,
     linkyaxes::Bool=false,
     show_rbf::Bool=false,
@@ -208,7 +208,7 @@ function plot_delve(df::DataFrame, dataset::Type{<:DataSets.Delve},
     size::Integer=32,
     show_kernels::AbstractArray{String}=["Asin", "AsinNorm"],
     ; # Keyword arguments
-    fig::Figure=Figure(),
+    fig::Figure=Figure(backgroundcolor=:transparent),
     linkxaxes::Bool=true,
     linkyaxes::Bool=false,
     show_rbf::Bool=false,
@@ -357,10 +357,11 @@ function plot_sigma(
     ax_opts::NamedTuple=(; xscale=log10),
     vertical::Bool=false,
     datasets::Union{Nothing,AbstractArray{String}}=nothing,
+    backgroundcolor=:transparent,
     kwargs...
 )
 
-    fig = Figure(args...; kwargs...)
+    fig = Figure(args...; backgroundcolor, kwargs...)
 
     # Remove kernels that we won't show, so that we don't run into
     # issues with empty plots.
@@ -563,7 +564,7 @@ function plot_sigma(
 end
 
 function plot_frenay()
-    fig = Figure()
+    fig = Figure(backgroundcolor=:transparent)
 
     frenay_small = sort!(CSV.read(datadir("frenay_table2.csv"), DataFrame), :sigma)
     frenay_large = sort!(CSV.read(datadir("frenay_table3.csv"), DataFrame), :sigma)

@@ -7,7 +7,9 @@
 \usepackage{bigints}
 
 \usepackage{tikz}
-\usetikzlibrary{shadows,fadings,calc}
+\usetikzlibrary{shadows,fadings,calc,patterns,positioning}
+\usetikzlibrary{arrows.meta}
+\tikzset{>={Latex[width=3mm,length=3mm]}}
 
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
@@ -19,6 +21,7 @@
 
 \usepackage{graphicx}   % graphics
 \graphicspath{{./figures/}}
+\usepackage{svg}
 
 \usepackage{booktabs}
 
@@ -351,26 +354,352 @@
 	hidden layer are drawn.
 }
 
-\begin{frame}{Theoretical Background \textendash{} Arccosine kernel}
+\begin{frame}{Theoretical Background \textendash{} Arccosine kernel (I)}
 	\textcite{choLargemarginClassificationInfinite2010} generalize the work of
 	\textcite{williamsComputingInfiniteNetworks1996} by considering alternative activation functions:
 	\begin{align*}
 		k_n(\boldsymbol x, \y) & = 2 \bigintss \frac{\exp\left(-\frac{\lVert \textbf w \rVert^2}{2}\right)}{(2\pi)^{d/2}}
 		\Theta(\textbf w \cdot \boldsymbol x) \Theta(\textbf w \cdot \y) (\textbf w \cdot \boldsymbol x)^n (\textbf w \cdot \y)^n \,d\textbf w \\
-		\text{where: }                                                                                                                         \\
-		\Theta(z)              & = \frac{1}{2} \bigl(1 + \text{sign}(z)\bigr)
+		\intertext{where: }
+		\Theta(z)              & = \frac{1}{2} \bigl(1 + \text{sign}(z)\bigr)                                                                  \\
+		\intertext{and the activation function is: }
+		g(z)                   & = \Theta(z)z^n
 	\end{align*}
 \end{frame}
 
+\begin{frame}{Theoretical Background \textendash{} Arccosine kernel (II)}
+	\begin{figure}[H]
+		\begin{tikzpicture}
+			\begin{groupplot}[group style={
+							group size=3 by 1,
+							xlabels at=edge bottom,
+							ylabels at=edge left,
+							vertical sep=4em,
+						},
+					width = .3\textwidth,
+					ymin=-0.1, ymax=1.1,
+					every axis plot/.append style={smooth, mark=none, line width=2pt},
+					enlarge x limits=false,
+					samples=25,
+					domain=-1:1,
+					xmin=-1, xmax=1,
+					grid=both,
+					grid style={dotted, draw=gray!40, line width=1.0pt}
+				]
+				\nextgroupplot[title={\bfseries Step $(n = 0)$}]
+				\draw[line width=2pt, color=wong_blue] (axis cs:-1,0) -- (axis cs:0,0);
+				\draw[line width=2pt, color=wong_blue, dashed] (axis cs:0,0) -- (axis cs:0,1);
+				\draw[line width=2pt, color=wong_blue] (axis cs:0,1) -- (axis cs:1,1);
+
+				\nextgroupplot[title={\bfseries Ramp $(n=1)$}]
+				\draw[line width=2pt, color=wong_orange] (axis cs:-1,0) -- (axis cs:0,0) -- (axis cs:1.1,1.1);
+
+				\nextgroupplot[title={\bfseries Quarter-pipe $(n=2)$}]
+				\draw[line width=2pt, color=wong_green] (axis cs:-1,0) -- (axis cs:0,0);
+				\addplot[domain=0:1.1, line width=2pt, color=wong_green] {x^2};
+			\end{groupplot}
+		\end{tikzpicture}
+		\caption{Activation functions $\Theta(z)z^n$ for $n = 0,\,1,\,2$}
+		\label{fig:activation_functions}
+	\end{figure}
+\end{frame}
+
+\begin{frame}{Theoretical Background \textendash{} Arccosine kernel (III)}
+	\begin{align}
+		k_n(\boldsymbol x,\,\y) & = \frac{1}{\pi} \left\lVert \boldsymbol x \right\rVert^n \left\lVert \y \right\rVert^n J_n(\theta)                                                \\[1em]
+		J_n(\theta)             & = (-1)^n \left( \sin \theta \right)^{(2n+1)}
+		\left( \frac{1}{\sin \theta} \frac{\partial}{\partial \theta} \right)^2
+		\left( \frac{\pi - \theta}{\sin \theta} \right)
+		% \quad \text{for} \quad \forall n \in \left\{ 0,\,1,\,2,\,\dots \right\}                                                                                                     
+		\\
+		\theta                  & = \arccos \left( \frac{\left\langle \boldsymbol x,\,\y \right\rangle}{\left\lVert \boldsymbol x \right\rVert \left\lVert \y \right\rVert} \right)
+	\end{align}
+\end{frame}
+\begin{frame}{Theoretical Background \textendash{} Arccosine kernel (IV)}
+	For $n = 0,\,1,\,2$, the expression for $J_n(\theta)$ is:
+	\begin{align}
+		J_0(\theta) & = \pi - \theta                                                                     \\
+		J_1(\theta) & = \sin\theta + \left(\pi - \theta\right)\cos\theta               \label{eq:cho_j1} \\
+		J_2(\theta) & = 3\sin\theta\cos\theta + \left(\pi - \theta\right)\left(1 + 2\cos^2\theta\right)
+	\end{align}
+\end{frame}
+
+\begin{frame}{Theoretical Background \textendash{} Covariance Arccosine kernel}
+	The kernel from \textcite{choLargemarginClassificationInfinite2010} is derived
+	from a Gaussian distribution with mean 0 and variance 1.
+	\textcite{pandeyGoDeepWide2014} show how to obtain a variant of the kernel
+	with a different covariance matrix $\Sigma$:
+	\begin{equation}\label{eq:kernel_pandey}
+		K_{\Sigma,\,n}(\boldsymbol x,\,\y) = K_{n}\left(\Sigma^{\frac{1}{2}}\boldsymbol x,\,\Sigma^{\frac{1}{2}}\y\right)
+	\end{equation}
+\end{frame}
+
 \begin{frame}{Theoretical Background \textendash{} Kernel normalization}
+	\begin{equation}
+		K'(\boldsymbol x,\,\y) = \frac{K(\boldsymbol x,\,\y)}{\sqrt{K(\boldsymbol x,\,\boldsymbol x)K(\y,\,\y)}}
+	\end{equation}
+	\begin{block}{Arccosine}
+		For the arccosine kernel, when normalizing the kernel, it reduces to:\footnote{This has the effect of eliminating the $\Sigma$ term in the covariance kernel.}
+		\begin{equation}
+			K'_n(\boldsymbol x,\,\y) = \frac{J_n(\theta)}{\pi}, \quad \forall n \in \left\{ 0,\,1,\,2 \right\}.
+		\end{equation}
+	\end{block}
+\end{frame}
+
+\section{Implementation}
+
+\begin{frame}{Implementation \textendash{} \libsvm}
+	\libsvm \parencite{CC01a} is a library for Support Vector Machines (SVMs) that
+	is widely used in the machine learning community.
+	\begin{columns}
+		\begin{column}{0.6\textwidth}
+			\begin{itemize}
+				\item Open source under the BSD\textendash{}3 license.
+				\item Written in \emph{C++}.
+				\item Well documented.
+				\item Widely used (Python, R, Julia, \dots)
+				\item No external dependencies (only \texttt{glibc}).
+			\end{itemize}
+		\end{column}
+		\begin{column}{0.37\textwidth}
+			\begin{figure}[H]
+				\includegraphics[width=.75\textwidth]{dependency_tree_libsvm}
+				\caption{\libsvm dependencies.}
+			\end{figure}
+		\end{column}
+	\end{columns}
+\end{frame}
+
+\begin{frame}{Implementation \textendash{} Julia}
+	\begin{columns}
+		\begin{column}{0.4\textwidth}
+			\begin{figure}[H]
+				\includegraphics[width=.75\textwidth]{julia-logo-color}
+			\end{figure}
+			\url{https://julialang.org}
+		\end{column}
+		\begin{column}{0.4\textwidth}
+			\begin{itemize}
+				\item Fast
+				\item Dynamic
+				\item Reproducible
+				\item Composable
+				\item General
+				\item Open source
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+\note[itemize]{
+	\item Julia is a high-level, high-performance, dynamic programming language.
+	\item It is a general purpose language, and is designed to be easy to use for
+	both numerical and general programming.
+	\item The multiple dispatch paradigm allows extending the functionality of
+	existing types without having to modify the original code.
+	\item Joined the 1 PetaFLOP club in 2017 (Celeste.jl)
+	\item Growing and active community.
+}
+
+\begin{frame}{Implementation \textendash{} Julia \textendash{} MLJ}
+	% \begin{columns}
+	% 	\begin{column}{0.6\textwidth}
+	% 		\begin{itemize}
+	%                \item \texttt{}
+	%                \item \texttt{LIBSVM.jl}
+	%                \item \texttt{MLJ.jl} (\texttt{MLJLIBSVMInterface.jl})
+	% 		\end{itemize}
+	% 	\end{column}
+	% 	\begin{column}{0.4\textwidth}
+	% 		\begin{figure}[H]
+	% 			\includesvg[width=.75\textwidth]{MLJLogo2}
+	% 		\end{figure}
+	% 	\end{column}
+	% \end{columns}
+	\begin{figure}[H]
+		\resizebox{0.9\textwidth}{!}{
+			\begin{tikzpicture}[
+					box/.style={draw, rectangle, minimum width=1cm, minimum height=1cm},
+					C/.style={fill=wong_blue!40,postaction={pattern=north west lines,pattern color=wong_blue!10}},
+					Julia/.style={fill=wong_green!40},
+					JLL/.style={fill=wong_orange!70,postaction={pattern=north east lines,pattern color=wong_orange!10}},
+				]
+				\node[box,C] (libsvm) at (0,0) {libsvm};
+				\node[box,JLL,below=of libsvm] (libsvm_jll) {libsvm\_jll};
+				\node[box,Julia,right=of libsvm_jll] (LIBSVM) {LIBSVM.jl};
+				\node[box,Julia,right=of LIBSVM] (MLJLIBSVMInterface) {MLJLIBSVMInterface.jl};
+				\node[box,Julia,below=of MLJLIBSVMInterface] (MLJ) {MLJ.jl};
+
+				\draw[->] (libsvm) -- (libsvm_jll) node[midway, anchor=west,color=wong_green] {build\_tarballs.jl};
+				\draw[->] (libsvm_jll) -- (LIBSVM);
+				\draw[->] (LIBSVM) -- (MLJLIBSVMInterface);
+				\draw[->] (MLJLIBSVMInterface) -- (MLJ);
+
+				% Color Legend
+				\matrix [draw,right] at ($(current bounding box.east)+(0.5,0)$) {
+					\node [C,label=right:C] {};                    \\
+					\node [JLL,label=right:Julia Link Library] {}; \\
+					\node [Julia,label=right:Julia] {};            \\
+				};
+
+			\end{tikzpicture}
+		}
+		% \caption{Dependency graph of Julia packages exposing the \libsvm library API.}
+		% \label{fig:julia_libsvm_deps}
+	\end{figure}
+\end{frame}
+\note[itemize]{
+	\item \texttt{libsvm\_jll} is a Julia Link Library (JLL) package for \libsvm.
+	\item \texttt{LIBSVM.jl} is a Julia wrapper for \libsvm.
+	\item \texttt{MLJLIBSVMInterface.jl} is a Julia wrapper for \texttt{LIBSVM.jl} to make
+	it compatible with \texttt{MLJ.jl}.
+	\item \texttt{MLJ.jl} is a machine learning framework for Julia.
+	\item Once we have our \libsvm fork integrated with MLJ, we can take advantage of
+	the existing infrastructure to run experiments.
+	\item \texttt{DrWatson.jl}, \texttt{Pluto.jl}, \texttt{Makie.jl} \dots
+}
+
+\section{Experiments}
+
+\subsection{Setup}
+
+\begin{frame}{Experiments \textendash{} $5\times{}2$ cross-validation}
+	\begin{figure}[H]
+		\resizebox{0.95\textwidth}{0.9\textheight}{
+			\input{figures/5x2CV.tikz}
+		}
+		% \caption{5\texttimes2 cross-validation method}%
+	\end{figure}
+\end{frame}
+
+\begin{frame}{Experiments \textendash{} paired $t$\textendash{}test}
+	By using $5\times{}2$ cross-validation, we can perform a paired $t$\textendash{}test
+	as described by \textcite{dietterichApproximateStatisticalTests1998}.
+
+	% TODO: CHECK THIS
+	% WARN: this is confusing
+	\begin{align}
+		p^{(j)}   & = p_A^{(j)} - p_B^{(j)}                                                       \notag \\
+		\bar{p}_i & = \frac{p_i^{(1)} + p_i^{(2)}}{2}                                             \notag \\
+		s_i^2     & = \left(p_i^{(1)} - \bar{p}_i\right)^2 + \left(p_i^{(2)} - \bar{p}_i\right)^2 \notag \\[1em]
+		t         & = \frac{p_1^{(1)}}{\sqrt{(1/5)\sum_{i=1}^5 s_i^2}}
+	\end{align}
+
+\end{frame}
+\note[itemize]{
+	\item This allows to compare the performance of two algorithms in a statistically
+	significant way.
+	\item The null hypothesis is that the difference in performance is 0.
+	\item The alternative hypothesis is that the difference in performance is not 0.
+	\item We can reject the null hypothesis if the $p$-value is less than a certain
+	threshold $\alpha$, usually 0.05.
+	\item $t$-student distribution with 5 degrees of freedom.
+}
+
+\begin{frame}{Experiments \textendash{} Normalization}
+	\begin{description}
+		\item[Data]: all features are normalized to have zero mean and unit variance, including the target variable.
+		\item[Kernel]: the kernel is normalized as described earlier.
+		\item[Measure]: We use \emph{Normalized Root Mean Square Error} as our measure.
+		\item[Hyperparameter]: the hyperparameter $\sigma$ is normalized by the number of features.
+	\end{description}
+\end{frame}
+
+\begin{frame}{Experiments \textendash{} Normalized Root Mean Square Error (nRMSE)}
+	\begin{equation}
+		nRMSE = \frac{1}{\sigma_{obs}}\sqrt{\frac{1}{n}\sum_{i=1}^n (y_i - \hat{y}_i)^2}
+	\end{equation}
+\end{frame}
+
+\section{Results}
+
+\begin{frame}{Results \textendash{} Reproducing \textcite{frenayParameterinsensitiveKernelExtreme2011}}
+	\begin{columns}
+		\begin{column}{0.47\textwidth}
+			\centering \textbf{Original}
+			\begin{figure}[H]
+				\includegraphics[width=\textwidth,height=0.95\textheight]{./figures/plots/MSE_frenay_original.pdf}
+			\end{figure}
+		\end{column}
+		% \textrightarrow{}
+		\begin{column}{0.47\textwidth}
+			\centering \textbf{Reproduced}
+			\begin{figure}[H]
+				\includegraphics[width=\textwidth,height=0.95\textheight]{./figures/plots/MSE_frenay.pdf}
+			\end{figure}
+		\end{column}
+	\end{columns}
+\end{frame}
+
+\begin{frame}{Results \textendash{} Normalized Arcsine kernel and RBF}
+	\begin{figure}[H]
+		\includegraphics[width=\textwidth,height=0.95\textheight]{./figures/plots/nRMSE_nodelve_asinnorm_scaled_unlinked}
+	\end{figure}
+\end{frame}
+
+\begin{frame}{Results \textendash{} Normalized Arcsine kernel and RBF (Delve)}
+	\begin{figure}[H]
+		\includegraphics[width=\textwidth,height=0.95\textheight]{./figures/plots/nRMSE_delve_asinnorm_scaled_unlinked}
+	\end{figure}
+\end{frame}
+
+% \begin{frame}{Results \textendash{} Normalized Arcsine kernel and RBF \textendash{} $t$\textendash{}test}
+% 	\begin{columns}
+% 		\begin{column}{0.47\textwidth}
+% 			\begin{figure}[H]
+% 				\includegraphics[width=\textwidth,height=0.95\textheight]{./figures/plots/heatmaps_rbf_asinnorm_pvalues}
+% 			\end{figure}
+% 		\end{column}
+% 		\textrightarrow{}
+% 		\begin{column}{0.47\textwidth}
+% 			\begin{figure}[H]
+% 				\includegraphics[width=\textwidth,height=0.95\textheight]{./figures/plots/heatmaps_rbf_asinnorm}
+% 			\end{figure}
+% 		\end{column}
+% 	\end{columns}
+% \end{frame}
+
+\begin{frame}{Results \textendash{} Normalized Arcsine kernel and RBF \textendash{} $t$\textendash{}test}
+	\centering $p$\textendash{}values
+	\begin{figure}[H]
+		\includegraphics[width=\textwidth,height=0.85\textheight]{./figures/plots/heatmaps_rbf_asinnorm_pvalues}
+	\end{figure}
+\end{frame}
+
+\begin{frame}{Results \textendash{} Normalized Arcsine kernel and RBF \textendash{} $t$\textendash{}test}
+	\centering Difference in performance
+	\begin{figure}[H]
+		\includegraphics[width=\textwidth,height=0.85\textheight]{./figures/plots/heatmaps_rbf_asinnorm}
+	\end{figure}
+\end{frame}
+
+
+\begin{frame}{Results \textendash{} Effects of normalization on Arcsine kernel}
+	\begin{figure}[H]
+		\includegraphics[width=\textwidth,height=0.95\textheight]{./figures/plots/heatmaps_asin_asinnorm}
+	\end{figure}
+\end{frame}
+\note[itemize]{
+	\item $p$-values omitted
+	\item The performance of the normalized arcsine kernel is equivalent to the non-normalized arcsine kernel when
+	both sigmas are large. (Top right corner)
+}
+
+\begin{frame}{Results \textendash{} Arccosine kernels}
 \end{frame}
 
 \section{Conclusions}
 
 \begin{frame}{Conclusions}
 	\begin{itemize}%[<+->]
-		\item TODO
+		\item Both the arcsine and arccosine kernels show \emph{parameter-insensitive} behaviour.
+		\item For large values of $\sigma$ the performance of the arcsine kernel is
+		      comparable to the Gaussian kernel.
+		\item Also, for large values of $\sigma$, in normalized data, the performance
+		      of the normalized arcsine and non-normalized arcsine kernels is equivalent.
 	\end{itemize}
+\end{frame}
+
+\begin{frame}{Further Work}
 \end{frame}
 
 \begin{frame}[standout]
@@ -390,7 +719,16 @@
 \end{frame}
 
 \begin{frame}[standout]
-	Extra slides
+	Bonus slides
+\end{frame}
+
+\begin{frame}{Cross validation in \textcite{frenayParameterinsensitiveKernelExtreme2011}}
+	\begin{figure}[H]
+		\resizebox{0.95\textwidth}{0.9\textheight}{
+			\input{./figures/frenay-cross-test.tikz}
+		}
+		% \caption{5\texttimes2 cross-validation method}%
+	\end{figure}
 \end{frame}
 
 \end{document}

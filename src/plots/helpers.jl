@@ -13,7 +13,7 @@ is_interactive() = string(Makie.current_backend()) == "GLMakie"
 
 "Makie theme with LaTeX fonts"
 function tex_theme!()
-    Makie.update_theme!(fonts=(regular=texfont(), bold=texfont(:bold), italic=texfont(:italic)))
+    Makie.update_theme!(fonts=(regular=texfont(), bold=texfont(:bold), italic=texfont(:italic)), figure=(backgroundcolor = :transparent))
 end
 
 function no_color_cycle!()

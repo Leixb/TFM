@@ -85,9 +85,11 @@ function plot_all_heatmaps(df=data_nrmse_s(); kernel_l=:RadialBasis, kernel_r=:A
     num_breaks=5,
     alpha=nothing,
     categorical=false,
+    backgroundcolor=:transparent,
+    vertical=false,
     kwargs...)
 
-    fig = Figure(; kwargs...)
+    fig = Figure(; backgroundcolor, kwargs...)
     ax_opts = ()
     mm = build_matrices_by_dataset(df; kernel_l, kernel_r, sigma, measure)
 
@@ -164,15 +166,21 @@ function plot_all_heatmaps(df=data_nrmse_s(); kernel_l=:RadialBasis, kernel_r=:A
     Label(fig[1:end, 0], L"%$(kernel_l) ($\%$variable_l$)", rotation=pi / 2, tellheight=false, fontsize=21)
     Label(fig[end+1, 1:end], L"%$(kernel_r) ($\%$variable_r$)", tellwidth=false, fontsize=21)
 
+    cb_pos = if vertical
+        fig[end+1, 1:end]
+    else
+        fig[1:end-1, end+1]
+    end
+
     if measure == :per_fold
         _, break_labels = p_breaks(num_breaks)
         n_categories = length(break_labels)
         colormap = cgrad(colormap, n_categories, categorical=true)
         # label_pos = ([1 .. n_categories] .- 0.5) ./ n_categories
         label_pos = (range(1, n_categories, step=1) .- 0.5) ./ n_categories
-        Colorbar(fig[end+1, 1:end], limits=colorrange, colormap=colormap, label=cb_label, vertical=false, ticks=(label_pos, break_labels), flipaxis=false, labelsize=21)
+        Colorbar(cb_pos, limits=colorrange, colormap=colormap, label=cb_label, vertical=!vertical, ticks=(label_pos, break_labels), flipaxis=!vertical, labelsize=21)
     else
-        Colorbar(fig[end+1, 1:end], limits=colorrange, colormap=colormap, label=cb_label, vertical=false, flipaxis=false, labelsize=21)
+        Colorbar(cb_pos, limits=colorrange, colormap=colormap, label=cb_label, vertical=!vertical, flipaxis=!vertical, labelsize=21)
     end
 
 

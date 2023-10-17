@@ -16,7 +16,7 @@ Plots.tex_theme!()
 Plots.no_color_cycle!()
 
 opts_big = (;
-    resolution=(1100, 800),
+    resolution=(1400, 800),
     dims=(8, 4)
 )
 
@@ -121,10 +121,10 @@ end
     # @saveplot nRMSE_asin_scaled = Plots.plot_sigma(nrmse_s, ["Asin"]; opts..., show_bands, opts_big_vert..., vertical=true)
     # @saveplot nRMSE_asinnorm_scaled = Plots.plot_sigma(nrmse_s, ["AsinNorm"]; opts..., show_bands, opts_big_vert..., vertical=true)
 
-    @saveplot nRMSE_nodelve_all_scaled = Plots.plot_sigma(nrmse_s_nodelve; opts..., show_bands, opts_big.resolution, vertical=true)
+    @saveplot nRMSE_nodelve_all_scaled = Plots.plot_sigma(nrmse_s_nodelve; opts..., show_bands, opts_big.resolution)
 
-    @saveplot nRMSE_nodelve_asin_scaled = Plots.plot_sigma(nrmse_s_nodelve, ["Asin"]; opts..., show_bands, opts_big.resolution, vertical=true)
-    @saveplot nRMSE_nodelve_asinnorm_scaled = Plots.plot_sigma(nrmse_s_nodelve, ["AsinNorm"]; opts..., show_bands, opts_big.resolution, vertical=true)
+    @saveplot nRMSE_nodelve_asin_scaled = Plots.plot_sigma(nrmse_s_nodelve, ["Asin"]; opts..., show_bands, opts_big.resolution)
+    @saveplot nRMSE_nodelve_asinnorm_scaled = Plots.plot_sigma(nrmse_s_nodelve, ["AsinNorm"]; opts..., show_bands, opts_big.resolution)
 
     # @saveplot nRMSE_frenay_scaled = Plots.plot_sigma(@rsubset(nrmse_s, :dataset isa DataSets.Frenay); opts..., show_bands)
     # @saveplot nRMSE_frenay_s_scaled = Plots.plot_sigma(@rsubset(nrmse_s, :dataset isa DataSets.Small); opts..., show_bands)
@@ -155,8 +155,8 @@ end
 
     @saveplot nRMSE_nodelve_all_scaled_unlinked = Plots.plot_sigma(nrmse_s_nodelve; opts..., show_bands, opts_big.resolution, vertical=true)
 
-    @saveplot nRMSE_nodelve_asin_scaled_unlinked = Plots.plot_sigma(nrmse_s_nodelve, ["Asin"]; opts..., show_bands, opts_big.resolution, vertical=true)
-    @saveplot nRMSE_nodelve_asinnorm_scaled_unlinked = Plots.plot_sigma(nrmse_s_nodelve, ["AsinNorm"]; opts..., show_bands, opts_big.resolution, vertical=true)
+    @saveplot nRMSE_nodelve_asin_scaled_unlinked = Plots.plot_sigma(nrmse_s_nodelve, ["Asin"]; opts..., show_bands, opts_big.resolution)
+    @saveplot nRMSE_nodelve_asinnorm_scaled_unlinked = Plots.plot_sigma(nrmse_s_nodelve, ["AsinNorm"]; opts..., show_bands, opts_big.resolution)
 
     @saveplot nRMSE_delve_all_scaled_unlinked = Plots.plot_delve_all(nrmse_s; opts...)
     @saveplot nRMSE_delve_asinnorm_scaled_unlinked = Plots.plot_delve_all(nrmse_s, ["AsinNorm"]; opts...)
@@ -168,15 +168,15 @@ end
     local kernels = ["AsinNorm", "Acos1", "Acos2"]
 
     # @saveplot nRMSE_nodelve_acos_scaled = Plots.plot_sigma(nrmse_s_nodelve, kernels; opts..., show_bands, opts_big.resolution, vertical=true)
-    @saveplot nRMSE_nodelve_acos_scaled = Plots.plot_sigma(nrmse_s_nodelve, kernels; opts..., show_bands, opts_big.resolution, vertical=true, show_horizontal=["Acos1Norm", "Acos2Norm"])
+    @saveplot nRMSE_nodelve_acos_scaled = Plots.plot_sigma(nrmse_s_nodelve, kernels; opts..., show_bands, opts_big.resolution, show_horizontal=["Acos1Norm", "Acos2Norm"])
 
-    @saveplot nRMSE_nodelve_acos1_scaled = Plots.plot_sigma(nrmse_s_nodelve, ["Acos1"]; opts..., show_bands, opts_big.resolution, vertical=true, show_horizontal=["Acos1Norm"])
-    @saveplot nRMSE_nodelve_acos2_scaled = Plots.plot_sigma(nrmse_s_nodelve, ["Acos2"]; opts..., show_bands, opts_big.resolution, vertical=true, show_horizontal=["Acos2Norm"])
+    @saveplot nRMSE_nodelve_acos1_scaled = Plots.plot_sigma(nrmse_s_nodelve, ["Acos1"]; opts..., show_bands, opts_big.resolution, show_horizontal=["Acos1Norm"])
+    @saveplot nRMSE_nodelve_acos2_scaled = Plots.plot_sigma(nrmse_s_nodelve, ["Acos2"]; opts..., show_bands, opts_big.resolution, show_horizontal=["Acos2Norm"])
 
-    @saveplot nRMSE_acos1_scaled = Plots.plot_sigma(nrmse_s, ["Acos1"]; opts..., show_bands, opts_big_vert..., vertical=true, show_horizontal=["Acos1Norm"])
-    @saveplot nRMSE_acos2_scaled = Plots.plot_sigma(nrmse_s, ["Acos2"]; opts..., show_bands, opts_big.resolution, vertical=true, show_horizontal=["Acos2Norm"])
+    @saveplot nRMSE_acos1_scaled = Plots.plot_sigma(nrmse_s, ["Acos1"]; opts..., show_bands, opts_big_vert..., show_horizontal=["Acos1Norm"])
+    @saveplot nRMSE_acos2_scaled = Plots.plot_sigma(nrmse_s, ["Acos2"]; opts..., show_bands, opts_big.resolution, show_horizontal=["Acos2Norm"])
 
-    @saveplot nRMSE_acos_all_scaled = Plots.plot_sigma(nrmse_s, kernels; opts..., opts_big_vert..., vertical=true)
+    @saveplot nRMSE_acos_all_scaled = Plots.plot_sigma(nrmse_s, kernels; opts..., opts_big_vert...)
     # @saveplot nRMSE_acos_frenay_scaled = Plots.plot_sigma(@rsubset(nrmse_s, :dataset isa DataSets.Frenay), kernels; opts...)
     # @saveplot nRMSE_acos_frenay_s_scaled = Plots.plot_sigma(@rsubset(nrmse_s, :dataset isa DataSets.Small), kernels; opts...)
     # @saveplot nRMSE_acos_frenay_l_scaled = Plots.plot_sigma(@rsubset(nrmse_s, :dataset isa DataSets.Large), kernels; opts...)
@@ -245,7 +245,9 @@ end
     heatmap_df_class = Plots.classification(Plots.data_nrmse_s())
     local opts = (;
         alpha=0.0001,
-        opts_big_vert...
+        dims=(4, 8),
+        vertical=false,
+        opts_big...
     )
     @saveplot heatmaps_rbf_asinnorm = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:RadialBasis, kernel_r=:AsinNorm, opts...)
     @saveplot heatmaps_rbf_asin = Plots.plot_all_heatmaps(heatmap_df; kernel_l=:RadialBasis, kernel_r=:Asin, opts...)
