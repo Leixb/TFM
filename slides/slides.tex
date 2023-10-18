@@ -19,6 +19,8 @@
 \usepackage[style=authoryear-comp,backend=biber]{biblatex}
 \addbibresource{biblio.bib}
 
+\usepackage{caption}
+
 \usepackage{graphicx}   % graphics
 \graphicspath{{./figures/}}
 \usepackage{svg}
@@ -664,6 +666,9 @@
 		\includegraphics[width=\textwidth,height=0.85\textheight]{./figures/plots/heatmaps_rbf_asinnorm_pvalues}
 	\end{figure}
 \end{frame}
+\note[itemize] {
+	\item The lower the p values, the more significant the difference in performance.
+}
 
 \begin{frame}{Results \textendash{} Normalized Arcsine kernel and RBF \textendash{} $t$\textendash{}test}
 	\centering Difference in performance
@@ -671,6 +676,10 @@
 		\includegraphics[width=\textwidth,height=0.85\textheight]{./figures/plots/heatmaps_rbf_asinnorm}
 	\end{figure}
 \end{frame}
+\note[itemize] {
+	\item Red means that the RBF kernel is better than the arcsine kernel.
+	\item Blue means that the arcsine kernel is better than the RBF kernel.
+}
 
 
 \begin{frame}{Results \textendash{} Effects of normalization on Arcsine kernel}
@@ -684,8 +693,49 @@
 	both sigmas are large. (Top right corner)
 }
 
+% \begin{frame}{Results \textendash{} Normalized Arccosine kernels}
+% 	% \begin{figure}[H]
+% 	%     \includegraphics[width=\textwidth,height=0.95\textheight]{./figures/plots/nRMSE_nodelve_acos_scaled}
+% 	% \end{figure}
+% \end{frame}
+
 \begin{frame}{Results \textendash{} Arccosine kernels}
+	\begin{figure}[H]
+		\includegraphics[width=\textwidth,height=0.95\textheight]{./figures/plots/nRMSE_nodelve_acos_scaled}
+	\end{figure}
 \end{frame}
+
+\begin{frame}{Results \textendash{} Numerical issues with arccosine kernel}
+	\begin{columns}
+		\begin{column}{0.33\textwidth}
+			\begin{figure}[H]
+				\includegraphics[width=\textwidth,height=0.95\textheight]{./figures/plots/kernel_acos0_3d.pdf}
+				\caption*{Arccosine kernel for $n=0$}
+			\end{figure}
+		\end{column}
+		\begin{column}{0.33\textwidth}
+			\begin{figure}[H]
+				\includegraphics[width=\textwidth,height=0.95\textheight]{./figures/plots/kernel_acos1_3d.pdf}
+				\caption*{Arccosine kernel for $n=1$}
+			\end{figure}
+		\end{column}
+		\begin{column}{0.33\textwidth}
+			\begin{figure}[H]
+				\includegraphics[width=\textwidth,height=0.95\textheight]{./figures/plots/kernel_acos2_3d.pdf}
+				\caption*{Arccosine kernel for $n=2$}
+			\end{figure}
+		\end{column}
+	\end{columns}
+\end{frame}
+
+\begin{frame}{Results \textendash{} Arccosine kernel $n=1$}
+	\begin{figure}[H]
+		\includegraphics[width=\textwidth,height=0.95\textheight]{./figures/plots/nRMSE_nodelve_acos1_scaled}
+	\end{figure}
+\end{frame}
+\note[itemize]{
+	\item Still some issues in Triazines and LiverDisorders.
+}
 
 \section{Conclusions}
 
@@ -694,12 +744,20 @@
 		\item Both the arcsine and arccosine kernels show \emph{parameter-insensitive} behaviour.
 		\item For large values of $\sigma$ the performance of the arcsine kernel is
 		      comparable to the Gaussian kernel.
-		\item Also, for large values of $\sigma$, in normalized data, the performance
+		\item For large values of $\sigma$, in normalized data, the performance
 		      of the normalized arcsine and non-normalized arcsine kernels is equivalent.
+		\item Arcsine kernel reaches parity with the RBF kernel, but not necessarily
+		      when $\sigma$ is large.
+		\item The arccosine kernel is numerically unstable for $n>0$ when not
+		      normalized.
 	\end{itemize}
 \end{frame}
 
 \begin{frame}{Further Work}
+	\begin{itemize}
+		\item Increase significantly the number of datasets.
+		\item Investigate the behaviour of the arccosine kernel for $n>2$.
+	\end{itemize}
 \end{frame}
 
 \begin{frame}[standout]
@@ -708,6 +766,7 @@
 
 \begin{frame}{Outline}
 	\vspace{1em}
+	\setcounter{tocdepth}{1}
 	\tableofcontents
 \end{frame}
 % Add extra slides for presentation

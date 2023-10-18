@@ -4,7 +4,7 @@ using LaTeXStrings
 
 "Plot the kernel function around the origin with different values of σ"
 function plot_kernel(kernel=kernel_asin_normalized, args...;
-    fig_opts::NamedTuple=(),
+    fig_opts::NamedTuple=(backgroundcolor = :transparent),
     interactive=is_interactive(), x=range(-2, 2, length=200), y=0, kwargs...)
     fig = Figure(fonts=(; regular="Latin Modern Roman"); fig_opts...)
     ax = Axis(fig[1, 1])
@@ -44,7 +44,7 @@ function plot_kernel(kernel=kernel_asin_normalized, args...;
 end
 
 function plot_kernel_3d_grid(kernel, args...; offset=pi / 5, dims=(2, 2), kwargs...)
-    fig = Figure()
+    fig = Figure(backgroundcolor=:transparent)
     xs = range(-2, 2, length=100)
     z = [kernel(x, y, args...; kwargs...) for x in xs, y in xs]
 
@@ -63,7 +63,7 @@ function plot_kernel_3d_grid(kernel, args...; offset=pi / 5, dims=(2, 2), kwargs
 end
 
 function plot_kernel_3d_interactive(kernel, args...; kwargs...)
-    fig = Figure()
+    fig = Figure(backgroundcolor=:transparent)
     xs = range(-2, 2, length=100)
 
     ax = Axis3(fig[1, 1])
